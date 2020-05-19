@@ -20,9 +20,12 @@
 
     <ApplicationIcon>Media\LogoCursorTr.ico</ApplicationIcon>
     <Win32Resource>Media\LogoCursorTr.res</Win32Resource>    <!--  for Application Icon in explorer, adapt path as needed-->
-  </PropertyGroup>
     
-
+    <!--https://thebuildingcoder.typepad.com/blog/2013/06/processor-architecture-mismatch-warning.html-->
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+    
+    
+  </PropertyGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Media\LogoCursorTr.res" />
