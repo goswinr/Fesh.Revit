@@ -1,8 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>    
-    
-    <TargetFramework>net472</TargetFramework>
+  <PropertyGroup>
+
+
+    <OutputType>Library</OutputType>
+    <TargetFramework>net461</TargetFramework>
     
     <LangVersion>preview</LangVersion>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages> <!--to only have the english resources-->
@@ -31,24 +33,27 @@
     <EmbeddedResource Include="Media\LogoCursorTr.res" />
     <Resource Include="Media\LogoCursorTr.ico">      <CopyToOutputDirectory>Never</CopyToOutputDirectory>    </Resource>
     <None Include="Seff.Revit.addin" />
-    
-    <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="PlugIn.fs" />
+    <Compile Include="Addin.fs" />
 
  </ItemGroup>
 
 
   <ItemGroup>
-    <!-- don't add explict ref to Fsharp.Core? https://github.com/dotnet/fsharp/issues/9064-->
-    <PackageReference Update="FSharp.Core" Version="4.7.1" />
+    <PackageReference Update="FSharp.Core" Version="4.5.2" />
+    <PackageReference Update="System.ValueTuple" Version="4.5.0" />
+    
+    
+    <!-- don't add explict ref to Fsharp.Core? https://github.com/dotnet/fsharp/issues/9064 
+    <PackageReference Update="FSharp.Core" Version="4.7.1" />-->
+    
     <!--<PackageReference Include="FSharp.Compiler.Service" Version="33.0.1" />--> <!-- cannot be higher than 33.0.1-->
     <!--PackageReference Include="Autodesk.Revit.SDK" Version="2018.2.0" />-->
   </ItemGroup>
 
 
   <ItemGroup> 
-    <ProjectReference Include="..\AvalonEdit\ICSharpCode.AvalonEdit\ICSharpCode.AvalonEdit.csproj" />  <!-- take from https://github.com/goswinr/AvalonEdit -->
-    <ProjectReference Include="..\Seff\Seff.fsproj" />  <!-- take from https://github.com/goswinr/Seff -->
+    <!--<ProjectReference Include="..\AvalonEdit\ICSharpCode.AvalonEdit\ICSharpCode.AvalonEdit.csproj" />-->  <!-- take from https://github.com/goswinr/AvalonEdit -->
+    <!--<ProjectReference Include="..\Seff\Seff.fsproj" />-->  <!-- take from https://github.com/goswinr/Seff -->
   </ItemGroup>
 
 

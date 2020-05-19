@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <RevitAddIns>
+  
   <AddIn Type="Application">
     <Name>Seff.Revit</Name>
     <Assembly>"D:/Git/Seff.Revit/bin/Debug/net472/Seff.Revit.dll"</Assembly>
@@ -8,4 +9,15 @@
     <VendorId>seff.io</VendorId>
     <VendorDescription>Scripting editor for fsharp</VendorDescription>    
   </AddIn>
+  
+  <AddIn Type="Command">
+        <Name>OpenEditorCommand</Name>
+        <Assembly>D:\OneDrive\10_Dev\Seff\52_Seff.Revit\revit-fabulous-master\src\RevitFabulous\RevitFabulous.Revit\bin\Debug\net461\RevitFabulous.Revit.dll</Assembly>
+        <AddInId>292b90ea-a1df-4af6-9af2-10fdf240cdd0</AddInId>
+        <FullClassName>Seff.Revit.OpenEditorCommand</FullClassName>
+        <Text>Open Seff Editor</Text>
+        <VendorId>seff.io</VendorId>
+        <VendorDescription></VendorDescription>
+    </AddIn>
+
 </RevitAddIns>
