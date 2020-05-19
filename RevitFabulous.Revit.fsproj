@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+      <OutputType>Library</OutputType>
+      <TargetFramework>net472</TargetFramework>
+      <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>   
+      <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>    
+  </PropertyGroup>
+
+  <!--<ItemGroup>
+    <PackageReference Include="Revit.RevitApi.x64" Version="2019.0.0" />
+    <PackageReference Include="Revit.RevitApiUI.x64" Version="2019.0.0" />
+  </ItemGroup>-->
+
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="RevitAPI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="RevitAPIUI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPIUI.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+
+    <PackageReference Update="FSharp.Core" Version="4.6.2" />
+
+    <!--<ProjectReference Include="..\AvalonEdit\ICSharpCode.AvalonEdit\ICSharpCode.AvalonEdit.csproj" />--><!-- take from https://github.com/goswinr/AvalonEdit -->
+    
+    
+    <ProjectReference Include="..\Seff\Seff.fsproj" /> <!-- take from https://github.com/goswinr/Seff -->
+ 
+  </ItemGroup>
+  
+  
+    <ItemGroup>
+    <Compile Include="ViewManagerCommand.fs" />
+    <None Include="RevitFabulous.addin" />
+  </ItemGroup>
+  
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+  <!-- 
+  <Exec Command="REM this pre-build event is ignored in release build (build.fsx)&#xD;&#xA;REM Revit 2019 supports edit and continue!  To use, uncheck &quot;Use Managed Compatibility Mode&quot; in Tools &gt; Options.&#xD;&#xA;&#xD;&#xA;REM :Version2016&#xD;&#xA;echo NOTE: Revit 2016 requires that Tools &gt; Options &gt; Debugging &gt; Use Managed Compatibility Mode is CHECKED&#xD;&#xA;echo Copying user specific development .addin file to 2016&#xD;&#xA;if not exist &quot;%25ProgramData%25\Autodesk\Revit\Addins\2016&quot; (mkdir &quot;%25ProgramData%25\Autodesk\Revit\Addins\2016&quot;)&#xD;&#xA;powershell -Command &quot;(gc $(ProjectDir)RevitFabulous.addin) -replace 'RevitFabulous.Revit.dll', '$(TargetPath)' | Out-File '%25ProgramData%25\Autodesk\Revit\Addins\2016\RevitFabulous.addin'&quot;&#xD;&#xA;&#xD;&#xA;REM :Version2017&#xD;&#xA;echo NOTE: Revit 2017 requires that Tools &gt; Options &gt; Debugging &gt; Use Managed Compatibility Mode is CHECKED&#xD;&#xA;echo Copying user specific development .addin file to 2017&#xD;&#xA;if not exist &quot;%25ProgramData%25\Autodesk\Revit\Addins\2017&quot; (mkdir &quot;%25ProgramData%25\Autodesk\Revit\Addins\2017&quot;)&#xD;&#xA;powershell -Command &quot;(gc $(ProjectDir)RevitFabulous.addin) -replace 'RevitFabulous.Revit.dll', '$(TargetPath)' | Out-File '%25ProgramData%25\Autodesk\Revit\Addins\2017\RevitFabulous.addin'&quot;&#xD;&#xA;&#xD;&#xA;REM :Version2018&#xD;&#xA;echo NOTE: Revit 2018 requires that Tools &gt; Options &gt; Debugging &gt; Use Managed Compatibility Mode is CHECKED&#xD;&#xA;echo Copying user specific development .addin file to 2018&#xD;&#xA;if not exist &quot;%25ProgramData%25\Autodesk\Revit\Addins\2018&quot; (mkdir &quot;%25ProgramData%25\Autodesk\Revit\Addins\2018&quot;)&#xD;&#xA;powershell -Command &quot;(gc $(ProjectDir)RevitFabulous.addin) -replace 'RevitFabulous.Revit.dll', '$(TargetPath)' | Out-File '%25ProgramData%25\Autodesk\Revit\Addins\2018\RevitFabulous.addin'&quot;&#xD;&#xA;&#xD;&#xA;REM :Version2019&#xD;&#xA;echo Copying user specific development .addin file to 2019&#xD;&#xA;if not exist &quot;%25ProgramData%25\Autodesk\Revit\Addins\2019&quot; (mkdir &quot;%25ProgramData%25\Autodesk\Revit\Addins\2018&quot;)&#xD;&#xA;powershell -Command &quot;(gc $(ProjectDir)RevitFabulous.addin) -replace 'RevitFabulous.Revit.dll', '$(TargetPath)' | Out-File '%25ProgramData%25\Autodesk\Revit\Addins\2019\RevitFabulous.addin'&quot;&#xD;&#xA;" />
+  -->  
+  </Target>
+
+
+  <Target Name="CopyFilesOverAfterBuild" BeforeTargets="AfterBuild">
+
+    <!--copy addin file tp revit appdata-->
+    <Copy SourceFiles="RevitFabulous.addin" DestinationFiles="C:\ProgramData\Autodesk\Revit\Addins\2018\RevitFabulous.addin" ContinueOnError="false" />
+
+  </Target>
+  
+</Project>
