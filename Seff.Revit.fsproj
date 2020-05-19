@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+      <OutputType>Library</OutputType>
+      <TargetFramework>net472</TargetFramework>
+      <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>   
+      <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+
+      
+      <LangVersion>preview</LangVersion>
+      <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+      <!--to only have the english resources-->
+      <AssemblyName>Seff.Revit</AssemblyName>
+      <RootNamespace>Seff.Revit</RootNamespace>
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+      
+      <Version>0.1.0.0</Version>
+      <Authors>Goswin Rothenthal</Authors>
+      <Description> a Scripting editor for fsharp in Revit. see http://seff.io </Description>
+      <Copyright>Goswin Rothenthal 2020</Copyright>
+      <NeutralLanguage>en</NeutralLanguage>
+      
+      <ApplicationIcon>Media\LogoCursorTr.ico</ApplicationIcon>
+      <Win32Resource>Media\LogoCursorTr.res</Win32Resource>
+      <RunPostBuildEvent>0</RunPostBuildEvent><!--  for Application Icon in explorer-->
+  </PropertyGroup>
+
+  <!--<ItemGroup>
+    <PackageReference Include="Revit.RevitApi.x64" Version="2018.0.0" />
+    <PackageReference Include="Revit.RevitApiUI.x64" Version="2018.0.0" />
+  </ItemGroup>-->
+
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="RevitAPI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="RevitAPIUI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPIUI.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+
+    <PackageReference Update="FSharp.Core" Version="4.6.2" />    <!-- 4.6.2 needed ? -->
+
+    <ProjectReference Include="..\Seff\Seff.fsproj" /> <!-- take from https://github.com/goswinr/Seff -->
+ 
+  </ItemGroup>
+  
+  
+  <ItemGroup>
+    <EmbeddedResource Include="Media\LogoCursorTr.res" />
+    <Resource         Include="Media\LogoCursorTr.ico"/>
+    <Resource         Include="Media\LogoCursorTr32.png"/>
+    <Resource         Include="Media\FiraCode-Regular.ttf" />
+    
+    <Compile Include="Addin.fs" />
+    <None Include="Seff.addin" />
+  </ItemGroup>
+
+  <Target Name="CopyFilesOverAfterBuild" BeforeTargets="AfterBuild">
+    <!--copy addin file to revit appdata-->
+    <Copy SourceFiles="Seff.addin" DestinationFiles="C:\ProgramData\Autodesk\Revit\Addins\2018\Seff.addin" ContinueOnError="false" />
+  </Target>
+
+</Project>

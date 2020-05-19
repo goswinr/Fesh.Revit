@@ -12,12 +12,6 @@ type StartEditorCommand() =
     interface IExternalCommand with
         member this.Execute(commandData: ExternalCommandData, message: byref<string>, elements: ElementSet): Result = 
             try
-                let v = [1;2;3] |> Seq.map string |> String.concat " "
-
-
-                TaskDialog.Show("Revit", "Hello Seff World" + v) |> ignore 
-
-
                 //https://thebuildingcoder.typepad.com/blog/2018/11/revit-window-handle-and-parenting-an-add-in-form.html
                 let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
                 
@@ -28,10 +22,6 @@ type StartEditorCommand() =
 
             with ex ->
                 TaskDialog.Show("Seff", sprintf "%A" ex ) |> ignore 
-
-                
-                
-                
                 Result.Failed
 
 
@@ -48,10 +38,13 @@ type SeffAddin() = // don't rename !
      
             let button = new PushButtonData("Seff", "Open Fsharp Editor", thisAssemblyPath, "RevitFabulous.Revit.StartEditorCommand")
             button.ToolTip <- "This will open the Seff Editor Window"
-            //let uriImage = new Uri("pack://application:,,,/RevitTemplate;component/Resources/code-small.png");
-            //let largeImage = new System.Windows.Media.Imaging.BitmapImage(uriImage);
-            //button.LargeImage <- largeImage
-
+            try
+                let uriImage = new Uri("pack://application:,,,/Seff.Revit;component/Media/LogoCursorTr.32.png")
+                let largeImage = new System.Windows.Media.Imaging.BitmapImage(uriImage);
+                button.LargeImage <- largeImage
+            with ex ->
+                TaskDialog.Show("Seff", sprintf "%A" ex ) |> ignore 
+                
 
             let panel = app.CreateRibbonPanel(tabId,"Seff")
             

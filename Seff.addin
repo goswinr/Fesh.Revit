@@ -2,7 +2,7 @@
 <RevitAddIns>
   <AddIn Type="Application">
     <Name>Seff | Scripting editor for fsharp</Name>
-    <Assembly>D:\Git\Revit.Fsharp.Template\bin\Debug\net472\RevitFabulous.Revit.dll</Assembly>
+    <Assembly>D:\Git\Seff.Revit\bin\Debug\net472\Seff.Revit.dll</Assembly>
     <FullClassName>RevitFabulous.Revit.SeffAddin</FullClassName>
     <AddInId>5B83A504-FF2D-4BAE-97CB-0DEB1046A5C2</AddInId>
     <VendorId>seff.io</VendorId>
