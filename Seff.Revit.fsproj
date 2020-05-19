@@ -41,7 +41,7 @@
     </Reference>
     <Reference Include="WindowsBase" />
 
-    <PackageReference Update="FSharp.Core" Version="4.6.2" />    <!-- 4.6.2 needed ? -->
+    <PackageReference Update="FSharp.Core" Version="4.6.2" />    <!-- 4.6.2 needed with fcs 33.0.1 ! -->
 
     <ProjectReference Include="..\Seff\Seff.fsproj" /> <!-- take from https://github.com/goswinr/Seff -->
  
