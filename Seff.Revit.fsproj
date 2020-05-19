@@ -50,10 +50,11 @@
   
   <ItemGroup>
     <EmbeddedResource Include="Media\LogoCursorTr.res" />
-    <Resource         Include="Media\LogoCursorTr.ico"/>
-    <Resource         Include="Media\LogoCursorTr32.png"/>
-    <Resource         Include="Media\FiraCode-Regular.ttf" />
+    <Resource Include="Media\LogoCursorTr.ico" />
+    <Resource Include="Media\LogoCursorTr32.png" />    
+    <Resource Include="Media\FiraCode-Regular.ttf" />
     
+    <Compile Include="Sync.fs" />    
     <Compile Include="Addin.fs" />
     <None Include="Seff.addin" />
   </ItemGroup>
