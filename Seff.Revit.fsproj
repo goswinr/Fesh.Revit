@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>    
+    
+    <TargetFramework>net472</TargetFramework>
+    
+    <LangVersion>preview</LangVersion>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages> <!--to only have the english resources-->
+    <AssemblyName>Seff.Revit</AssemblyName>
+    <RootNamespace>Seff.Revit</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <Version>0.1.0.0</Version>
+    <Authors>Goswin Rothenthal</Authors>
+    <Description> a Scripting editor for fsharp in Revit. see http://seff.io </Description>
+    <Copyright>Goswin Rothenthal 2020</Copyright>
+    <NeutralLanguage>en</NeutralLanguage>
+
+
+
+    <ApplicationIcon>Media\LogoCursorTr.ico</ApplicationIcon>
+    <Win32Resource>Media\LogoCursorTr.res</Win32Resource>    <!--  for Application Icon in explorer, adapt path as needed-->
+  </PropertyGroup>
+    
+
+
+  <ItemGroup>
+    <EmbeddedResource Include="Media\LogoCursorTr.res" />
+    <Resource Include="Media\LogoCursorTr.ico">      <CopyToOutputDirectory>Never</CopyToOutputDirectory>    </Resource>
+    <None Include="Seff.Revit.addin" />
+    
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="PlugIn.fs" />
+
+ </ItemGroup>
+
+
+  <ItemGroup>
+    <!-- don't add explict ref to Fsharp.Core? https://github.com/dotnet/fsharp/issues/9064-->
+    <PackageReference Update="FSharp.Core" Version="4.7.1" />
+    <!--<PackageReference Include="FSharp.Compiler.Service" Version="33.0.1" />--> <!-- cannot be higher than 33.0.1-->
+    <!--PackageReference Include="Autodesk.Revit.SDK" Version="2018.2.0" />-->
+  </ItemGroup>
+
+
+  <ItemGroup> 
+    <ProjectReference Include="..\AvalonEdit\ICSharpCode.AvalonEdit\ICSharpCode.AvalonEdit.csproj" />  <!-- take from https://github.com/goswinr/AvalonEdit -->
+    <ProjectReference Include="..\Seff\Seff.fsproj" />  <!-- take from https://github.com/goswinr/Seff -->
+  </ItemGroup>
+
+
+  <ItemGroup>    
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="RevitAPI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="RevitAPIUI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPIUI.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />   
+    
+     
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="4.7.1" />
+  </ItemGroup>
+
+
+  <!-- Replaces AfterBuild target, 
+    help: https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-well-known-item-metadata?view=vs-2015&redirectedfrom=MSDN
+    see    https://stackoverflow.com/questions/43921992/how-can-i-use-beforebuild-and-afterbuild-targets-with-visual-studio-2017
+    tasks: https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-task-reference?view=vs-2019
+    better: https://stackoverflow.com/questions/44043918/running-a-target-before-the-corebuild
+    -->
+  
+  <Target Name="CopyFilesOverAfterBuild" BeforeTargets="AfterBuild">
+
+    <!--copy addin file tp revit appdata-->
+    <Copy SourceFiles="Seff.Revit.addin" DestinationFiles="C:\ProgramData\Autodesk\Revit\Addins\2018\Seff.Revit.addin" ContinueOnError="false" />
+
+
+    <!-- take FSharpSynatxHighlighterExtended.xshd from https://github.com/goswinr/Seff -->
+    <Copy SourceFiles="..\Seff\FSharpSynatxHighlighterExtended.xshd" DestinationFiles="$(TargetDir)FSharpSynatxHighlighterExtended.xshd" ContinueOnError="false" /> 
+    
+    <!-- FSharp.Core.xml is missing otherwise ? to have it as intellisense provider-->
+    <Copy SourceFiles="$(USERPROFILE)\.nuget\packages\fsharp.core\4.7.1\lib\net45\FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" />  
+
+  </Target>
+
+</Project>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>Seff.Revit</Name>
+    <Assembly>"D:/Git/Seff.Revit/bin/Debug/net472/Seff.Revit.dll"</Assembly>
+    <FullClassName>Seff.Revit.SeffAddin</FullClassName>    
+    <AddInId>47c48fce-bb24-441e-bf66-6c1c1825ea1f</AddInId>
+    <VendorId>seff.io</VendorId>
+    <VendorDescription>Scripting editor for fsharp</VendorDescription>    
+  </AddIn>
+</RevitAddIns>
