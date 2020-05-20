@@ -42,6 +42,9 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="RevitAPI">      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPI.dll  </HintPath>    </Reference>
     <Reference Include="RevitAPIUI">    <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPIUI.dll</HintPath>    </Reference>
+    <Reference Include="RevitDBAPI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitDBAPI.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
 
     <PackageReference Update="FSharp.Core" Version="4.6.2" />    <!-- 4.6.2 needed with fcs 33.0.1 ! -->
@@ -53,13 +56,13 @@
   
   <ItemGroup>
     <EmbeddedResource Include="Media\LogoCursorTr.res" />
-    <Resource         Include="Media\LogoCursorTr.ico" />
-    <Resource         Include="Media\LogoCursorTr32.png" />   <!--build from VS 2019 to include. fails via "dotnet build" ?  --> 
-    <Resource         Include="Media\FiraCode-Regular.ttf" />
+    <Resource Include="Media\LogoCursorTr.ico" />
+    <Resource Include="Media\LogoCursorTr32.png" />   <!--build from VS 2019 to include. fails via "dotnet build" ?  --> 
+    <Resource Include="Media\FiraCode-Regular.ttf" />
     
     <Compile Include="Sync.fs" />    
     <Compile Include="Addin.fs" />
-    <None    Include="Seff.addin" />
+    <None Include="Seff.addin" />
     
   </ItemGroup>
 
