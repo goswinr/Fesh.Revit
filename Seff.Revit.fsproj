@@ -1,28 +1,35 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
 
+<!--Win desktop needed so that rescources work with dotnet build:-->
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop"> 
   <PropertyGroup>
-      <OutputType>Library</OutputType>
-      <TargetFramework>net472</TargetFramework>
-      <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>   
-      <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
-
+    <OutputType>Library</OutputType> 
+    <UseWPF>true</UseWPF>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    
+    <!--to only have the english resources, cleaner output:-->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>     
+    <NeutralLanguage>en</NeutralLanguage>
+    
+    <!--<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems> why ?-->  
+    
+    <!--to silnce errors with revit dlls:-->
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+    
+    
+    <AssemblyName>Seff.Revit</AssemblyName>
+    <RootNamespace>Seff.Revit</RootNamespace>
+    <Version>0.1.0.0</Version>
+    <Authors>Goswin Rothenthal</Authors>
+    <Description> a Scripting editor for fsharp in Revit. see http://seff.io </Description>
+    <Copyright>Goswin Rothenthal 2020</Copyright>
+    
+    
+    <ApplicationIcon>Media\LogoCursorTr.ico</ApplicationIcon>
+    <Win32Resource>Media\LogoCursorTr.res</Win32Resource><!--  for Application Icon in explorer-->
       
-      <LangVersion>preview</LangVersion>
-      <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-      <!--to only have the english resources-->
-      <AssemblyName>Seff.Revit</AssemblyName>
-      <RootNamespace>Seff.Revit</RootNamespace>
-      <GenerateDocumentationFile>true</GenerateDocumentationFile>
-      
-      <Version>0.1.0.0</Version>
-      <Authors>Goswin Rothenthal</Authors>
-      <Description> a Scripting editor for fsharp in Revit. see http://seff.io </Description>
-      <Copyright>Goswin Rothenthal 2020</Copyright>
-      <NeutralLanguage>en</NeutralLanguage>
-      
-      <ApplicationIcon>Media\LogoCursorTr.ico</ApplicationIcon>
-      <Win32Resource>Media\LogoCursorTr.res</Win32Resource>
-      <RunPostBuildEvent>0</RunPostBuildEvent><!--  for Application Icon in explorer-->
   </PropertyGroup>
 
   <!--<ItemGroup>
@@ -33,12 +40,8 @@
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="RevitAPI">
-      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="RevitAPIUI">
-      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPIUI.dll</HintPath>
-    </Reference>
+    <Reference Include="RevitAPI">      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPI.dll  </HintPath>    </Reference>
+    <Reference Include="RevitAPIUI">    <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPIUI.dll</HintPath>    </Reference>
     <Reference Include="WindowsBase" />
 
     <PackageReference Update="FSharp.Core" Version="4.6.2" />    <!-- 4.6.2 needed with fcs 33.0.1 ! -->
@@ -50,13 +53,14 @@
   
   <ItemGroup>
     <EmbeddedResource Include="Media\LogoCursorTr.res" />
-    <Resource Include="Media\LogoCursorTr.ico" />
-    <Resource Include="Media\LogoCursorTr32.png" />    
-    <Resource Include="Media\FiraCode-Regular.ttf" />
+    <Resource         Include="Media\LogoCursorTr.ico" />
+    <Resource         Include="Media\LogoCursorTr32.png" />   <!--build from VS 2019 to include. fails via "dotnet build" ?  --> 
+    <Resource         Include="Media\FiraCode-Regular.ttf" />
     
     <Compile Include="Sync.fs" />    
     <Compile Include="Addin.fs" />
-    <None Include="Seff.addin" />
+    <None    Include="Seff.addin" />
+    
   </ItemGroup>
 
   <Target Name="CopyFilesOverAfterBuild" BeforeTargets="AfterBuild">

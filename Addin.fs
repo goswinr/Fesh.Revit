@@ -31,7 +31,7 @@ type StartEditorCommand() =
                     let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
                     
                     TaskDialog.Show("Seff", sprintf "creating" ) |> ignore 
-                    let seff = Seff.App.runEditorHosted(winHandle,"Revit")
+                    let app,seff = Seff.App.runEditorHosted(winHandle,"Revit")
                     win <- seff.Window
                     
                     win.Closing.Add (fun e -> 
@@ -42,8 +42,8 @@ type StartEditorCommand() =
                             TaskDialog.Show("Seff", sprintf "win.Visibility: %A" win.Visibility ) |> ignore 
                             //TODO add option to menu to actually close, not just hide ??
                             e.Cancel <- true) 
-                     
-                    win.Show()
+                    app.Run(seff.Window)  |> ignore 
+                    //win.Show()
                     Result.Succeeded
                 else
                     TaskDialog.Show("Seff", sprintf "win.Visibility: %A" win.Visibility ) |> ignore 
@@ -72,7 +72,7 @@ type SeffAddin() = // don't rename !
             let button = new PushButtonData("Seff", "Open Fsharp Editor", thisAssemblyPath, "Seff.Revit.StartEditorCommand")
             button.ToolTip <- "This will open the Seff Editor Window"
             try
-                let uriImage = new Uri("pack://application:,,,/Seff.Revit;component/Media/LogoCursorTr32.png") // <Resource Include="Media\LogoCursorTr32.png" />  
+                let uriImage = new Uri("pack://application:,,,/Seff.Revit;component/Media/LogoCursorTr32.png") // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" />  
                 let largeImage = new System.Windows.Media.Imaging.BitmapImage(uriImage)
                 button.LargeImage <- largeImage
             with ex ->
