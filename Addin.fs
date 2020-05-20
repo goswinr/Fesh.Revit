@@ -31,7 +31,7 @@ type StartEditorCommand() =
                     let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
                     
                     TaskDialog.Show("Seff", sprintf "creating" ) |> ignore 
-                    let app,seff = Seff.App.runEditorHosted(winHandle,"Revit")
+                    let seff = Seff.App.runEditorHosted(winHandle,"Revit")
                     win <- seff.Window
                     
                     win.Closing.Add (fun e -> 
@@ -42,8 +42,8 @@ type StartEditorCommand() =
                             TaskDialog.Show("Seff", sprintf "win.Visibility: %A" win.Visibility ) |> ignore 
                             //TODO add option to menu to actually close, not just hide ??
                             e.Cancel <- true) 
-                    app.Run(seff.Window)  |> ignore 
-                    //win.Show()
+                    //app.Run(seff.Window)  |> ignore 
+                    win.Show()
                     Result.Succeeded
                 else
                     TaskDialog.Show("Seff", sprintf "win.Visibility: %A" win.Visibility ) |> ignore 
