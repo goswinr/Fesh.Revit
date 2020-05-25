@@ -5,7 +5,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType> 
     <UseWPF>true</UseWPF>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net472</TargetFramework><!--472 to have fewer files, 461 ok too-->
     <LangVersion>preview</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     
@@ -42,14 +42,12 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="RevitAPI">      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPI.dll  </HintPath>    </Reference>
     <Reference Include="RevitAPIUI">    <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPIUI.dll</HintPath>    </Reference>
-    <Reference Include="RevitDBAPI">
-      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitDBAPI.dll</HintPath>
-    </Reference>
+    <Reference Include="RevitDBAPI">    <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitDBAPI.dll</HintPath>    </Reference>
     <Reference Include="WindowsBase" />
 
     <PackageReference Update="FSharp.Core" Version="4.6.2" />    <!-- 4.6.2 needed with fcs 33.0.1 ! -->
 
-    <ProjectReference Include="..\Seff\Seff.fsproj" /> <!-- take from https://github.com/goswinr/Seff -->
+    <ProjectReference Include="..\Seff\SeffHosting.fsproj" /> <!-- take from https://github.com/goswinr/Seff -->
  
   </ItemGroup>
   
