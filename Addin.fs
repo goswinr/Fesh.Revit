@@ -95,7 +95,7 @@ type SeffAddin() = // don't rename !
                 //-------------- start Seff -------------------------------------------------------------                
                 //https://thebuildingcoder.typepad.com/blog/2018/11/revit-window-handle-and-parenting-an-add-in-form.html
                 let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
-                let seff= Seff.App.runEditorHosted(winHandle,"Revit")
+                let seff= Seff.App.createEditorForHosting(winHandle,"Revit")
                 Current.SeffWindow <- seff.Window
 
                 (* //TODO Alt enter does not work !
@@ -115,8 +115,7 @@ type SeffAddin() = // don't rename !
                         seff.Log.PrintDebugMsg "Alt+Return"
                     else
                         seff.Log.PrintDebugMsg "not Alt+Enter" 
-                        )
-                *)
+                        )            *)
 
                 seff.Window.Closing.Add (fun e -> 
                     match seff.Fsi.AskAndCancel() with
@@ -130,24 +129,19 @@ type SeffAddin() = // don't rename !
                 Current.ExEvent <- ExternalEvent.Create(RunEvHandler(seff))                
                 
                 //TaskDialog.Show("uiConApp:", sprintf "%A" uiConApp.ControlledApplication.VersionNumber ) |> ignore 
-                
-                                
                 (*
                 let uiApp =
                     let versionNumber = int uiConApp.ControlledApplication.VersionNumber
                     let fieldName = if versionNumber >= 2017 then  "m_uiapplication" else "m_application"
                     let fi = uiConApp.GetType().GetField(fieldName, BindingFlags.NonPublic ||| BindingFlags.Instance)
                     fi.GetValue(uiConApp) :?> UIApplication 
-
-
                 uiApp.Idling.AddHandler(fun obj args -> 
                     let app = obj :?> UIApplication
                     let ok,f = Current.Queue.TryDequeue()
                     if ok then 
                         let doc = uiApp.ActiveUIDocument.Document
                         f(doc)                    
-                        )
-                *)
+                        )  *)
 
                 Result.Succeeded
 
