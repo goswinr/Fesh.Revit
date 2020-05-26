@@ -6,14 +6,17 @@ open Autodesk.Revit.Attributes
 open System
 open System.Windows
 open Seff
+open System.Windows.Input
 
-// to acces the current UIControlledApplication : fails with System.MissingMethodException
+
 module Current =
     let mutable UiApp: UIControlledApplication = null 
     let mutable App: UIApplication = null
     let mutable Doc: Document = null 
     let mutable SeffWin: Window = null 
     let run(f:Document -> unit) = f(Doc)
+
+
     
 [<Transaction(TransactionMode.Manual)>]
 type StartEditorCommand() = //new instance is created on every button click
@@ -24,30 +27,29 @@ type StartEditorCommand() = //new instance is created on every button click
                 if isNull Current.SeffWin then                     
                     Current.App <- commandData.Application
                     Current.Doc <- commandData.Application.ActiveUIDocument.Document
-
-                    TaskDialog.Show("Seff", sprintf "Current.Doc:%A" Current.Doc) |> ignore 
-
+                    
                     //https://thebuildingcoder.typepad.com/blog/2018/11/revit-window-handle-and-parenting-an-add-in-form.html
                     let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
                     let seff = Seff.App.runEditorHosted(winHandle,"Revit")
                     Current.SeffWin <- seff.Window
+
+                    seff.Window.KeyDown.Add(fun e -> if e.Key = Key.System then  e.Handled <- true) //to avoid pressing alt to focus on menu and the diabeling Alt+Enter for Evaluationg selection in FSI
                     
-                    Current.SeffWin.Closing.Add (fun e -> 
+                    seff.Window.Closing.Add (fun e -> 
                         match seff.Fsi.AskAndCancel() with
                         |Evaluating -> e.Cancel <- true // no closing
                         |Ready | Initalizing | NotLoaded -> 
                             Current.SeffWin.Visibility <- Visibility.Hidden                           
                             e.Cancel <- true) // no closing
-
-                    //app.Run(seff.Window)  |> ignore 
-                    Current.SeffWin.Show()
+                    
+                    seff.Window.Show()
                     Result.Succeeded
                 else                    
                     Current.SeffWin.Visibility <- Visibility.Visible
                     Result.Succeeded
 
             with ex ->
-                TaskDialog.Show("Seff", sprintf "%A" ex ) |> ignore 
+                TaskDialog.Show("Execute Button Seff", sprintf "%A" ex ) |> ignore 
                 Result.Failed
 
 
@@ -56,15 +58,9 @@ type SeffAddin() = // don't rename !
         member this.OnStartup(app:UIControlledApplication) =
             try
                 Sync.installSynchronizationContext()
-                Current.UiApp <- app
-            
-                // Method to add Tab and Panel 
-                let tabId = "Seff"
-                app.CreateRibbonTab(tabId)
+                Current.UiApp <- app            
 
-                let thisAssemblyPath = Reflection.Assembly.GetExecutingAssembly().Location
-
-     
+                let thisAssemblyPath = Reflection.Assembly.GetExecutingAssembly().Location     
                 let button = new PushButtonData("Seff", "Open Fsharp Editor", thisAssemblyPath, "Seff.Revit.StartEditorCommand")
                 button.ToolTip <- "This will open the Seff Editor Window"
             
@@ -72,13 +68,15 @@ type SeffAddin() = // don't rename !
                 let largeImage = new System.Windows.Media.Imaging.BitmapImage(uriImage)
                 button.LargeImage <- largeImage
             
-
-                let panel = app.CreateRibbonPanel(tabId,"Seff")
-            
-                panel.AddItem(button) |> ignore 
+                let tabId = "Seff"
+                app.CreateRibbonTab(tabId)
+                let panel = app.CreateRibbonPanel(tabId,"Seff")            
+                panel.AddItem(button) |> ignore
+                
                 Result.Succeeded
+
             with ex ->
-                TaskDialog.Show("Seff", sprintf "%A" ex ) |> ignore 
+                TaskDialog.Show("OnStartup of Seff.Revit.dll", sprintf "%A" ex ) |> ignore 
                 Result.Failed
 
         
