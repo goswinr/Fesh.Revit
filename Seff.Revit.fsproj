@@ -45,7 +45,7 @@
     <Reference Include="RevitDBAPI">    <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitDBAPI.dll</HintPath>    </Reference>
     <Reference Include="WindowsBase" />
 
-    <PackageReference Update="FSharp.Core" Version="4.6.2" />    <!-- 4.6.2 needed with fcs 33.0.1 ! -->
+    <PackageReference Update="FSharp.Core" Version="4.6.2" />    <!-- 4.6.2 needed for Revit with fcs 33.0.1 ! -->
 
     <ProjectReference Include="..\Seff\SeffHosting.fsproj" /> <!-- take from https://github.com/goswinr/Seff -->
  
