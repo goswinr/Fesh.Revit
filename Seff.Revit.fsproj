@@ -16,16 +16,14 @@
     <!--<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems> why ?-->  
     
     <!--to silnce errors with revit dlls:-->
-    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
-    
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>    
     
     <AssemblyName>Seff.Revit</AssemblyName>
     <RootNamespace>Seff.Revit</RootNamespace>
     <Version>0.1.0.0</Version>
     <Authors>Goswin Rothenthal</Authors>
     <Description> a Scripting editor for fsharp in Revit. see http://seff.io </Description>
-    <Copyright>Goswin Rothenthal 2020</Copyright>
-    
+    <Copyright>Goswin Rothenthal 2020</Copyright>    
     
     <ApplicationIcon>Media\LogoCursorTr.ico</ApplicationIcon>
     <Win32Resource>Media\LogoCursorTr.res</Win32Resource><!--  for Application Icon in explorer-->
@@ -40,10 +38,11 @@
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsBase" />
+    
     <Reference Include="RevitAPI">      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPI.dll  </HintPath>    </Reference>
     <Reference Include="RevitAPIUI">    <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPIUI.dll</HintPath>    </Reference>
-    <Reference Include="RevitDBAPI">    <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitDBAPI.dll</HintPath>    </Reference>
-    <Reference Include="WindowsBase" />
+    <Reference Include="RevitDBAPI">    <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitDBAPI.dll</HintPath>    </Reference>    
 
     <PackageReference Update="FSharp.Core" Version="4.6.2" />    <!-- 4.6.2 needed for Revit with fcs 33.0.1 ! -->
 
@@ -54,13 +53,13 @@
   
   <ItemGroup>
     <EmbeddedResource Include="Media\LogoCursorTr.res" />
-    <Resource Include="Media\LogoCursorTr.ico" />
-    <Resource Include="Media\LogoCursorTr32.png" />   <!--build from VS 2019 to include. fails via "dotnet build" ?  --> 
-    <Resource Include="Media\FiraCode-Regular.ttf" />
+    <Resource         Include="Media\LogoCursorTr.ico" />
+    <Resource         Include="Media\LogoCursorTr32.png" />   <!--build from VS 2019 to include. fails via "dotnet build" ?  --> 
+    <Resource         Include="Media\FiraCode-Regular.ttf" />
     
     <Compile Include="Sync.fs" />    
     <Compile Include="Addin.fs" />
-    <None Include="Seff.addin" />
+    <None    Include="Seff.addin" />
     
   </ItemGroup>
 
