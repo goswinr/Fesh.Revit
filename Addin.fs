@@ -128,7 +128,7 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
                         e.Cancel <- true) // no closing
                 
              
-                //-------------- hook up seff ------------------------------------------------------------- 
+                //-------------- hook up Seff ------------------------------------------------------------- 
                 let handler = RunEvHandler(seff, queue)
                 exEvent <- ExternalEvent.Create(handler)                
                 
