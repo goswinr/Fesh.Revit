@@ -8,30 +8,19 @@ open System.Windows
 open Seff
 open System.Windows.Input
 open System.Reflection
- 
+open System.Collections.Concurrent
+
+
  [<AbstractClass; Sealed>]
- type Current private ()=
-    static let queue = Collections.Concurrent.ConcurrentQueue< UIApplication->unit >()
-    static member Queue = queue
-    static member val internal SeffIsShown: bool     = false  with get,set
-    
-    // --- public: ----
-    static member val          SeffWindow: Window    = null  with get, set  
-    static member val          ExEvent:ExternalEvent = null with get,set
-    
-    static member              RunDoc (f:Document->unit) =  
-                                            queue.Enqueue(fun app -> f(app.ActiveUIDocument.Document))
-                                            Current.ExEvent.Raise() |> ignore 
-    
-    static member              RunApp (f:UIApplication->unit) =  
-                                            queue.Enqueue(f)
-                                            Current.ExEvent.Raise() |> ignore 
+ type Current private ()=     
+     static member val internal SeffIsShown: bool     = false  with get,set
+     static member val          SeffWindow: Window    = null  with get, set 
 
 
-type internal RunEvHandler(seff:Seff) =
+type internal RunEvHandler(seff:Seff, queue: ConcurrentQueue< UIApplication->unit >) =    
     member this.GetName() = "Run in Seff"
     member this.Execute(app:UIApplication) = 
-        let ok,f = Current.Queue.TryDequeue()
+        let ok,f = queue.TryDequeue()
         if ok then
             try
                 f(app) 
@@ -45,10 +34,9 @@ type internal RunEvHandler(seff:Seff) =
 
 
 
-    
+[<Regeneration(RegenerationOption.Manual)>]  
 [<Transaction(TransactionMode.Manual)>]
-type StartEditorCommand() = // don't rename ! //new instance is created on every button click
-    
+type StartEditorCommand() = // don't rename ! string referenced in  PushButtonData //new instance is created on every button click    
     interface IExternalCommand with
         member this.Execute(commandData: ExternalCommandData, message: byref<string>, elements: ElementSet): Result = 
             try                
@@ -65,12 +53,27 @@ type StartEditorCommand() = // don't rename ! //new instance is created on every
                 Result.Failed
 
 
-
+[<Regeneration(RegenerationOption.Manual)>]
 [<Transaction(TransactionMode.Manual)>]
-type SeffAddin() = // don't rename !
+[<AllowNullLiteralAttribute>]
+type SeffAddin() = // don't rename ! string referenced in in seff.addin file 
     
-    //let queue = Collections.Concurrent.ConcurrentQueue()
+    let mutable exEvent:ExternalEvent = null 
+    
+    let queue = ConcurrentQueue<UIApplication->unit>()
+    
+    static let mutable instance : SeffAddin = null
 
+    static member Instance = instance
+    
+    member this.RunApp (f:UIApplication->unit) =  
+        queue.Enqueue(f)
+        exEvent.Raise() |> ignore 
+    
+    member this.RunDoc (f:Document->unit) =  
+        queue.Enqueue(fun app -> f(app.ActiveUIDocument.Document))
+        exEvent.Raise() |> ignore 
+        
    
     interface IExternalApplication with
         member this.OnStartup(uiConApp:UIControlledApplication) =
@@ -125,8 +128,9 @@ type SeffAddin() = // don't rename !
                         e.Cancel <- true) // no closing
                 
              
-                //-------------- hook up seff -------------------------------------------------------------   
-                Current.ExEvent <- ExternalEvent.Create(RunEvHandler(seff))                
+                //-------------- hook up seff ------------------------------------------------------------- 
+                let handler = RunEvHandler(seff, queue)
+                exEvent <- ExternalEvent.Create(handler)                
                 
                 //TaskDialog.Show("uiConApp:", sprintf "%A" uiConApp.ControlledApplication.VersionNumber ) |> ignore 
                 (*
@@ -142,6 +146,8 @@ type SeffAddin() = // don't rename !
                         let doc = uiApp.ActiveUIDocument.Document
                         f(doc)                    
                         )  *)
+                
+                instance <- this
 
                 Result.Succeeded
 
