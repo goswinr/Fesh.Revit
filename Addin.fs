@@ -73,7 +73,9 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
     member this.RunDoc (f:Document->unit) =  
         queue.Enqueue(fun app -> f(app.ActiveUIDocument.Document))
         exEvent.Raise() |> ignore 
-        
+    
+    // reverse a string
+    member this.Test(s:String) = s |> Seq.rev |> Seq.map string |> String.concat "" 
    
     interface IExternalApplication with
         member this.OnStartup(uiConApp:UIControlledApplication) =
