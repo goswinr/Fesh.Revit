@@ -54,7 +54,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Media\LogoCursorTr.res" />
     <Resource         Include="Media\LogoCursorTr.ico" />
-    <Resource         Include="Media\LogoCursorTr32.png" />   <!--build from VS 2019 to include. fails via "dotnet build" ?  --> 
+    <Resource         Include="Media\LogoCursorTr16.png" />
+    <Resource         Include="Media\LogoCursorTr32.png" />   
     <Resource         Include="Media\FiraCode-Regular.ttf" />
     
     <Compile Include="Sync.fs" />    

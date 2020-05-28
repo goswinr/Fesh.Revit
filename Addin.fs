@@ -87,14 +87,16 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
                 let button = new PushButtonData("Seff", "Open Fsharp Editor", thisAssemblyPath, "Seff.Revit.StartEditorCommand")
                 button.ToolTip <- "This will open the Seff Editor Window"
             
-                let uriImage = new Uri("pack://application:,,,/Seff.Revit;component/Media/LogoCursorTr32.png") // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" />  
-                let largeImage = new System.Windows.Media.Imaging.BitmapImage(uriImage)
-                button.LargeImage <- largeImage
+                let uriImage32 = new Uri("pack://application:,,,/Seff.Revit;component/Media/LogoCursorTr32.png") // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" /> 
+                let uriImage16 = new Uri("pack://application:,,,/Seff.Revit;component/Media/LogoCursorTr16.png")              
+                button.LargeImage <- Media.Imaging.BitmapImage(uriImage32)//for ribbon in tab
+                button.Image      <- Media.Imaging.BitmapImage(uriImage16)//for quick acess toolbar
             
                 let tabId = "Seff"
                 uiConApp.CreateRibbonTab(tabId)
                 let panel = uiConApp.CreateRibbonPanel(tabId,"Seff")            
                 panel.AddItem(button) |> ignore
+                
                 
 
                 //-------------- start Seff -------------------------------------------------------------                
