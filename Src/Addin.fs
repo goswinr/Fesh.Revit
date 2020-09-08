@@ -12,6 +12,8 @@ open System.Collections.Concurrent
 open System.Diagnostics
 
 
+// example of modeless dialog: https://github.com/pierpaolo-canini/Lame-Duck
+
 module Debug =   
     let log prefix (content:string) =
         let time = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss-fff")        
