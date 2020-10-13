@@ -6,6 +6,7 @@ open Autodesk.Revit.Attributes
 open System
 open System.Windows
 open Seff
+open Seff.Config
 open System.Windows.Input
 open System.Reflection
 open System.Collections.Concurrent
@@ -94,7 +95,8 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
                 //-------------- start Seff -------------------------------------------------------------                
                 //https://thebuildingcoder.typepad.com/blog/2018/11/revit-window-handle-and-parenting-an-add-in-form.html
                 let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
-                let seff= Seff.App.createEditorForHosting(winHandle,"Revit")
+                let canRun = fun () ->  true // TODO check if in command, or enqued anyway?  !!
+                let seff= Seff.App.createEditorForHosting({ hostName= "Revit" ; mainWindowHandel= winHandle; fsiCanRun=canRun  })
                 Current.SeffWindow <- seff.Window
 
                 //TODO make a C# plugin that loads Seff.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI
