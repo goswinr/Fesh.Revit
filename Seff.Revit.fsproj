@@ -43,7 +43,18 @@
 
     <PackageReference Update="FSharp.Core" Version="4.6.2" />    <!-- 4.6.2 needed for Revit with fcs 33.0.1 ! -->
 
-    <ProjectReference Include="..\Seff\SeffHosting.fsproj" /> <!-- take from https://github.com/goswinr/Seff -->
+
+    <Reference Include="ICSharpCode.AvalonEdit">
+      <HintPath>..\Seff\binHosting\Release\net472\ICSharpCode.AvalonEdit.dll</HintPath>
+      <!-- take from https://github.com/goswinr/AvalonEdit -->
+    </Reference>
+  
+    <Reference Include="Seff">
+      <HintPath>..\Seff\binHosting\Release\net472\Seff.dll</HintPath>
+      <!-- take from https://github.com/goswinr/Seff -->
+    </Reference>
+    
+    <!--<ProjectReference Include="..\Seff\SeffHosting.fsproj" />--> <!-- take from https://github.com/goswinr/Seff -->
  
   </ItemGroup>
   
@@ -64,6 +75,13 @@
   <Target Name="CopyFilesOverAfterBuild" BeforeTargets="AfterBuild">
     <!--copy addin file to revit appdata-->
     <Copy SourceFiles="Seff.addin" DestinationFiles="C:\ProgramData\Autodesk\Revit\Addins\2018\Seff.addin" ContinueOnError="false" />
+
+    <!-- take FSharpSynatxHighlighterExtended.xshd from https://github.com/goswinr/Seff -->
+    <Copy SourceFiles="..\Seff\FSharpSynatxHighlighterExtended.xshd" DestinationFiles="$(TargetDir)FSharpSynatxHighlighterExtended.xshd" ContinueOnError="false" />
+
+    <!-- FSharp.Core.xml is missing otherwise ? to have it as intellisense provider-->
+    <Copy SourceFiles=" $(PkgFSharp_Core)\lib\net45\FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" />
+
   </Target>
 
 </Project>
