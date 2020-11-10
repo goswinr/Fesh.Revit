@@ -39,9 +39,10 @@
     
     <Reference Include="RevitAPI">      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPI.dll  </HintPath>    </Reference>
     <Reference Include="RevitAPIUI">    <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPIUI.dll</HintPath>    </Reference>
-    <Reference Include="RevitDBAPI">    <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitDBAPI.dll</HintPath>    </Reference>    
+    <Reference Include="RevitDBAPI">    <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitDBAPI.dll</HintPath>    </Reference>
 
-    <PackageReference Update="FSharp.Core" Version="4.6.2" />    <!-- 4.6.2 needed for Revit with fcs 33.0.1 ! -->
+    
+    <PackageReference Update="FSharp.Core" Version="4.6.2" />    <!-- 4.6.2 is needed for Revit with FCS 33.0.1 , see SeffForHosting.fsproj  -->
 
 
     <Reference Include="ICSharpCode.AvalonEdit">
