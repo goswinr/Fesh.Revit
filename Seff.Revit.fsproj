@@ -5,13 +5,13 @@
     <UseWPF>true</UseWPF>
     <TargetFramework>net472</TargetFramework><!--472 to have fewer files, 461 ok too-->
     <LangVersion>preview</LangVersion>
-    <SatelliteResourceLanguages>en</SatelliteResourceLanguages><!--to only have the english resources-->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages><!--to only have the english resources of fsharp.core-->
     <RootNamespace>Seff.Revit</RootNamespace>
     <AssemblyName>Seff.Revit</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NeutralLanguage>en</NeutralLanguage>
      
-    <!--to silnce errors with revit dlls:-->
+    <!--to silence errors with revit dlls:-->
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>    
     
     <Version>0.2.0.0</Version>
@@ -23,8 +23,8 @@
     <Description>A Scripting editor for fsharp in Revit. see http://seff.io </Description>
     <Copyright>Goswin Rothenthal 2020</Copyright>    
     
-    <ApplicationIcon>Media\LogoCursorTr.ico</ApplicationIcon>
-    <Win32Resource>Media\LogoCursorTr.res</Win32Resource><!--  for Application Icon in explorer-->
+    <ApplicationIcon>Media/LogoCursorTr.ico</ApplicationIcon>
+    <Win32Resource>Media/LogoCursorTr.res</Win32Resource><!--  for Application Icon in explorer-->
 </PropertyGroup>
 
   <!--<ItemGroup>
@@ -37,51 +37,49 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsBase" />
     
-    <Reference Include="RevitAPI">      <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPI.dll  </HintPath>    </Reference>
-    <Reference Include="RevitAPIUI">    <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitAPIUI.dll</HintPath>    </Reference>
-    <Reference Include="RevitDBAPI">    <HintPath>C:\Program Files\Autodesk\Revit 2018\RevitDBAPI.dll</HintPath>    </Reference>
+    <Reference Include="RevitAPI">      <HintPath>C:/Program Files/Autodesk/Revit 2018/RevitAPI.dll  </HintPath>    </Reference> <!--or use Nuget ?-->
+    <Reference Include="RevitAPIUI">    <HintPath>C:/Program Files/Autodesk/Revit 2018/RevitAPIUI.dll</HintPath>    </Reference>
+    <Reference Include="RevitDBAPI">    <HintPath>C:/Program Files/Autodesk/Revit 2018/RevitDBAPI.dll</HintPath>    </Reference>
 
     
     <PackageReference Update="FSharp.Core" Version="4.6.2" />    <!-- 4.6.2 is needed for Revit with FCS 33.0.1 , see SeffForHosting.fsproj  -->
 
-
-    <Reference Include="ICSharpCode.AvalonEdit">
-      <HintPath>..\Seff\binHosting\Release\net472\ICSharpCode.AvalonEdit.dll</HintPath>
-      <!-- take from https://github.com/goswinr/AvalonEdit -->
-    </Reference>
+    <Reference Include="ICSharpCode.AvalonEdit">      <!-- build from https://github.com/goswinr/AvalonEdit -->
+      <HintPath>../AvalonEdit/ICSharpCode.AvalonEdit/bin/Release/net472/ICSharpCode.AvalonEdit.dll</HintPath> 
+    </Reference>   
   
-    <Reference Include="Seff">
-      <HintPath>..\Seff\binHosting\Release\net472\Seff.dll</HintPath>
-      <!-- take from https://github.com/goswinr/Seff -->
+    <Reference Include="Seff"> <!-- build from https://github.com/goswinr/Seff -->
+      <HintPath>../Seff/binHosting/Release/net472/Seff.dll</HintPath>      
     </Reference>
     
-    <!--<ProjectReference Include="..\Seff\SeffHosting.fsproj" />--> <!-- take from https://github.com/goswinr/Seff -->
+    <!--<ProjectReference Include="../Seff/SeffHosting.fsproj" />--> 
  
   </ItemGroup>
   
   
   <ItemGroup>
-    <EmbeddedResource Include="Media\LogoCursorTr.res" />
-    <Resource         Include="Media\LogoCursorTr.ico" />
-    <Resource         Include="Media\LogoCursorTr16.png" />
-    <Resource         Include="Media\LogoCursorTr32.png" />   
-    <Resource         Include="Media\FiraCode-Regular.ttf" />
+    <EmbeddedResource Include="Media/LogoCursorTr.res" />
+    <Resource         Include="Media/LogoCursorTr.ico" />
+    <Resource         Include="Media/LogoCursorTr16.png" />
+    <Resource         Include="Media/LogoCursorTr32.png" />   
+    <Resource         Include="Media/FiraCode-Regular.ttf" />
     
-    <Compile Include="Src\Sync.fs" />    
-    <Compile Include="Src\Addin.fs" />
+    <Compile Include="Src/Sync.fs" />    
+    <Compile Include="Src/Addin.fs" />
     <None    Include="Seff.addin" />
     
   </ItemGroup>
 
   <Target Name="CopyFilesOverAfterBuild" BeforeTargets="AfterBuild">
+
     <!--copy addin file to revit appdata-->
-    <Copy SourceFiles="Seff.addin" DestinationFiles="C:\ProgramData\Autodesk\Revit\Addins\2018\Seff.addin" ContinueOnError="false" />
+    <Copy SourceFiles="Seff.addin" DestinationFiles="C:/ProgramData/Autodesk/Revit/Addins/2018/Seff.addin" ContinueOnError="false" />
 
     <!-- take FSharpSynatxHighlighterExtended.xshd from https://github.com/goswinr/Seff -->
-    <Copy SourceFiles="..\Seff\FSharpSynatxHighlighterExtended.xshd" DestinationFiles="$(TargetDir)FSharpSynatxHighlighterExtended.xshd" ContinueOnError="false" />
+    <Copy SourceFiles="../Seff/FSharpSynatxHighlighterExtended.xshd" DestinationFiles="$(TargetDir)FSharpSynatxHighlighterExtended.xshd" ContinueOnError="false" />
 
     <!-- FSharp.Core.xml is missing otherwise ? to have it as intellisense provider-->
-    <Copy SourceFiles=" $(PkgFSharp_Core)\lib\net45\FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" />
+    <Copy SourceFiles=" $(PkgFSharp_Core)/lib/net45/FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" />
 
   </Target>
 
