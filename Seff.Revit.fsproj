@@ -42,7 +42,9 @@
     <Reference Include="RevitDBAPI">    <HintPath>C:/Program Files/Autodesk/Revit 2018/RevitDBAPI.dll</HintPath>    </Reference>
 
     
-    <PackageReference Update="FSharp.Core" Version="4.6.2" />    <!-- 4.6.2 is needed for Revit with FCS 33.0.1 , see SeffForHosting.fsproj  -->
+    <!-- <PackageReference Update="FSharp.Core" Version="5.0.0" />     -->
+    <!-- 4.6.2 is needed for Revit with FCS 33.0.1 , see SeffForHosting.fsproj  -->
+    <PackageReference Update="FSharp.Core" Version="4.6.2" />    
 
     <Reference Include="ICSharpCode.AvalonEdit">      <!-- build from https://github.com/goswinr/AvalonEdit -->
       <HintPath>../AvalonEdit/ICSharpCode.AvalonEdit/bin/Release/net472/ICSharpCode.AvalonEdit.dll</HintPath> 
@@ -80,6 +82,7 @@
 
     <!-- FSharp.Core.xml is missing otherwise ? to have it as intellisense provider-->
     <Copy SourceFiles=" $(PkgFSharp_Core)/lib/net45/FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" />
+    <!-- <Copy SourceFiles=" $(PkgFSharp_Core)/lib/netstandard2.0/FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" /> -->
 
   </Target>
 
