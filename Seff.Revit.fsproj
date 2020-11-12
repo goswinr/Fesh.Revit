@@ -10,7 +10,8 @@
     <AssemblyName>Seff.Revit</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NeutralLanguage>en</NeutralLanguage>
-     
+    <!--AutoGenerateBindingRedirects needed ??-->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects> 
     <!--to silence errors with revit dlls:-->
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>    
     
