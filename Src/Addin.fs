@@ -6,6 +6,7 @@ open Autodesk.Revit.Attributes
 open System
 open System.Windows
 open Seff
+open Seff.Model
 open Seff.Config
 open System.Windows.Input
 open System.Reflection
