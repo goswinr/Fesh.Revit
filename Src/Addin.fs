@@ -37,7 +37,7 @@ type internal RunEvHandler(seff:Seff, queue: ConcurrentQueue< UIApplication->uni
             try
                 f(app) 
             with e ->
-                seff.Log.PrintFsiErrorMsg "Error caught in IExternalEventHandler: %A" e
+                seff.Log.PrintfnFsiErrorMsg "Error caught in IExternalEventHandler: %A" e
                 
     
     interface IExternalEventHandler with 
@@ -104,7 +104,7 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
                 //uiConApp.LoadAddIn
                 seff.Fsi.OnRuntimeError.Add (fun e -> 
                     match e with 
-                    | :? MissingMethodException -> seff.Log.PrintFsiErrorMsg "*** To avoid this MissingMethodException exception try restarting Revit without a document.\r\n*** Then from within Revit open your desired project.\r\n*** If the error persits please report it!"
+                    | :? MissingMethodException -> seff.Log.PrintfnFsiErrorMsg "*** To avoid this MissingMethodException exception try restarting Revit without a document.\r\n*** Then from within Revit open your desired project.\r\n*** If the error persits please report it!"
                     | _ -> ()
                     )
 
