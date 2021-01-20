@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType> 
     <UseWPF>true</UseWPF>
-    <TargetFramework>net472</TargetFramework><!--472 to have fewer files, 461 ok too-->
+    <TargetFramework>net462</TargetFramework><!-- net462 needed for Revit 2018 !?-->
     <LangVersion>preview</LangVersion>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages><!--to only have the english resources of fsharp.core-->
     <RootNamespace>Seff.Revit</RootNamespace>
@@ -12,6 +12,7 @@
     <NeutralLanguage>en</NeutralLanguage>
     <!--AutoGenerateBindingRedirects needed ??-->
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects> 
+
     <!--to silence errors with revit dlls:-->
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>    
     
@@ -43,16 +44,17 @@
     <Reference Include="RevitDBAPI">    <HintPath>C:/Program Files/Autodesk/Revit 2018/RevitDBAPI.dll</HintPath>    </Reference>
 
     
-    <!-- <PackageReference Update="FSharp.Core" Version="5.0.0" />     -->
-    <!-- 4.6.2 is needed for Revit with FCS 33.0.1 , see SeffForHosting.fsproj  -->
-    <PackageReference Update="FSharp.Core" Version="4.6.2" />    
+    <!-- FSharp.Core 4.6.2 is needed for Revit ( with FCS 33.0.1, see SeffForHosting.fsproj  -->
+    <!-- <PackageReference Update="FSharp.Core" Version="4.6.2" />     -->
+    <!-- GeneratePathProperty: path property $(PkgFSharp_Core) is C:\Users\Gos\.nuget\packages\fsharp.core\4.6.2 -->
+    <PackageReference Update="FSharp.Core" Version="4.6.2" GeneratePathProperty="true" />   <!-- Inclde not Update ?--> 
 
-    <Reference Include="ICSharpCode.AvalonEdit">      <!-- build from https://github.com/goswinr/AvalonEdit -->
-      <HintPath>../AvalonEdit/ICSharpCode.AvalonEdit/bin/Release/net472/ICSharpCode.AvalonEdit.dll</HintPath> 
+    <Reference Include="ICSharpCode.AvalonEdit">      <!-- build from https://github.com/goswinr/AvalonEdit revit 2018 needs net462 !?-->
+      <HintPath>../AvalonEdit/ICSharpCode.AvalonEdit/bin/Release/net462/ICSharpCode.AvalonEdit.dll</HintPath> 
     </Reference>   
   
     <Reference Include="Seff"> <!-- build from https://github.com/goswinr/Seff -->
-      <HintPath>../Seff/binHosting/Release/net472/Seff.dll</HintPath>      
+      <HintPath>../Seff/binHostingRevit/Release/net462/Seff.dll</HintPath>      
     </Reference>
     
     <!--<ProjectReference Include="../Seff/SeffHosting.fsproj" />--> 
@@ -82,7 +84,9 @@
     <Copy SourceFiles="../Seff/FSharpSynatxHighlighterExtended.xshd" DestinationFiles="$(TargetDir)FSharpSynatxHighlighterExtended.xshd" ContinueOnError="false" />
 
     <!-- FSharp.Core.xml is missing otherwise ? to have it as intellisense provider-->
+    
     <Copy SourceFiles=" $(PkgFSharp_Core)/lib/net45/FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" />
+    
     <!-- <Copy SourceFiles=" $(PkgFSharp_Core)/lib/netstandard2.0/FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" /> -->
 
   </Target>
