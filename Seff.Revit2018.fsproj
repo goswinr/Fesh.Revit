@@ -27,7 +27,26 @@
     
     <ApplicationIcon>Media/LogoCursorTr.ico</ApplicationIcon>
     <Win32Resource>Media/LogoCursorTr.res</Win32Resource><!--  for Application Icon in explorer-->
-</PropertyGroup>
+
+
+    <Configurations>Debug;Release</Configurations>
+
+  </PropertyGroup>
+
+
+
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>bin2018/Debug/</OutputPath>
+  </PropertyGroup> 
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>bin2018/Release/</OutputPath>
+  </PropertyGroup>
+
+
+
+
 
   <!--<ItemGroup>
     <PackageReference Include="Revit.RevitApi.x64" Version="2018.0.0" />
