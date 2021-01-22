@@ -6,8 +6,6 @@
     <TargetFramework>net462</TargetFramework><!-- net462 needed for Revit 2018 !?-->
     <LangVersion>preview</LangVersion>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages><!--to only have the english resources of fsharp.core-->
-    <RootNamespace>Seff.Revit</RootNamespace>
-    <AssemblyName>Seff.Revit</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NeutralLanguage>en</NeutralLanguage>
     <!--AutoGenerateBindingRedirects needed ??-->
@@ -16,9 +14,11 @@
     <!--to silence errors with revit dlls:-->
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>    
     
-    <Version>0.2.0.0</Version>
-    <AssemblyVersion>0.2.0.0</AssemblyVersion>
-    <FileVersion>0.2.0.0</FileVersion>
+    <RootNamespace>Seff.Revit</RootNamespace>
+    <AssemblyName>Seff.Revit</AssemblyName>
+    <Version>0.3.1.0</Version>
+    <AssemblyVersion>0.3.1.0</AssemblyVersion>
+    <FileVersion>0.3.1.0</FileVersion>
 
     <Authors>Goswin Rothenthal</Authors>
     <Product>Seff.Revit</Product>
