@@ -25,8 +25,9 @@ module Debug =
 
  [<AbstractClass; Sealed>]
  type Current private ()=     
-     static member val internal SeffWasEverShown: bool      = false with get,set
-     static member val          SeffWindow      : Window    = null  with get, set 
+     static member val internal seffWasEverShown: bool      = false with get,set
+     //static member val          seffWindow   = Unchecked.defaultof<Window>  with get, set 
+     static member val          seff         = Unchecked.defaultof<Seff>    with get, set 
 
 
 type internal RunEvHandler(seff:Seff, queue: ConcurrentQueue< UIApplication->unit >) =    
@@ -97,8 +98,9 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
                 //https://thebuildingcoder.typepad.com/blog/2018/11/revit-window-handle-and-parenting-an-add-in-form.html
                 let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
                 let canRun = fun () ->  true // TODO check if in command, or enqued anyway?  !!
-                let seff= Seff.App.createEditorForHosting({ hostName= "Revit" ; mainWindowHandel= winHandle; fsiCanRun=canRun  })
-                Current.SeffWindow <- seff.Window
+                let seff= Seff.App.createEditorForHosting({ hostName= "Revit" ; mainWindowHandel = winHandle; fsiCanRun =  canRun  })
+                //Current.seffWindow <- seff.Window
+                Current.seff <- seff
 
                 //TODO make a C# plugin that loads Seff.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI
                 //uiConApp.LoadAddIn
@@ -160,14 +162,14 @@ type StartEditorCommand() = // don't rename ! string referenced in  PushButtonDa
     interface IExternalCommand with
         member this.Execute(commandData: ExternalCommandData, message: byref<string>, elements: ElementSet): Result = 
             try                
-                if not Current.SeffWasEverShown then 
+                if not Current.seffWasEverShown then 
                     
                     //--------- now show() -------------------
-                    Current.SeffWindow.Show()
-                    Current.SeffWasEverShown <- true
+                    Current.seff.Window.Show()
+                    Current.seffWasEverShown <- true
                     Result.Succeeded
                 else                    
-                    Current.SeffWindow.Visibility <- Visibility.Visible
+                    Current.seff.Window.Visibility <- Visibility.Visible
                     Result.Succeeded
 
             with ex ->

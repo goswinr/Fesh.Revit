@@ -83,14 +83,15 @@
   
   <ItemGroup>
     <EmbeddedResource Include="Media/LogoCursorTr.res" />
-    <Resource         Include="Media/LogoCursorTr.ico" />
-    <Resource         Include="Media/LogoCursorTr16.png" />
-    <Resource         Include="Media/LogoCursorTr32.png" />   
-    <Resource         Include="Media/FiraCode-Regular.ttf" />
+    <Resource Include="Media/LogoCursorTr.ico" />
+    <Resource Include="Media/LogoCursorTr16.png" />
+    <Resource Include="Media/LogoCursorTr32.png" />   
+    <Resource Include="Media/FiraCode-Regular.ttf" />
     
     <Compile Include="Src/Sync.fs" />    
-    <Compile Include="Src/Addin.fs" />
-    <None    Include="Seff.addin" />
+    <Compile Include="Src/Addin.fs" />    
+    <None Include="Src\ScriptingSyntax.fs" />
+    <None Include="Seff.addin" />
     
   </ItemGroup>
 

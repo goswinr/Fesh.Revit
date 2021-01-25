@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Seff.Revit2018", "Seff.Revit2018.fsproj", "{A4D24E16-D6C0-40E8-B99E-2FEE935E1759}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A4D24E16-D6C0-40E8-B99E-2FEE935E1759}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4D24E16-D6C0-40E8-B99E-2FEE935E1759}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4D24E16-D6C0-40E8-B99E-2FEE935E1759}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4D24E16-D6C0-40E8-B99E-2FEE935E1759}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A1172EEF-535D-49DB-959B-CC8D43F8DFBD}
+	EndGlobalSection
+EndGlobal
