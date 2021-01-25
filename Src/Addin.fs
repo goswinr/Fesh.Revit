@@ -6,6 +6,7 @@ open Autodesk.Revit.Attributes
 open System
 open System.Windows
 open Seff
+open Seff.Util.General
 open Seff.Model
 open Seff.Config
 open System.Windows.Input
@@ -16,29 +17,42 @@ open System.Diagnostics
 
 // example of modeless dialog: https://github.com/pierpaolo-canini/Lame-Duck
 
-module Debug =   
-    let log prefix (content:string) =
-        let time = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss-fff")        
+ [<AbstractClass; Sealed>]
+ type App private () =     
+     
+     static member val internal seffWasEverShown: bool      =  false        with get,set     
+     
+     static member val  seff  = Unchecked.defaultof<Seff>  with get, set 
+     
+     static member alert msg =  
+        Printf.kprintf (fun s -> 
+            if not <|  Object.ReferenceEquals(App.seff,null) then  App.seff.Log.PrintnColor 180 100 10 s
+            else                                                   TaskDialog.Show("Seff Addin App.alert", s) |> ignore 
+            ) msg
+     
+     static member log msg =  
+        Printf.kprintf (fun s -> 
+            if not <|  Object.ReferenceEquals(App.seff,null) then  App.seff.Log.PrintnColor 50 100 10 s            
+            ) msg
+
+     static member logToFile prefix (content:string) =
+        let time = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss-fff") // ensure unique name       
         let filename = sprintf "%sSeff.Revit.Log-%s.txt" prefix time
         let file = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),filename)
-        async {try  IO.File.WriteAllText(file, content) with _ -> ()} |> Async.Start // file might be open and locked
-
- [<AbstractClass; Sealed>]
- type Current private ()=     
-     static member val internal seffWasEverShown: bool      = false with get,set
-     //static member val          seffWindow   = Unchecked.defaultof<Window>  with get, set 
-     static member val          seff         = Unchecked.defaultof<Seff>    with get, set 
+        async {try  IO.File.WriteAllText(file, content) with _ -> ()} |> Async.Start 
 
 
-type internal RunEvHandler(seff:Seff, queue: ConcurrentQueue< UIApplication->unit >) =    
+[<Transaction(TransactionMode.Manual)>]
+type internal FsiRunEventHandler (seff:Seff, queue: ConcurrentQueue< UIApplication->unit >) =    
     member this.GetName() = "Run in Seff"
     member this.Execute(app:UIApplication) = 
-        let ok,f = queue.TryDequeue()
-        if ok then
+        let f = ref Unchecked.defaultof<UIApplication->unit>
+        while queue.TryDequeue(f) do 
             try
-                f(app) 
+                (!f)(app) 
             with e ->
                 seff.Log.PrintfnFsiErrorMsg "Error caught in IExternalEventHandler: %A" e
+       
                 
     
     interface IExternalEventHandler with 
@@ -49,39 +63,36 @@ type internal RunEvHandler(seff:Seff, queue: ConcurrentQueue< UIApplication->uni
 [<Regeneration(RegenerationOption.Manual)>]
 [<Transaction(TransactionMode.Manual)>]
 [<AllowNullLiteralAttribute>]
-type SeffAddin() = // don't rename ! string referenced in in seff.addin file 
-    
+type SeffAddin() = // don't rename ! string referenced in in seff.addin file     
+
     let mutable exEvent:ExternalEvent = null 
     
-    let queue = ConcurrentQueue<UIApplication->unit>()
-    
-    static let mutable instance : SeffAddin = null
+    let queue = ConcurrentQueue<UIApplication->unit>()    
 
-    static member Instance = instance
-    
-    //member this.Queue = queue
-
-    //member this.ExternalEvent  with get() = exEvent   and set(e) = exEvent <- e
-
-    member this.RunApp (f:UIApplication->unit) =  
+    static member val Instance = null with get,set
+   
+    member this.RunOnApp (f:UIApplication -> unit) =  
         queue.Enqueue(f)
-        exEvent.Raise() |> ignore 
+        match exEvent.Raise() with 
+        |ExternalEventRequest.Accepted -> ()
+        |ExternalEventRequest.Denied   -> App.alert "exEvent.Raise() returned ExternalEventRequest.Denied"
+        |ExternalEventRequest.Pending  -> App.alert "exEvent.Raise() returned ExternalEventRequest.Pending"
+        |ExternalEventRequest.TimedOut -> App.alert "exEvent.Raise() returned ExternalEventRequest.TimedOut"
+        |x -> App.alert "exEvent.Raise() returned unknown ExternalEventRequest: %A" x
     
-    member this.RunDoc (f:Document->unit) =  
-        queue.Enqueue(fun app -> f(app.ActiveUIDocument.Document))
-        exEvent.Raise() |> ignore 
-    
+    member this.RunOnDoc (f:Document->unit) =  
+        this.RunOnApp (fun app -> f app.ActiveUIDocument.Document)    
    
     interface IExternalApplication with
         member this.OnStartup(uiConApp:UIControlledApplication) =
             try
                 Sync.installSynchronizationContext()
-                instance <- this     
+                SeffAddin.Instance <- this     
                 
                 // ------------------- create Ribbon and button -------------------------------------------
                 let thisAssemblyPath = Reflection.Assembly.GetExecutingAssembly().Location     
                 let button = new PushButtonData("Seff", "Open Fsharp Editor", thisAssemblyPath, "Seff.Revit.StartEditorCommand")
-                button.ToolTip <- "This will open the Seff Editor Window"
+                button.ToolTip <- "This will open the Seff F# Script Editor Window"
             
                 let uriImage32 = new Uri("pack://application:,,,/Seff.Revit;component/Media/LogoCursorTr32.png") // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" /> 
                 let uriImage16 = new Uri("pack://application:,,,/Seff.Revit;component/Media/LogoCursorTr16.png")              
@@ -97,13 +108,11 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
                 //-------------- start Seff -------------------------------------------------------------                
                 //https://thebuildingcoder.typepad.com/blog/2018/11/revit-window-handle-and-parenting-an-add-in-form.html
                 let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
-                let canRun = fun () ->  true // TODO check if in command, or enqued anyway?  !!
-                let seff= Seff.App.createEditorForHosting({ hostName= "Revit" ; mainWindowHandel = winHandle; fsiCanRun =  canRun  })
-                //Current.seffWindow <- seff.Window
-                Current.seff <- seff
+                let canRun = fun () ->  true // TODO check if in command, or enqued anyway ?  !!
+                let seff= Seff.App.createEditorForHosting({ hostName= "Revit 2018" ; mainWindowHandel = winHandle; fsiCanRun =  canRun  })                
+                App.seff <- seff
 
-                //TODO make a C# plugin that loads Seff.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI
-                //uiConApp.LoadAddIn
+                //TODO make a C# plugin that loads Seff.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI                
                 seff.Fsi.OnRuntimeError.Add (fun e -> 
                     match e with 
                     | :? MissingMethodException -> seff.Log.PrintfnFsiErrorMsg "*** To avoid this MissingMethodException exception try restarting Revit without a document.\r\n*** Then from within Revit open your desired project.\r\n*** If the error persits please report it!"
@@ -111,7 +120,7 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
                     )
 
 
-                (* //TODO Alt enter does not work !
+                (* //TODO Alt enter does not work !?!
                 seff.Window.KeyDown.Add(fun e -> //to avoid pressing alt to focus on menu and the diabeling Alt+Enter for Evaluationg selection in FSI                       
                     seff.Log.PrintDebugMsg "key: %A, sytem key: %A, mod: %A " e.Key e.SystemKey Keyboard.Modifiers 
                     //if e.Key = Key.LeftAlt || e.Key = Key.RightAlt then 
@@ -138,21 +147,22 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
                         e.Cancel <- true) // no closing
                            
                         
-                //-------------- hook up Seff ------------------------------------------------------------- 
-                let handler = RunEvHandler(seff, queue)
-                exEvent <- ExternalEvent.Create(handler)                
-                           
-                              
+                //-------------- hook up Seff -------------------------------------------------------------                 
+                exEvent <- ExternalEvent.Create(FsiRunEventHandler(seff, queue))                               
                 Result.Succeeded
 
             with ex ->
-                TaskDialog.Show("OnStartup of Seff.Revit.dll", sprintf "%A" ex ) |> ignore 
+                TaskDialog.Show("OnStartup of 2018 Seff.Revit.dll", sprintf "%A" ex ) |> ignore 
                 Result.Failed
 
         
-        member this.OnShutdown(app:UIControlledApplication) =           
-
+        member this.OnShutdown(app:UIControlledApplication) =  
             Result.Succeeded
+
+            
+        //member this.Queue = queue
+
+        //member this.ExternalEvent  with get() = exEvent   and set(e) = exEvent <- e       
 
 
 
@@ -162,14 +172,12 @@ type StartEditorCommand() = // don't rename ! string referenced in  PushButtonDa
     interface IExternalCommand with
         member this.Execute(commandData: ExternalCommandData, message: byref<string>, elements: ElementSet): Result = 
             try                
-                if not Current.seffWasEverShown then 
-                    
-                    //--------- now show() -------------------
-                    Current.seff.Window.Show()
-                    Current.seffWasEverShown <- true
+                if not App.seffWasEverShown then
+                    App.seff.Window.Show()
+                    App.seffWasEverShown <- true
                     Result.Succeeded
                 else                    
-                    Current.seff.Window.Visibility <- Visibility.Visible
+                    App.seff.Window.Visibility <- Visibility.Visible
                     Result.Succeeded
 
             with ex ->

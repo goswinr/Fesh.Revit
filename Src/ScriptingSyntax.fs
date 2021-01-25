@@ -1,5 +1,4 @@
-﻿//namespace Revit.Scripting
-namespace Seff.Revit
+﻿namespace Seff.Revit
 
 open Autodesk.Revit.UI
 open Autodesk.Revit.DB
@@ -18,8 +17,9 @@ open System.Diagnostics
 module ScriptingSyntax =
     
     /// runs a function in a transaction
-    let run (f:Document-> unit)  = 
-        SeffAddin.Instance.RunDoc (fun (doc:Document) ->  
+    /// will log errors to Seff Log if trabsaction has problems
+    let run (f: Document-> unit)  = 
+        SeffAddin.Instance.RunOnDoc (fun (doc:Document) ->  
             use t = new Transaction(doc, "Seff F# script")        
             let s = t.Start() 
             match s with 
@@ -37,7 +37,7 @@ module ScriptingSyntax =
             try
                 f(doc)
             with ex -> 
-                Current.seff.Log.printfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
+                App.seff.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
 
             let r = t.Commit()
             match r with 

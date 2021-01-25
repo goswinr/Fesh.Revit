@@ -89,8 +89,8 @@
     <Resource Include="Media/FiraCode-Regular.ttf" />
     
     <Compile Include="Src/Sync.fs" />    
-    <Compile Include="Src/Addin.fs" />    
-    <None Include="Src\ScriptingSyntax.fs" />
+    <Compile Include="Src/Addin.fs" />
+    <Compile Include="Src/ScriptingSyntax.fs" />
     <None Include="Seff.addin" />
     
   </ItemGroup>
