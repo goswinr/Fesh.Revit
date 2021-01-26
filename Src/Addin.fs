@@ -81,85 +81,88 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
         |x -> App.alert "exEvent.Raise() returned unknown ExternalEventRequest: %A" x
     
     member this.RunOnDoc (f:Document->unit) =  
-        this.RunOnApp (fun app -> f app.ActiveUIDocument.Document)    
-   
-    interface IExternalApplication with
-        member this.OnStartup(uiConApp:UIControlledApplication) =
-            try
-                Sync.installSynchronizationContext()
-                SeffAddin.Instance <- this     
+        this.RunOnApp (fun app -> f app.ActiveUIDocument.Document)  
+
+    
+    member this.OnStartup(uiConApp:UIControlledApplication) =
+        try
+            Sync.installSynchronizationContext()
+            SeffAddin.Instance <- this     
                 
-                // ------------------- create Ribbon and button -------------------------------------------
-                let thisAssemblyPath = Reflection.Assembly.GetExecutingAssembly().Location     
-                let button = new PushButtonData("Seff", "Open Fsharp Editor", thisAssemblyPath, "Seff.Revit.StartEditorCommand")
-                button.ToolTip <- "This will open the Seff F# Script Editor Window"
+            // ------------------- create Ribbon and button -------------------------------------------
+            let thisAssemblyPath = Reflection.Assembly.GetExecutingAssembly().Location     
+            let button = new PushButtonData("Seff", "Open Fsharp Editor", thisAssemblyPath, "Seff.Revit.StartEditorCommand")
+            button.ToolTip <- "This will open the Seff F# Script Editor Window"
             
-                let uriImage32 = new Uri("pack://application:,,,/Seff.Revit;component/Media/LogoCursorTr32.png") // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" /> 
-                let uriImage16 = new Uri("pack://application:,,,/Seff.Revit;component/Media/LogoCursorTr16.png")              
-                button.LargeImage <- Media.Imaging.BitmapImage(uriImage32)//for ribbon in tab
-                button.Image      <- Media.Imaging.BitmapImage(uriImage16)//for quick acess toolbar
+            let uriImage32 = new Uri("pack://application:,,,/Seff.Revit;component/Media/LogoCursorTr32.png") // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" /> 
+            let uriImage16 = new Uri("pack://application:,,,/Seff.Revit;component/Media/LogoCursorTr16.png")              
+            button.LargeImage <- Media.Imaging.BitmapImage(uriImage32)//for ribbon in tab
+            button.Image      <- Media.Imaging.BitmapImage(uriImage16)//for quick acess toolbar
             
-                let tabId = "Seff"
-                uiConApp.CreateRibbonTab(tabId)
-                let panel = uiConApp.CreateRibbonPanel(tabId,"Seff")            
-                panel.AddItem(button) |> ignore
+            let tabId = "Seff"
+            uiConApp.CreateRibbonTab(tabId)
+            let panel = uiConApp.CreateRibbonPanel(tabId,"Seff")            
+            panel.AddItem(button) |> ignore
                 
 
-                //-------------- start Seff -------------------------------------------------------------                
-                //https://thebuildingcoder.typepad.com/blog/2018/11/revit-window-handle-and-parenting-an-add-in-form.html
-                let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
-                let canRun = fun () ->  true // TODO check if in command, or enqued anyway ?  !!
-                let seff= Seff.App.createEditorForHosting({ hostName= "Revit 2018" ; mainWindowHandel = winHandle; fsiCanRun =  canRun  })                
-                App.seff <- seff
+            //-------------- start Seff -------------------------------------------------------------                
+            //https://thebuildingcoder.typepad.com/blog/2018/11/revit-window-handle-and-parenting-an-add-in-form.html
+            let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
+            let canRun = fun () ->  true // TODO check if in command, or enqued anyway ?  !!
+            let seff= Seff.App.createEditorForHosting({ hostName= "Revit 2018" ; mainWindowHandel = winHandle; fsiCanRun =  canRun  })                
+            App.seff <- seff
 
-                //TODO make a C# plugin that loads Seff.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI                
-                seff.Fsi.OnRuntimeError.Add (fun e -> 
-                    match e with 
-                    | :? MissingMethodException -> seff.Log.PrintfnFsiErrorMsg "*** To avoid this MissingMethodException exception try restarting Revit without a document.\r\n*** Then from within Revit open your desired project.\r\n*** If the error persits please report it!"
-                    | _ -> ()
-                    )
+            //TODO make a C# plugin that loads Seff.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI                
+            seff.Fsi.OnRuntimeError.Add (fun e -> 
+                match e with 
+                | :? MissingMethodException -> seff.Log.PrintfnFsiErrorMsg "*** To avoid this MissingMethodException exception try restarting Revit without a document.\r\n*** Then from within Revit open your desired project.\r\n*** If the error persits please report it!"
+                | _ -> ()
+                )
 
 
-                (* //TODO Alt enter does not work !?!
-                seff.Window.KeyDown.Add(fun e -> //to avoid pressing alt to focus on menu and the diabeling Alt+Enter for Evaluationg selection in FSI                       
-                    seff.Log.PrintDebugMsg "key: %A, sytem key: %A, mod: %A " e.Key e.SystemKey Keyboard.Modifiers 
-                    //if e.Key = Key.LeftAlt || e.Key = Key.RightAlt then 
-                    //    e.Handled <- true
-                    //elif (Keyboard.Modifiers = ModifierKeys.Alt && e.Key = Key.Enter) ||
-                    //   (Keyboard.Modifiers = ModifierKeys.Alt && e.Key = Key.Return) then 
-                    //        seff.Fsi.Evaluate{code = seff.Tabs.CurrAvaEdit.SelectedText ; file=seff.Tabs.Current.FilePath; allOfFile=false}                          
-                    //        e.Handled <- true
-                    )                
-                seff.Tabs.Control.PreviewKeyDown.Add (fun e -> 
-                    if Keyboard.Modifiers = ModifierKeys.Alt && Keyboard.IsKeyDown(Key.Enter) then 
-                        seff.Log.PrintDebugMsg "Alt+Enter"
-                    elif Keyboard.Modifiers = ModifierKeys.Alt && Keyboard.IsKeyDown(Key.Return) then 
-                        seff.Log.PrintDebugMsg "Alt+Return"
-                    else
-                        seff.Log.PrintDebugMsg "not Alt+Enter" 
-                        )            *)
+            (* //TODO Alt enter does not work !?!
+            seff.Window.KeyDown.Add(fun e -> //to avoid pressing alt to focus on menu and the diabeling Alt+Enter for Evaluationg selection in FSI                       
+                seff.Log.PrintDebugMsg "key: %A, sytem key: %A, mod: %A " e.Key e.SystemKey Keyboard.Modifiers 
+                //if e.Key = Key.LeftAlt || e.Key = Key.RightAlt then 
+                //    e.Handled <- true
+                //elif (Keyboard.Modifiers = ModifierKeys.Alt && e.Key = Key.Enter) ||
+                //   (Keyboard.Modifiers = ModifierKeys.Alt && e.Key = Key.Return) then 
+                //        seff.Fsi.Evaluate{code = seff.Tabs.CurrAvaEdit.SelectedText ; file=seff.Tabs.Current.FilePath; allOfFile=false}                          
+                //        e.Handled <- true
+                )                
+            seff.Tabs.Control.PreviewKeyDown.Add (fun e -> 
+                if Keyboard.Modifiers = ModifierKeys.Alt && Keyboard.IsKeyDown(Key.Enter) then 
+                    seff.Log.PrintDebugMsg "Alt+Enter"
+                elif Keyboard.Modifiers = ModifierKeys.Alt && Keyboard.IsKeyDown(Key.Return) then 
+                    seff.Log.PrintDebugMsg "Alt+Return"
+                else
+                    seff.Log.PrintDebugMsg "not Alt+Enter" 
+                    )            *)
 
-                seff.Window.Closing.Add (fun e -> 
-                    match seff.Fsi.AskAndCancel() with
-                    |Evaluating -> e.Cancel <- true // no closing
-                    |Ready | Initalizing | NotLoaded -> 
-                        seff.Window.Visibility <- Visibility.Hidden                           
-                        e.Cancel <- true) // no closing
+            seff.Window.Closing.Add (fun e -> 
+                match seff.Fsi.AskAndCancel() with
+                |Evaluating -> e.Cancel <- true // no closing
+                |Ready | Initalizing | NotLoaded -> 
+                    seff.Window.Visibility <- Visibility.Hidden                           
+                    e.Cancel <- true) // no closing
                            
                         
-                //-------------- hook up Seff -------------------------------------------------------------                 
-                exEvent <- ExternalEvent.Create(FsiRunEventHandler(seff, queue))                               
-                Result.Succeeded
-
-            with ex ->
-                TaskDialog.Show("OnStartup of 2018 Seff.Revit.dll", sprintf "%A" ex ) |> ignore 
-                Result.Failed
-
-        
-        member this.OnShutdown(app:UIControlledApplication) =  
+            //-------------- hook up Seff -------------------------------------------------------------                 
+            exEvent <- ExternalEvent.Create(FsiRunEventHandler(seff, queue))                               
             Result.Succeeded
 
-            
+        with ex ->
+            TaskDialog.Show("OnStartup of 2018 Seff.Revit.dll", sprintf "%A" ex ) |> ignore 
+            Result.Failed
+
+        
+    member this.OnShutdown(app:UIControlledApplication) =  
+        Result.Succeeded
+        
+    interface IExternalApplication with
+        member this.OnStartup(uiConApp:UIControlledApplication) = this.OnStartup(uiConApp)
+        member this.OnShutdown(app:UIControlledApplication) =  this.OnShutdown(app)
+        
         //member this.Queue = queue
 
         //member this.ExternalEvent  with get() = exEvent   and set(e) = exEvent <- e       
@@ -168,9 +171,8 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
 
 [<Regeneration(RegenerationOption.Manual)>]  
 [<Transaction(TransactionMode.Manual)>]
-type StartEditorCommand() = // don't rename ! string referenced in  PushButtonData //new instance is created on every button click    
-    interface IExternalCommand with
-        member this.Execute(commandData: ExternalCommandData, message: byref<string>, elements: ElementSet): Result = 
+type StartEditorCommand() = // don't rename ! string referenced in  PushButtonData //new instance is created on every button click   
+    member this.Execute(commandData: ExternalCommandData, message: byref<string>, elements: ElementSet): Result = 
             try                
                 if not App.seffWasEverShown then
                     App.seff.Window.Show()
@@ -181,8 +183,13 @@ type StartEditorCommand() = // don't rename ! string referenced in  PushButtonDa
                     Result.Succeeded
 
             with ex ->
-                TaskDialog.Show("Execute Button Seff", sprintf "%A" ex ) |> ignore 
+                TaskDialog.Show("Execute Button Seff", sprintf "StartEditorCommand: message %s\r\ncommandData:%A\r\nelements:%A\r\nException:%A" message commandData elements ex ) |> ignore 
                 Result.Failed
+    
+    
+    interface IExternalCommand with
+        member this.Execute(commandData: ExternalCommandData, message: byref<string>, elements: ElementSet): Result = 
+            this.Execute(commandData, &message, elements)
 
 
             (* let uiApp =
