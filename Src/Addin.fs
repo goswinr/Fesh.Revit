@@ -17,54 +17,61 @@ open System.Diagnostics
 
 // example of modeless dialog: https://github.com/pierpaolo-canini/Lame-Duck
 
- [<AbstractClass; Sealed>]
- type App private () =     
-     
-     static let mutable logFileOnDesktopCount = ref 0
+/// A static class to provide logging and  access to the Seff Editor
+[<AbstractClass; Sealed>]
+type App private () =     
+    
+    static let mutable logFileOnDesktopCount = ref 0
 
-     static let mutable seff  = Unchecked.defaultof<Seff> 
+    static let mutable seff  = Unchecked.defaultof<Seff> 
 
-     /// for managing visibility state when showing and hiding the editor window
-     static member val internal seffWasEverShown: bool =  false with get,set     
-     
-     /// a static reference to the current Seff Editor 
-     static member Seff 
-        with get() = seff 
-        and internal set v = seff <- v
-     
-     /// creates a log or debug txt file on the desktop 
-     /// file name includes datetime to be unique
-     /// sprintf "%sSeff.Revit.Log-%s.txt" filePrefix time
-     static member logToFile filePrefix (content:string) =
-        let checkedPrefix = if isNull filePrefix then "NULLPREFIX" else filePrefix
-        let checkedContent = if String.IsNullOrWhiteSpace content then "content is String.IsNullOrWhiteSpace" else content
-        let time = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss-fff") // ensure unique name       
-        let filename = sprintf "%sSeff.Revit.Log-%s.txt" checkedPrefix time
-        async {
-            try
-                let file = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),filename)
-                IO.File.WriteAllText(file, checkedContent) 
-            with _ -> () } |> Async.Start 
-     
-     /// logs text to Seff editor window in red
-     /// if Seff is null it writes a text file to desktop too and shows a Task Dialog.
-     static member alert msg =  
-        Printf.kprintf (fun s -> 
-            if not <|  Object.ReferenceEquals(seff,null) && seff.Window.IsLoaded then  seff.Log.PrintnColor 180 100 10 s
-            elif !logFileOnDesktopCount < 10 then 
-                incr logFileOnDesktopCount
-                App.logToFile "App.alert-" s                
-                TaskDialog.Show("Seff Addin App.alert", s) |> ignore 
-            ) msg     
-     
-     
-     /// logs text to Seff editor window in green
-     /// does nothing if Seff is null
-     static member log msg =  
-        Printf.kprintf (fun s -> 
-            if not <|  Object.ReferenceEquals(seff,null) then  seff.Log.PrintnColor 50 100 10 s            
-            ) msg
-
+    /// for managing visibility state when showing and hiding the editor window
+    static member val internal seffWasEverShown: bool =  false with get,set     
+    
+    /// a static reference to the current Seff Editor 
+    static member Seff 
+       with get() = seff 
+       and internal set v = seff <- v // set is internal only
+    
+    /// creates a log or debug txt file on the desktop 
+    /// file name includes datetime to be unique
+    /// sprintf "%sSeff.Revit.Log-%s.txt" filePrefix time
+    static member logToFile filePrefix (content:string) =
+       let checkedPrefix = if isNull filePrefix then "NULLPREFIX" else filePrefix
+       let checkedContent = if String.IsNullOrWhiteSpace content then "content is String.IsNullOrWhiteSpace" else content
+       let time = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss-fff") // ensure unique name       
+       let filename = sprintf "%sSeff.Revit.Log-%s.txt" checkedPrefix time
+       async {
+           try
+               let file = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),filename)
+               IO.File.WriteAllText(file, checkedContent) 
+           with _ -> () } |> Async.Start 
+    
+    /// logs text to Seff editor window in red
+    /// if Seff is null it writes a text file to desktop instead and shows a Task Dialog.
+    static member alert msg =  
+       Printf.kprintf (fun s -> 
+           if not <|  Object.ReferenceEquals(seff,null) && seff.Window.IsLoaded then  
+               try
+                   seff.Log.PrintnColor 180 100 10 s
+               with e -> // in case the logging fails
+                   incr logFileOnDesktopCount
+                   let printE = sprintf "\r\nLog.PrintnColor error:\r\n%A" e
+                   App.logToFile "App.alertFailed-" (s+printE)                
+                   TaskDialog.Show("Seff Addin App.alertFailed", s+printE) |> ignore 
+           elif !logFileOnDesktopCount < 10 then 
+               incr logFileOnDesktopCount
+               App.logToFile "App.alert-" s                
+               TaskDialog.Show("Seff Addin App.alert", s) |> ignore 
+           ) msg     
+    
+    
+    /// logs text to Seff editor window in green
+    /// does nothing if Seff is null
+    static member log msg =  
+       Printf.kprintf (fun s -> 
+           if not <|  Object.ReferenceEquals(seff,null) then  seff.Log.PrintnColor 50 100 10 s            
+           ) msg
 
 
 

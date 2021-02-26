@@ -37,7 +37,7 @@ module ScriptingSyntax =
             try
                 f(doc)
             with ex -> 
-                App.seff.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
+                App.Seff.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
 
             let r = t.Commit()
             match r with 
@@ -75,7 +75,7 @@ module ScriptingSyntax =
             try
                 f(app)
             with ex -> 
-                App.seff.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
+                App.Seff.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
 
             let r = t.Commit()
             match r with 
