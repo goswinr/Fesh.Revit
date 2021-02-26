@@ -20,26 +20,52 @@ open System.Diagnostics
  [<AbstractClass; Sealed>]
  type App private () =     
      
-     static member val internal seffWasEverShown: bool      =  false        with get,set     
+     static let mutable logFileOnDesktopCount = ref 0
+
+     static let mutable seff  = Unchecked.defaultof<Seff> 
+
+     /// for managing visibility state when showing and hiding the editor window
+     static member val internal seffWasEverShown: bool =  false with get,set     
      
-     static member val  seff  = Unchecked.defaultof<Seff>  with get, set 
+     /// a static reference to the current Seff Editor 
+     static member Seff 
+        with get() = seff 
+        and internal set v = seff <- v
      
+     /// creates a log or debug txt file on the desktop 
+     /// file name includes datetime to be unique
+     /// sprintf "%sSeff.Revit.Log-%s.txt" filePrefix time
+     static member logToFile filePrefix (content:string) =
+        let checkedPrefix = if isNull filePrefix then "NULLPREFIX" else filePrefix
+        let checkedContent = if String.IsNullOrWhiteSpace content then "content is String.IsNullOrWhiteSpace" else content
+        let time = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss-fff") // ensure unique name       
+        let filename = sprintf "%sSeff.Revit.Log-%s.txt" checkedPrefix time
+        async {
+            try
+                let file = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),filename)
+                IO.File.WriteAllText(file, checkedContent) 
+            with _ -> () } |> Async.Start 
+     
+     /// logs text to Seff editor window in red
+     /// if Seff is null it writes a text file to desktop too and shows a Task Dialog.
      static member alert msg =  
         Printf.kprintf (fun s -> 
-            if not <|  Object.ReferenceEquals(App.seff,null) then  App.seff.Log.PrintnColor 180 100 10 s
-            else                                                   TaskDialog.Show("Seff Addin App.alert", s) |> ignore 
-            ) msg
+            if not <|  Object.ReferenceEquals(seff,null) && seff.Window.IsLoaded then  seff.Log.PrintnColor 180 100 10 s
+            elif !logFileOnDesktopCount < 10 then 
+                incr logFileOnDesktopCount
+                App.logToFile "App.alert-" s                
+                TaskDialog.Show("Seff Addin App.alert", s) |> ignore 
+            ) msg     
      
+     
+     /// logs text to Seff editor window in green
+     /// does nothing if Seff is null
      static member log msg =  
         Printf.kprintf (fun s -> 
-            if not <|  Object.ReferenceEquals(App.seff,null) then  App.seff.Log.PrintnColor 50 100 10 s            
+            if not <|  Object.ReferenceEquals(seff,null) then  seff.Log.PrintnColor 50 100 10 s            
             ) msg
 
-     static member logToFile prefix (content:string) =
-        let time = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss-fff") // ensure unique name       
-        let filename = sprintf "%sSeff.Revit.Log-%s.txt" prefix time
-        let file = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),filename)
-        async {try  IO.File.WriteAllText(file, content) with _ -> ()} |> Async.Start 
+
 
 
 [<Transaction(TransactionMode.Manual)>]
@@ -47,17 +73,15 @@ type internal FsiRunEventHandler (seff:Seff, queue: ConcurrentQueue< UIApplicati
     member this.GetName() = "Run in Seff"
     member this.Execute(app:UIApplication) = 
         let f = ref Unchecked.defaultof<UIApplication->unit>
-        while queue.TryDequeue(f) do 
+        while queue.TryDequeue(f) do //using a queue is only needed if a single script calls into a transaction more than once
             try
                 (!f)(app) 
             with e ->
-                seff.Log.PrintfnFsiErrorMsg "Error caught in IExternalEventHandler: %A" e
-       
-                
+                seff.Log.PrintfnFsiErrorMsg "Error caught in FsiRunEventHandler(a IExternalEventHandler) in  this.Execute(app:UIApplication): %A" e
     
     interface IExternalEventHandler with 
-        member this.Execute(app:UIApplication)  = this.Execute(app)
         member this.GetName() = this.GetName()
+        member this.Execute(app:UIApplication)  = this.Execute(app)
 
 
 [<Regeneration(RegenerationOption.Manual)>]
@@ -70,7 +94,9 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
     let queue = ConcurrentQueue<UIApplication->unit>()    
 
     static member val Instance = null with get,set
-   
+    
+    /// runs a F# function via the IExternalEventHandler pattern for modeless dialogs
+    /// this is the only way to run code from modless dialogs such as Seff editor
     member this.RunOnApp (f:UIApplication -> unit) =  
         queue.Enqueue(f)
         match exEvent.Raise() with 
@@ -80,6 +106,8 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
         |ExternalEventRequest.TimedOut -> App.alert "exEvent.Raise() returned ExternalEventRequest.TimedOut"
         |x -> App.alert "exEvent.Raise() returned unknown ExternalEventRequest: %A" x
     
+    /// runs a F# function via the IExternalEventHandler pattern for modeless dialogs
+    /// this is the only way to run code from modless dialogs such as Seff editor
     member this.RunOnDoc (f:Document->unit) =  
         this.RunOnApp (fun app -> f app.ActiveUIDocument.Document)  
 
@@ -109,8 +137,8 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
             //https://thebuildingcoder.typepad.com/blog/2018/11/revit-window-handle-and-parenting-an-add-in-form.html
             let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
             let canRun = fun () ->  true // TODO check if in command, or enqued anyway ?  !!
-            let seff= Seff.App.createEditorForHosting({ hostName= "Revit 2018" ; mainWindowHandel = winHandle; fsiCanRun =  canRun  })                
-            App.seff <- seff
+            let seff= Seff.App.createEditorForHosting({ hostName= "Revit 2018" ; mainWindowHandel = winHandle; fsiCanRun =  canRun })                
+            App.Seff <- seff
 
             //TODO make a C# plugin that loads Seff.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI                
             seff.Fsi.OnRuntimeError.Add (fun e -> 
@@ -137,7 +165,7 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
                     seff.Log.PrintDebugMsg "Alt+Return"
                 else
                     seff.Log.PrintDebugMsg "not Alt+Enter" 
-                    )            *)
+                    )   *)
 
             seff.Window.Closing.Add (fun e -> 
                 match seff.Fsi.AskAndCancel() with
@@ -152,7 +180,7 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
             Result.Succeeded
 
         with ex ->
-            TaskDialog.Show("OnStartup of 2018 Seff.Revit.dll", sprintf "%A" ex ) |> ignore 
+            App.alert "OnStartup of 2018 Seff.Revit.dll:\r\n%A" ex 
             Result.Failed
 
         
@@ -175,11 +203,11 @@ type StartEditorCommand() = // don't rename ! string referenced in  PushButtonDa
     member this.Execute(commandData: ExternalCommandData, message: byref<string>, elements: ElementSet): Result = 
             try                
                 if not App.seffWasEverShown then
-                    App.seff.Window.Show()
+                    App.Seff.Window.Show()
                     App.seffWasEverShown <- true
                     Result.Succeeded
                 else                    
-                    App.seff.Window.Visibility <- Visibility.Visible
+                    App.Seff.Window.Visibility <- Visibility.Visible
                     Result.Succeeded
 
             with ex ->
