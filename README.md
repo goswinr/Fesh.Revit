@@ -1,5 +1,5 @@
 # Seff.Revit
- This repo contains a <a href="https://www.autodesk.com/products/revit/overview" target="_blank">Autodesk Revit</a> plugin to host Seff. Seff is a fsharp scripting editor based on <a href="https://github.com/icsharpcode/AvalonEdit" target="_blank">Avalonedit</a>. The editor supports the latest features of F# 5.0 via <a href="https://www.nuget.org/packages/FSharp.Compiler.Service/40.0.0" target="_blank">FCS 40.0.0</a>. It has (regex based) syntax highlighting, auto completion and typ info tooltips. The output log supports colorful text.
+ This repo contains a <a href="https://www.autodesk.com/products/revit/overview" target="_blank">Autodesk Revit</a> plugin to host Seff. Seff is a fsharp scripting editor based on <a href="https://github.com/goswinr/AvalonEditB" target="_blank">AvalonEdit</a>. The editor supports the latest features of F# 5.0 via <a href="https://www.nuget.org/packages/FSharp.Compiler.Service/40.0.0" target="_blank">FCS 40.0.0</a>. It has (regex based) syntax highlighting, auto completion and typ info tooltips. The output log supports colored text.
  
  
 ![](Docs/screen1.png)
