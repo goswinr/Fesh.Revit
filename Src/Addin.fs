@@ -15,6 +15,19 @@ open System.Collections.Concurrent
 open System.Diagnostics
 
 
+module Version = 
+    let name =
+
+#if REVIT2019 
+        "Revit 2019"
+#else
+    #if REVIT2021 
+        "Revit 2021"
+    #else
+        "Revit"
+    #endif
+#endif
+
 // example of modeless dialog: https://github.com/pierpaolo-canini/Lame-Duck
 
 /// A static class to provide logging and  access to the Seff Editor
@@ -129,8 +142,8 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
             let button = new PushButtonData("Seff", "Open Fsharp Editor", thisAssemblyPath, "Seff.Revit.StartEditorCommand")
             button.ToolTip <- "This will open the Seff F# Script Editor Window"
             
-            let uriImage32 = new Uri("pack://application:,,,/Seff.Revit;component/Media/LogoCursorTr32.png") // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" /> 
-            let uriImage16 = new Uri("pack://application:,,,/Seff.Revit;component/Media/LogoCursorTr16.png")              
+            let uriImage32 = new Uri("pack://application:,,,/Seff.Revit;component/Media/logo32.png") // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" /> 
+            let uriImage16 = new Uri("pack://application:,,,/Seff.Revit;component/Media/logo16.png")              
             button.LargeImage <- Media.Imaging.BitmapImage(uriImage32)//for ribbon in tab
             button.Image      <- Media.Imaging.BitmapImage(uriImage16)//for quick acess toolbar
             
@@ -144,7 +157,14 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
             //https://thebuildingcoder.typepad.com/blog/2018/11/revit-window-handle-and-parenting-an-add-in-form.html
             let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
             let canRun = fun () ->  true // TODO check if in command, or enqued anyway ?  !!
-            let seff= Seff.App.createEditorForHosting({ hostName= "Revit 2018" ; mainWindowHandel = winHandle; fsiCanRun =  canRun })                
+            let logo = new Uri("pack://application:,,,/Seff.Revit;component/Media/logo.ico") 
+            let hostData = { 
+                hostName = Version.name 
+                mainWindowHandel = winHandle
+                fsiCanRun =  canRun 
+                logo = Some logo
+                }
+            let seff = Seff.App.createEditorForHosting(hostData)                
             App.Seff <- seff
 
             //TODO make a C# plugin that loads Seff.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI                
@@ -187,7 +207,7 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
             Result.Succeeded
 
         with ex ->
-            App.alert "OnStartup of 2018 Seff.Revit.dll:\r\n%A" ex 
+            App.alert "OnStartup of Seff.Revit.dll:\r\n%A" ex 
             Result.Failed
 
         

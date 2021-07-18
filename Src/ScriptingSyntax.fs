@@ -16,8 +16,8 @@ open System.Diagnostics
 
 module ScriptingSyntax =
     
-    /// runs a function in a transaction
-    /// will log errors to Seff Log if trabsaction has problems
+    /// Runs a function in a transaction
+    /// Will log errors to Seff Log if transaction has problems
     let run (f: Document-> unit)  = 
         SeffAddin.Instance.RunOnDoc (fun (doc:Document) ->  
             use t = new Transaction(doc, "Seff F# script")        
@@ -53,8 +53,8 @@ module ScriptingSyntax =
             |_ ->   eprintfn "Transaction.Commit returned unknown state: %A" r     
             )
 
-    /// runs a function in a transaction
-    /// will log errors to Seff Log if trabsaction has problems
+    /// Runs a function in a transaction
+    /// Will log errors to Seff Log if transaction has problems
     let runApp (f: UIApplication-> unit)  = 
         SeffAddin.Instance.RunOnApp (fun (app:UIApplication) ->  
             let doc = app.ActiveUIDocument.Document
