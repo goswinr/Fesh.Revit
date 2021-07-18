@@ -1,32 +1,39 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop"> <!--Win desktop needed so that rescources work with dotnet build:-->
   <PropertyGroup>
-    <OutputType>Library</OutputType> 
-    <UseWPF>true</UseWPF>
-    <TargetFramework>net48</TargetFramework>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>net48</TargetFrameworks>  
+    <UseWPF>true</UseWPF>    
     <LangVersion>preview</LangVersion>
-    <SatelliteResourceLanguages>en</SatelliteResourceLanguages><!--to only have the english resources of fsharp.core-->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NeutralLanguage>en</NeutralLanguage>
-   
-
-    <!--to silence errors with revit dlls:
-    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>    
-    -->
     
+    <NeutralLanguage>en</NeutralLanguage>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>    <!--to only have the english resources-->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
     <RootNamespace>Seff.Revit</RootNamespace>
     <AssemblyName>Seff.Revit</AssemblyName>
-    <Version>0.4.0.0</Version>
-    <AssemblyVersion>0.4.0.0</AssemblyVersion>
-    <FileVersion>0.4.0.0</FileVersion>
-
-    <Authors>Goswin Rothenthal</Authors>
+    <AssemblyTitle>Seff.Revit</AssemblyTitle>
+    <Title>Seff.Revit</Title>  
     <Product>Seff.Revit</Product>
-    <Description>A Scripting editor for fsharp in Revit.</Description>
-    <Copyright>Goswin Rothenthal 2021</Copyright>    
+    <PackageId>Seff.Revit</PackageId>  
+
+    <Version>1.0.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <PackageReleaseNotes>First release</PackageReleaseNotes>
+
     
-    <ApplicationIcon>Media/logo.ico</ApplicationIcon>
+    <Authors>GoswinR</Authors>
+    <Copyright>Goswin Rothenthal 2021</Copyright>
+
+    <Description>A Scripting editor for fsharp in Revit.</Description>
+    <ApplicationIcon>Media/logo.ico</ApplicationIcon> 
     <Win32Resource>Media/logo.res</Win32Resource><!--  for Application Icon in explorer-->
+  
+
+    <!--neede to silence errors with revit dlls?
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>    
+    --> 
 
     <Configuration>Release</Configuration>
     <Platform>x64</Platform>
@@ -54,16 +61,12 @@
     <!--this reference is needed for tooling only, it might not be installed on host PC. see also https://github.com/fsprojects/IfSharp/issues/213 -->
     <PackageReference Include="NETStandard.Library" Version="2.0.3" GeneratePathProperty="true" />
 
-    <Reference Include="AvalonEditB">
-      <!-- build from dev branch of https://github.com/goswinr/AvalonEditB -->
-      <HintPath>../AvalonEditB/AvalonEditB/bin/Release/net472/AvalonEditB.dll</HintPath>
-    </Reference>
+    <PackageReference Include="AvalonEditB" Version="1.0.0" />
+    <!-- <Reference Include="AvalonEditB" HintPath="../AvalonEditB/AvalonEditB/bin/Release/net472/AvalonEditB.dll" /> -->
 
-    <Reference Include="Seff">
-      <!-- take from https://github.com/goswinr/Seff -->
-      <HintPath>../Seff/binHosting/x64/net472/Seff.dll</HintPath>
-    </Reference>    
-  
+    <Reference Include="Seff" HintPath="../Seff/binHosting/x64/net472/Seff.dll" />
+    <!-- <PackageReference Include="Seff" Version="1.0.0" /> -->
+
   </ItemGroup>
   
   
@@ -77,7 +80,7 @@
     <Compile Include="Src/Sync.fs" />    
     <Compile Include="Src/Addin.fs" />
     <Compile Include="Src/ScriptingSyntax.fs" />
-    <None Include="Seff.addin" />
+    <None Include="AddIn/2019/Seff.addin" />
     
   </ItemGroup>
 
@@ -97,7 +100,7 @@
     -->
     
     <!--copy addin file to revit appdata-->
-    <Copy SourceFiles="Seff.addin" DestinationFiles="C:/ProgramData/Autodesk/Revit/Addins/2019/Seff.addin" ContinueOnError="false" />    
+    <Copy SourceFiles="AddIn/2019/Seff.addin" DestinationFiles="C:/ProgramData/Autodesk/Revit/Addins/2019/Seff.addin" ContinueOnError="false" />    
 
 
   </Target>
