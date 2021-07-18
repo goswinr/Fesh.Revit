@@ -62,10 +62,14 @@
     <PackageReference Include="NETStandard.Library" Version="2.0.3" GeneratePathProperty="true" />
 
     <PackageReference Include="AvalonEditB" Version="1.0.0" />
-    <!-- <Reference Include="AvalonEditB" HintPath="../AvalonEditB/AvalonEditB/bin/Release/net472/AvalonEditB.dll" /> -->
-
-    <Reference Include="Seff" HintPath="../Seff/binHosting/x64/net472/Seff.dll" />
-    <!-- <PackageReference Include="Seff" Version="1.0.0" /> -->   
+    <!-- <PackageReference Include="FsEx.Wpf" Version="1.0.0" /> -->
+    <!-- <PackageReference Include="AvalonLog" Version="1.0.0" /> -->
+    <!-- <PackageReference Include="Seff" Version="1.0.0" /> -->
+    
+    <!--<Reference Include="AvalonEditB" HintPath="../AvalonEditB/AvalonEditB/bin/Release/net472/AvalonEditB.dll" />-->
+    <Reference Include="FsEx.Wpf" HintPath="../FsEx.Wpf/bin/Release/net472/FsEx.Wpf.dll" />    
+    <Reference Include="AvalonLog" HintPath="../AvalonLog/bin/Release/net472/AvalonLog.dll" />
+    <Reference Include="Seff" HintPath="../Seff/binHosting/x64/net472/Seff.dll" /> 
   
   </ItemGroup>
   
