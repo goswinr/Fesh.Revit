@@ -1,8 +1,6 @@
 ﻿#r @"C:\Program Files\Autodesk\Revit 2019\RevitAPIUI.dll"
 #r @"C:\Program Files\Autodesk\Revit 2019\RevitAPI.dll"
-#r @"C:\GitHub\Seff.Revit\bin\2019\net48\AvalonEditB.dll"
-#r @"C:\GitHub\Seff.Revit\bin\2019\net48\Seff.Revit.dll"
-#r @"C:\GitHub\Seff.Revit\bin\2019\net48\Seff.dll"
+
 
 open Autodesk.Revit
 open Autodesk.Revit.DB
@@ -64,7 +62,11 @@ Seff.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  ->
     |> Array.map Louvre.setLineToSphere
     |> ds.SetShape 
     ) 
-    
+
+/// Reference the editor to print in color    
+#r @"C:\GitHub\Seff.Revit\bin\2019\net48\AvalonEditB.dll"
+#r @"C:\GitHub\Seff.Revit\bin\2019\net48\Seff.Revit.dll"
+#r @"C:\GitHub\Seff.Revit\bin\2019\net48\Seff.dll"    
 Seff.Model.ISeffLog.printnColor 255 0 0 "Done!" // print in red
 Seff.Model.ISeffLog.printnColor 0 150 0 "go to the 3D view!" // print in green
     
