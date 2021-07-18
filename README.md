@@ -21,6 +21,6 @@ By default a f# script evaluation starts asynchronous on a new thread. The `Seff
     
     
 ### Licence
-MIT
+[MIT](https://github.com/goswinr/Seff.Revit/blob/main/LICENSE)
 
  
