@@ -216,7 +216,7 @@ type SeffAddin() = // don't rename ! string referenced in in seff.addin file
         //Your add-in OnShutdown method should be called when and only when Revit is closing. 
         //That will at least give you a chance to display the message to the user and "force her to press a button", 
         //if you really think that is a good idea, even if it does not enable you to prevent Revit from closing.
-        App.Seff.Tabs.AskIfClosingWindowIsOk()  |> ignore // this will try to save files too. ignore result since it not possible to prevent revit from closing eventually
+        App.Seff.Tabs.AskForFileSavingToKnowIfClosingWindowIsOk()  |> ignore // this will try to save files too. ignore result since it not possible to prevent revit from closing eventually
         Result.Succeeded
         //Result.Cancelled //TODO use this to dispose resouces correctly ?
         
