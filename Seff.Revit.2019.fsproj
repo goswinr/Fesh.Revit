@@ -36,7 +36,7 @@
     --> 
 
     <Configuration>Release</Configuration>
-    <Platform>x64</Platform>
+    <PlatformTarget>x64</PlatformTarget><!--  x64 is required e.g by Revit, dont us just 'Platform' tag-->
     <OutputPath>bin/2019</OutputPath>
   
     <DefineConstants>REVIT2019</DefineConstants>
@@ -51,26 +51,18 @@
     <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2019.0.1" PrivateAssets="all" ExcludeAssets="runtime"/>
 
     <!-- GeneratePathProperty to add FSharp.Core.xml to output : path property $(PkgFSharp_Core)  -->
-    <PackageReference Update="FSharp.Core" Version="5.0.2" GeneratePathProperty="true" />
+    <PackageReference Update="FSharp.Core" Version="5.*" GeneratePathProperty="true" />
     
     <!--FSharp.Compiler.Service 40.0.0 needs to be refernceed here too because
      somehow FSharp.DependencyManager.Nuget doesn't get copied over from /Seff/binHosting/x64/net472
      (don't load it from Nuget see https://github.com/dotnet/fsharp/issues/10467#issuecomment-774430370) -->
-    <PackageReference Include="FSharp.Compiler.Service" Version="40.0.0" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="40.*" />
 
     <!--this reference is needed for tooling only, it might not be installed on host PC. see also https://github.com/fsprojects/IfSharp/issues/213 -->
     <PackageReference Include="NETStandard.Library" Version="2.0.3" GeneratePathProperty="true" />
 
-    <PackageReference Include="AvalonEditB" Version="1.0.0" />
-    <!-- <PackageReference Include="FsEx.Wpf" Version="1.0.0" /> -->
-    <!-- <PackageReference Include="AvalonLog" Version="1.0.0" /> -->
-    <!-- <PackageReference Include="Seff" Version="1.0.0" /> -->
+    <PackageReference Include="Seff" Version="0.*" /> <!-- Accepts any 0.x.y version. Will resolve to the highest acceptable stable version.-->
     
-    <!--<Reference Include="AvalonEditB" HintPath="../AvalonEditB/AvalonEditB/bin/Release/net472/AvalonEditB.dll" />-->
-    <Reference Include="FsEx.Wpf" HintPath="../FsEx.Wpf/bin/Release/net472/FsEx.Wpf.dll" />    
-    <Reference Include="AvalonLog" HintPath="../AvalonLog/bin/Release/net472/AvalonLog.dll" />
-    <Reference Include="Seff" HintPath="../Seff/binHosting/x64/net472/Seff.dll" />
-
   </ItemGroup>
   
   
