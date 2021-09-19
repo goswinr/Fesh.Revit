@@ -9,6 +9,7 @@
     <NeutralLanguage>en</NeutralLanguage>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>    <!--to only have the english resources-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <FSharpCoreIncludeDocFileInOutput>true</FSharpCoreIncludeDocFileInOutput>
 
     <RootNamespace>Seff.Revit</RootNamespace>
     <AssemblyName>Seff.Revit</AssemblyName>
@@ -50,10 +51,9 @@
     <!-- use PrivateAssets="all" ExcludeAssets="runtime" to exclude these dlls from the output folder-->
     <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2021.0.0" PrivateAssets="all" ExcludeAssets="runtime"/>
 
-    <!-- GeneratePathProperty to add FSharp.Core.xml to output : path property $(PkgFSharp_Core)  -->
-    <PackageReference Update="FSharp.Core" Version="5.0.2" GeneratePathProperty="true" />
+    <PackageReference Update="FSharp.Core" Version="5.0.2"  />
 
-    <!--FSharp.Compiler.Service 40.0.0 needs to be refernceed here too because
+    <!--FSharp.Compiler.Service 40.0.0 needs to be refernced here too because
      somehow FSharp.DependencyManager.Nuget doesn't get copied over from /Seff/binHosting/x64/net472
      (don't load it from Nuget see https://github.com/dotnet/fsharp/issues/10467#issuecomment-774430370) -->
     <PackageReference Include="FSharp.Compiler.Service" Version="40.0.0" />
@@ -84,9 +84,6 @@
 
     <!-- take FSharpSynatxHighlighterExtended.xshd from https://github.com/goswinr/Seff -->
     <Copy SourceFiles="../Seff/FSharpSynatxHighlighterExtended.xshd" DestinationFiles="$(TargetDir)FSharpSynatxHighlighterExtended.xshd" ContinueOnError="false" />
-
-    <!-- FSharp.Core.xml is missing otherwise ? to have it as intellisense provider-->
-    <Copy SourceFiles=" $(PkgFSharp_Core)/lib/netstandard2.0/FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" />
 
     <!--dll is needed for editor tooling only, it might not be installed on host PC . seee also  https://github.com/fsprojects/IfSharp/issues/213 -->
     <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.dll" DestinationFiles="$(TargetDir)netstandard.dll" ContinueOnError="false" />
