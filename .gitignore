@@ -6,6 +6,14 @@
 
 #build results, bin folder:
 [Bb]in/ 
+bin2018/
+bin2019/
+bin2020/
+bin2021/
+bin2022/
+bin2023/
+bin2024/
+
 
 # User-specific files
 *.rsuser
