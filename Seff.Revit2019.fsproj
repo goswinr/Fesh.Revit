@@ -51,12 +51,12 @@
     <!-- use PrivateAssets="all" ExcludeAssets="runtime" to exclude these dlls from the output folder-->
     <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2019.0.1" PrivateAssets="all" ExcludeAssets="runtime"/>
 
-    <PackageReference Update="FSharp.Core" Version="6.0.3" />
+    <PackageReference Update="FSharp.Core" Version="6.0.4" />
 
     <!--FSharp.Compiler.Service 40.0.0 needs to be refernced here too because
      somehow FSharp.DependencyManager.Nuget doesn't get copied over from /Seff/binHosting/x64/net472
      (don't load it from Nuget see https://github.com/dotnet/fsharp/issues/10467#issuecomment-774430370) -->
-    <PackageReference Include="FSharp.Compiler.Service" Version="41.0.3" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="41.0.4" />
 
     <!--this reference is needed for tooling only, it might not be installed on host PC. see also https://github.com/fsprojects/IfSharp/issues/213 -->
     <PackageReference Include="NETStandard.Library" Version="2.0.3" GeneratePathProperty="true" />
