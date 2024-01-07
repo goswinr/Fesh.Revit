@@ -18,9 +18,9 @@
     <Product>Seff.Revit</Product>
     <!-- <PackageId>Seff.Revit</PackageId> -->
 
-    <Version>1.0.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <Version>0.9.0</Version>
+    <AssemblyVersion>0.9.0</AssemblyVersion>
+    <FileVersion>0.9.0</FileVersion>
     <PackageReleaseNotes>First release</PackageReleaseNotes>
 
 
@@ -51,51 +51,72 @@
     <!-- use PrivateAssets="all" ExcludeAssets="runtime" to exclude these dlls from the output folder-->
     <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2019.0.1" PrivateAssets="all" ExcludeAssets="runtime"/>
 
-    <PackageReference Update="FSharp.Core" Version="7.0.0" />
+    <PackageReference Update="FSharp.Core" Version="8.0.100" />
 
     <!--FSharp.Compiler.Service needs to be refernced here too because
      somehow FSharp.DependencyManager.Nuget doesn't get copied over from /Seff/binHosting/x64/net472
      (don't load it from Nuget see https://github.com/dotnet/fsharp/issues/10467#issuecomment-774430370) -->
-    <PackageReference Include="FSharp.Compiler.Service" Version="42.7.100" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="43.8.100" />
 
     <!--this reference is needed for tooling only, it might not be installed on host PC. see also https://github.com/fsprojects/IfSharp/issues/213 -->
     <PackageReference Include="NETStandard.Library" Version="2.0.3" GeneratePathProperty="true" />
 
-    <PackageReference Include="Seff" Version="0.0.3" />
+    <!-- These packages are just added  explicitly again to pull in XML too below. -->
+    <PackageReference Include="AvalonLog"     Version="0.12.0" GeneratePathProperty="true"/>	 
+    <PackageReference Include="Fittings"      Version="0.6.0" GeneratePathProperty="true"/>
+	  <PackageReference Include="AvalonEditB"   Version="2.2.0" GeneratePathProperty="true"/>	 
 
+    <Reference Include="Seff" HintPath="..\Seff\binHosting\net472\Seff.dll" />	  
+    <!--
+    <PackageReference Include="Seff" Version="0.0.2"  GeneratePathProperty="true"/>
+    <Reference Include="AvalonEditB" HintPath="..\Seff\binHosting\net472\AvalonEditB.dll" />
+    <Reference Include="AvalonLog" HintPath="..\Seff\binHosting\net472\AvalonLog.dll" />
+    <Reference Include="Fittings" HintPath="..\Seff\binHosting\net472\Fittings.dll" />
+    -->  
   </ItemGroup>
 
-
-  <ItemGroup>
+ <ItemGroup>
     <EmbeddedResource Include="Media/logo.res" />
     <Resource Include="Media/logo.ico" />
     <Resource Include="Media/logo16.png" />
     <Resource Include="Media/logo32.png" />
-    <Resource Include="Media/FiraCode-Regular.ttf" />
+    <!-- <Resource Include="Media/FiraCode-Regular.ttf" /> -->
 
-    <Compile Include="Src/Sync.fs" />
     <Compile Include="Src/Addin.fs" />
     <Compile Include="Src/ScriptingSyntax.fs" />
-    <None Include="AddIn/2019/Seff.addin" />
-
+    
+    <None Include="AddIn/2021/Seff.addin" />
   </ItemGroup>
 
   <Target Name="CopyFilesOverAfterBuild" BeforeTargets="AfterBuild">
+    <!-- Replaces AfterBuild target,
+      help:   https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-well-known-item-metadata?view=vs-2015&redirectedfrom=MSDN
+      see:    https://stackoverflow.com/questions/43921992/how-can-i-use-beforebuild-and-afterbuild-targets-with-visual-studio-2017
+      tasks:  https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-task-reference?view=vs-2019
+      better: https://stackoverflow.com/questions/44043918/running-a-target-before-the-corebuild
+      -->
 
-    <!-- take FSharpSynatxHighlighterExtended.xshd from https://github.com/goswinr/Seff -->
-    <Copy SourceFiles="../Seff/FSharpSynatxHighlighterExtended.xshd" DestinationFiles="$(TargetDir)FSharpSynatxHighlighterExtended.xshd" ContinueOnError="false" />
+    <!-- take latest SyntaxHighlightingFSharp.xshd from https://github.com/goswinr/Seff . 
+    This is only needed if there are recent changes to this file that are not published with to the Seff nuget.  SyntaxHighlightingFSharp.xshd is in the Seff nuget too.-->
+    <Copy SourceFiles="../Seff/Src/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" />
 
-    <!--dll is needed for editor tooling only, it might not be installed on host PC . seee also  https://github.com/fsprojects/IfSharp/issues/213 -->
+    <!--dll is needed for editor tooling only, it might not be installed on host PC . see also  https://github.com/fsprojects/IfSharp/issues/213 -->
     <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.dll" DestinationFiles="$(TargetDir)netstandard.dll" ContinueOnError="false" />
 
-    <!-- needed too ?
+    <!-- needed for docstring type info , if dot net sdk is not installed. -->
     <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.xml" DestinationFiles="$(TargetDir)netstandard.xml" ContinueOnError="false" />
-    -->
 
+    <!--because <FSharpCoreIncludeDocFileInOutput>true</FSharpCoreIncludeDocFileInOutput>  does not work in visual studio: -->
+	  <Copy SourceFiles="$(PkgFSharp_Compiler_Service)/lib/netstandard2.0/FSharp.Compiler.Service.xml" DestinationFiles="$(TargetDir)FSharp.Compiler.Service.xml" ContinueOnError="false" />
+	  <Copy SourceFiles="$(PkgFSharp_Core)/lib/netstandard2.0/FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" />	  
+	  <Copy SourceFiles="$(PkgAvalonLog)/lib/net472/AvalonLog.xml"             DestinationFiles="$(TargetDir)AvalonLog.xml"   ContinueOnError="false" />
+	  <Copy SourceFiles="$(PkgAvalonEditB)/lib/net472/AvalonEditB.xml"         DestinationFiles="$(TargetDir)AvalonEditB.xml" ContinueOnError="false" />
+	  <Copy SourceFiles="$(PkgFittings)/lib/net472/Fittings.xml"               DestinationFiles="$(TargetDir)Fittings.xml"    ContinueOnError="false" />
+  </Target>
+
+  <Target Name="CopyRevitAddin" BeforeTargets="AfterBuild">
     <!--copy addin file to revit appdata-->
     <Copy SourceFiles="AddIn/2019/Seff.addin" DestinationFiles="C:/ProgramData/Autodesk/Revit/Addins/2019/Seff.addin" ContinueOnError="false" />
-
-
   </Target>
 
 </Project>

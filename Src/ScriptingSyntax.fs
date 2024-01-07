@@ -4,14 +4,7 @@ open Autodesk.Revit.UI
 open Autodesk.Revit.DB
 open Autodesk.Revit.Attributes
 open System
-open System.Windows
 open Seff
-open Seff.Model
-open Seff.Config
-open System.Windows.Input
-open System.Reflection
-open System.Collections.Concurrent
-open System.Diagnostics
 
 
 module ScriptingSyntax = 
@@ -37,7 +30,9 @@ module ScriptingSyntax =
             try
                 f(doc)
             with ex ->
-                App.Seff.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
+                match App.Seff with 
+                |None -> () 
+                |Some seff -> seff.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
 
             let r = t.Commit()
             match r with
@@ -75,7 +70,9 @@ module ScriptingSyntax =
             try
                 f(app)
             with ex ->
-                App.Seff.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
+                match App.Seff with 
+                |None -> () 
+                |Some seff -> seff.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
 
             let r = t.Commit()
             match r with
