@@ -50,7 +50,7 @@
     <Reference Include="WindowsBase" />
 
     <!-- use PrivateAssets="all" ExcludeAssets="runtime" to exclude these dlls from the output folder-->
-    <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2019.0.1" PrivateAssets="all" ExcludeAssets="runtime"/>
+    <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2019.0.1" PrivateAssets="all" ExcludeAssets="runtime" />
 
     <PackageReference Update="FSharp.Core" Version="8.0.300" />
 
@@ -63,17 +63,10 @@
     <PackageReference Include="NETStandard.Library" Version="2.0.3" GeneratePathProperty="true" />
 
     <!-- These packages are just added  explicitly again to pull in XML too below. -->
-    <PackageReference Include="AvalonLog"     Version="0.12.0" GeneratePathProperty="true"/>	 
-    <PackageReference Include="Fittings"      Version="0.6.0" GeneratePathProperty="true"/>
-	  <PackageReference Include="AvalonEditB"   Version="2.2.0" GeneratePathProperty="true"/>	 
-
-    <Reference Include="Fesh" HintPath="..\Fesh\binHosting\net472\Fesh.dll" />	  
-    <!--
-    <PackageReference Include="Fesh" Version="0.0.2"  GeneratePathProperty="true"/>
-    <Reference Include="AvalonEditB" HintPath="..\Fesh\binHosting\net472\AvalonEditB.dll" />
-    <Reference Include="AvalonLog" HintPath="..\Fesh\binHosting\net472\AvalonLog.dll" />
-    <Reference Include="Fittings" HintPath="..\Fesh\binHosting\net472\Fittings.dll" />
-    -->  
+    <PackageReference Include="AvalonLog" Version="0.13.0" GeneratePathProperty="true" />
+    <PackageReference Include="Fittings" Version="0.6.0" GeneratePathProperty="true" />
+	  <PackageReference Include="AvalonEditB" Version="2.3.0" GeneratePathProperty="true" />
+    <PackageReference Include="Fesh" Version="0.9.0"  GeneratePathProperty="true" />
   </ItemGroup>
 
  <ItemGroup>
@@ -85,7 +78,7 @@
 
     <Compile Include="Src/Addin.fs" />
     <Compile Include="Src/ScriptingSyntax.fs" />
-    
+
     <None Include="AddIn/2021/Fesh.addin" />
   </ItemGroup>
 
@@ -97,7 +90,7 @@
       better: https://stackoverflow.com/questions/44043918/running-a-target-before-the-corebuild
       -->
 
-    <!-- take latest SyntaxHighlightingFSharp.xshd from https://github.com/goswinr/Fesh . 
+    <!-- take latest SyntaxHighlightingFSharp.xshd from https://github.com/goswinr/Fesh .
     This is only needed if there are recent changes to this file that are not published with to the Fesh nuget.  SyntaxHighlightingFSharp.xshd is in the Fesh nuget too.-->
     <Copy SourceFiles="../Fesh/Src/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" />
 
@@ -109,10 +102,11 @@
 
     <!--because <FSharpCoreIncludeDocFileInOutput>true</FSharpCoreIncludeDocFileInOutput>  does not work in visual studio: -->
 	  <Copy SourceFiles="$(PkgFSharp_Compiler_Service)/lib/netstandard2.0/FSharp.Compiler.Service.xml" DestinationFiles="$(TargetDir)FSharp.Compiler.Service.xml" ContinueOnError="false" />
-	  <Copy SourceFiles="$(PkgFSharp_Core)/lib/netstandard2.0/FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" />	  
-	  <Copy SourceFiles="$(PkgAvalonLog)/lib/net472/AvalonLog.xml"             DestinationFiles="$(TargetDir)AvalonLog.xml"   ContinueOnError="false" />
-	  <Copy SourceFiles="$(PkgAvalonEditB)/lib/net472/AvalonEditB.xml"         DestinationFiles="$(TargetDir)AvalonEditB.xml" ContinueOnError="false" />
-	  <Copy SourceFiles="$(PkgFittings)/lib/net472/Fittings.xml"               DestinationFiles="$(TargetDir)Fittings.xml"    ContinueOnError="false" />
+	  <Copy SourceFiles="$(PkgFSharp_Core)/lib/netstandard2.0/FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" />
+	  <Copy SourceFiles="$(PkgAvalonLog)/lib/net472/AvalonLog.xml" DestinationFiles="$(TargetDir)AvalonLog.xml" ContinueOnError="false" />
+	  <Copy SourceFiles="$(PkgAvalonEditB)/lib/net472/AvalonEditB.xml" DestinationFiles="$(TargetDir)AvalonEditB.xml" ContinueOnError="false" />
+	  <Copy SourceFiles="$(PkgFittings)/lib/net472/Fittings.xml" DestinationFiles="$(TargetDir)Fittings.xml" ContinueOnError="false" />
+    <Copy SourceFiles="$(PkgFesh)/lib/net472/Fesh.xml" DestinationFiles="$(TargetDir)Fesh.xml" ContinueOnError="false" />
   </Target>
 
   <Target Name="CopyRevitAddin" BeforeTargets="AfterBuild">

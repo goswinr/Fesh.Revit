@@ -7,11 +7,11 @@ open System
 open Fesh
 
 
-module ScriptingSyntax = 
+module ScriptingSyntax =
 
     /// Runs a function in a transaction
     /// Will log errors to Fesh Log if transaction has problems
-    let run (f: Document-> unit)  = 
+    let run (f: Document-> unit)  =
         FeshAddin.Instance.RunOnDoc (fun (doc:Document) ->
             use t = new Transaction(doc, "Fesh F# script")
             let s = t.Start()
@@ -30,9 +30,9 @@ module ScriptingSyntax =
             try
                 f(doc)
             with ex ->
-                match App.Fesh with 
-                |None -> () 
-                |Some Fesh -> Fesh.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
+                match App.Fesh with
+                |None -> ()
+                |Some fesh -> fesh.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
 
             let r = t.Commit()
             match r with
@@ -72,7 +72,7 @@ module ScriptingSyntax =
             with ex ->
                 match App.Fesh with 
                 |None -> () 
-                |Some Fesh -> Fesh.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
+                |Some fesh -> fesh.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
 
             let r = t.Commit()
             match r with
