@@ -54,7 +54,7 @@ module Louvre =
         :> GeometryObject // cast so it works with DirectShape.CreateElement
 
 
-Seff.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  ->
+Fesh.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  ->
     let doc = app.ActiveUIDocument.Document
     let ds = DirectShape.CreateElement(doc, ElementId(BuiltInCategory.OST_GenericModel))//, "ME", "MEo")
 
@@ -64,10 +64,10 @@ Seff.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  ->
     )
 
 /// Reference the editor to print in color
-#r @"C:\GitHub\Seff.Revit\bin\2019\net48\AvalonEditB.dll"
-#r @"C:\GitHub\Seff.Revit\bin\2019\net48\Seff.Revit.dll"
-#r @"C:\GitHub\Seff.Revit\bin\2019\net48\Seff.dll"
-Seff.Model.ISeffLog.printnColor 255 0 0 "Done!" // print in red
-Seff.Model.ISeffLog.printnColor 0 150 0 "go to the 3D view!" // print in green
+#r @"C:\GitHub\Fesh.Revit\bin\2019\net48\AvalonEditB.dll"
+#r @"C:\GitHub\Fesh.Revit\bin\2019\net48\Fesh.Revit.dll"
+#r @"C:\GitHub\Fesh.Revit\bin\2019\net48\Fesh.dll"
+Fesh.Model.IFeshLog.printnColor 255 0 0 "Done!" // print in red
+Fesh.Model.IFeshLog.printnColor 0 150 0 "go to the 3D view!" // print in green
 
 

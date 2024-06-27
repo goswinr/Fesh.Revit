@@ -12,12 +12,12 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <FSharpCoreIncludeDocFileInOutput>true</FSharpCoreIncludeDocFileInOutput>
     <!--<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects> does this solve:? Could not load file or assembly 'FSharp.Core, Version=4.5.0.0-->
-    <RootNamespace>Seff.Revit</RootNamespace>
-    <AssemblyName>Seff.Revit</AssemblyName>
-    <AssemblyTitle>Seff.Revit</AssemblyTitle>
-    <Title>Seff.Revit</Title>
-    <Product>Seff.Revit</Product>
-    <!-- <PackageId>Seff.Revit</PackageId> -->
+    <RootNamespace>Fesh.Revit</RootNamespace>
+    <AssemblyName>Fesh.Revit</AssemblyName>
+    <AssemblyTitle>Fesh.Revit</AssemblyTitle>
+    <Title>Fesh.Revit</Title>
+    <Product>Fesh.Revit</Product>
+    <!-- <PackageId>Fesh.Revit</PackageId> -->
     <Version>0.9.0</Version>
     <AssemblyVersion>0.9.0</AssemblyVersion>
     <FileVersion>0.9.0</FileVersion>
@@ -44,12 +44,12 @@
     <Reference Include="WindowsBase" />
     <!-- use PrivateAssets="all" ExcludeAssets="runtime" to exclude these dlls from the output folder-->
     <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2023.0.0" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Update="FSharp.Core" Version="8.0.100" />
+    <PackageReference Update="FSharp.Core" Version="8.0.300" />
 
     <!--FSharp.Compiler.Service needs to be refernced here too because
-     somehow FSharp.DependencyManager.Nuget doesn't get copied over from /Seff/binHosting/x64/net472
+     somehow FSharp.DependencyManager.Nuget doesn't get copied over from /Fesh/binHosting/x64/net472
      (don't load it from Nuget see https://github.com/dotnet/fsharp/issues/10467#issuecomment-774430370) -->
-    <PackageReference Include="FSharp.Compiler.Service" Version="43.8.100" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="43.8.300" />
 
     <!--this reference is needed for tooling only, it might not be installed on host PC. see also https://github.com/fsprojects/IfSharp/issues/213 -->
     <PackageReference Include="NETStandard.Library" Version="2.0.3" GeneratePathProperty="true" />
@@ -58,13 +58,8 @@
     <PackageReference Include="AvalonLog"     Version="0.12.0" GeneratePathProperty="true"/>	 
     <PackageReference Include="Fittings"      Version="0.6.0" GeneratePathProperty="true"/>
 	  <PackageReference Include="AvalonEditB"   Version="2.2.0" GeneratePathProperty="true"/>	 
-    <Reference Include="Seff" HintPath="..\Seff\binHosting\net472\Seff.dll" />
-    <!--
-    <PackageReference Include="Seff" Version="0.0.2"  GeneratePathProperty="true"/>
-    <Reference Include="AvalonEditB" HintPath="..\Seff\binHosting\net472\AvalonEditB.dll" />
-    <Reference Include="AvalonLog" HintPath="..\Seff\binHosting\net472\AvalonLog.dll" />
-    <Reference Include="Fittings" HintPath="..\Seff\binHosting\net472\Fittings.dll" />
-    -->
+	  <PackageReference Include="Fesh"          Version="0.9.0" GeneratePathProperty="true"/>	     
+
   </ItemGroup>
 
   <ItemGroup>
@@ -77,7 +72,7 @@
     <Compile Include="Src/Addin.fs" />
     <Compile Include="Src/ScriptingSyntax.fs" />
     
-    <None Include="AddIn/2023/Seff.addin" />
+    <None Include="AddIn/2023/Fesh.addin" />
   </ItemGroup>
 
   <Target Name="CopyFilesOverAfterBuild" BeforeTargets="AfterBuild">
@@ -87,9 +82,9 @@
       tasks:  https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-task-reference?view=vs-2019
       better: https://stackoverflow.com/questions/44043918/running-a-target-before-the-corebuild
       -->
-    <!-- take latest SyntaxHighlightingFSharp.xshd from https://github.com/goswinr/Seff . 
-    This is only needed if there are recent changes to this file that are not published with to the Seff nuget.  SyntaxHighlightingFSharp.xshd is in the Seff nuget too.-->
-    <Copy SourceFiles="../Seff/Src/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" />
+    <!-- take latest SyntaxHighlightingFSharp.xshd from https://github.com/goswinr/Fesh . 
+    This is only needed if there are recent changes to this file that are not published with to the Fesh nuget.  SyntaxHighlightingFSharp.xshd is in the Fesh nuget too.-->
+    <Copy SourceFiles="../Fesh/Src/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" />
     <!--dll is needed for editor tooling only, it might not be installed on host PC . see also  https://github.com/fsprojects/IfSharp/issues/213 -->
     <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.dll" DestinationFiles="$(TargetDir)netstandard.dll" ContinueOnError="false" />
     <!-- needed for docstring type info , if dot net sdk is not installed. -->
@@ -103,6 +98,6 @@
   </Target>
   <Target Name="CopyRevitAddin" BeforeTargets="AfterBuild">
     <!--copy addin file to revit appdata-->
-    <Copy SourceFiles="AddIn/2023/Seff.addin" DestinationFiles="C:/ProgramData/Autodesk/Revit/Addins/2023/Seff.addin" ContinueOnError="false" />
+    <Copy SourceFiles="AddIn/2023/Fesh.addin" DestinationFiles="C:/ProgramData/Autodesk/Revit/Addins/2023/Fesh.addin" ContinueOnError="false" />
   </Target>
 </Project>

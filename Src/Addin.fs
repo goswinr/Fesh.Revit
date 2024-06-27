@@ -1,12 +1,12 @@
-﻿namespace Seff.Revit
+﻿namespace Fesh.Revit
 
 open Autodesk.Revit.UI
 open Autodesk.Revit.DB
 open Autodesk.Revit.Attributes
 open System
 open System.Windows
-open Seff
-open Seff.Config
+open Fesh
+open Fesh.Config
 open System.Collections.Concurrent
 
 
@@ -62,26 +62,26 @@ module ResolveFSharpCore =
 
 // example of mode-less dialog: https://github.com/pierpaolo-canini/Lame-Duck
 
-/// A static class to provide logging and  access to the Seff Editor
+/// A static class to provide logging and  access to the Fesh Editor
 [<AbstractClass; Sealed>]
 type App private () = 
 
     static let mutable logFileOnDesktopCount = ref 0
 
     /// for managing visibility state when showing and hiding the editor window
-    static member val internal seffWasEverShown: bool =  false with get,set
+    static member val internal FeshWasEverShown: bool =  false with get,set
 
-    /// a static reference to the current Seff Editor
-    static member val Seff : Seff option = None with get,set      
+    /// a static reference to the current Fesh Editor
+    static member val Fesh : Fesh option = None with get,set      
 
     /// creates a log or debug txt file on the desktop
     /// file name includes datetime to be unique
-    /// sprintf "%sSeff.Revit.Log-%s.txt" filePrefix time
+    /// sprintf "%sFesh.Revit.Log-%s.txt" filePrefix time
     static member logToFile filePrefix (content:string) = 
        let checkedPrefix = if isNull filePrefix then "NULLPREFIX" else filePrefix
        let checkedContent = if String.IsNullOrWhiteSpace content then "content is String.IsNullOrWhiteSpace" else content
        let time = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss-fff") // ensure unique name
-       let filename = sprintf "%sSeff.Revit.Log-%s.txt" checkedPrefix time
+       let filename = sprintf "%sFesh.Revit.Log-%s.txt" checkedPrefix time
        async {
            try
                let file = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),filename)
@@ -90,50 +90,50 @@ type App private () =
                () 
         } |> Async.Start
 
-    /// logs text to Seff editor window in red
-    /// if Seff is null it writes a text file to desktop instead and shows a Task Dialog.
+    /// logs text to Fesh editor window in red
+    /// if Fesh is null it writes a text file to desktop instead and shows a Task Dialog.
     static member alert msg = 
        Printf.kprintf (fun s ->
-           match App.Seff with 
-           |Some seff when seff.Window.IsLoaded -> 
+           match App.Fesh with 
+           |Some Fesh when Fesh.Window.IsLoaded -> 
                 try
-                    seff.Log.PrintnColor 180 100 10 s
+                    Fesh.Log.PrintnColor 180 100 10 s
                 with e -> // in case the logging fails
                     incr logFileOnDesktopCount
                     let printE = sprintf "\r\nLog.PrintnColor error:\r\n%A" e
                     App.logToFile "App.alertFailed-" (s+printE)
-                    TaskDialog.Show("Seff AddIn App.alertFailed", s+printE) |> ignore
+                    TaskDialog.Show("Fesh AddIn App.alertFailed", s+printE) |> ignore
            
            | _ when logFileOnDesktopCount.Value < 10 ->            
                 incr logFileOnDesktopCount
                 App.logToFile "App.alert-" s
-                TaskDialog.Show("Seff AddIn App.alert", s) |> ignore
+                TaskDialog.Show("Fesh AddIn App.alert", s) |> ignore
 
            | _ -> () // do nothing , we already have 10 log files on the desktop
            ) msg
 
 
-    /// logs text to Seff editor window in green
-    /// does nothing if Seff is null
+    /// logs text to Fesh editor window in green
+    /// does nothing if Fesh is null
     static member log msg = 
        Printf.kprintf (fun s ->
-           match App.Seff with 
+           match App.Fesh with 
            |None -> () 
-           |Some seff ->  seff.Log.PrintnColor 50 100 10 s
+           |Some Fesh ->  Fesh.Log.PrintnColor 50 100 10 s
            ) msg
            
 
 
 [<Transaction(TransactionMode.Manual)>]
-type internal FsiRunEventHandler (seff:Seff, queue: ConcurrentQueue< UIApplication->unit >) = 
-    member this.GetName() = "Run in Seff"
+type internal FsiRunEventHandler (Fesh:Fesh, queue: ConcurrentQueue< UIApplication->unit >) = 
+    member this.GetName() = "Run in Fesh"
     member this.Execute(app:UIApplication) = 
         let f = ref Unchecked.defaultof<UIApplication->unit>
         while queue.TryDequeue(f) do //using a queue is only needed if a single script calls into a transaction more than once
             try
                 f.Value(app)
             with e ->
-                seff.Log.PrintfnFsiErrorMsg "Error caught in FsiRunEventHandler(a IExternalEventHandler) in  this.Execute(app:UIApplication): %A" e
+                Fesh.Log.PrintfnFsiErrorMsg "Error caught in FsiRunEventHandler(a IExternalEventHandler) in  this.Execute(app:UIApplication): %A" e
 
     interface IExternalEventHandler with
         member this.GetName() = this.GetName()
@@ -143,7 +143,7 @@ type internal FsiRunEventHandler (seff:Seff, queue: ConcurrentQueue< UIApplicati
 [<Regeneration(RegenerationOption.Manual)>]
 [<Transaction(TransactionMode.Manual)>]
 [<AllowNullLiteralAttribute>]
-type SeffAddin()= // : IExternalApplication = // don't rename ! This is referenced via string in seff.addin file
+type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenced via string in Fesh.addin file
 
     member val RequestQueue = ConcurrentQueue<UIApplication->unit>()
 
@@ -152,7 +152,7 @@ type SeffAddin()= // : IExternalApplication = // don't rename ! This is referenc
     static member val Instance = null with get,set
 
     /// Runs a F# function via the IExternalEventHandler pattern for mode-less dialogs
-    /// This is the only way to run code from mode-less dialogs such as Seff editor
+    /// This is the only way to run code from mode-less dialogs such as Fesh editor
     member this.RunOnApp (f:UIApplication -> unit) = 
         this.RequestQueue.Enqueue(f)
         match this.ExternalEv with
@@ -167,7 +167,7 @@ type SeffAddin()= // : IExternalApplication = // don't rename ! This is referenc
             |x -> App.alert "exEvent.Raise() returned unknown ExternalEventRequest: %A" x
 
     /// runs a F# function via the IExternalEventHandler pattern for mode-less dialogs
-    /// this is the only way to run code from mode-less dialogs such as Seff editor
+    /// this is the only way to run code from mode-less dialogs such as Fesh editor
     member this.RunOnDoc (f:Document->unit) = 
         this.RunOnApp (fun app -> f app.ActiveUIDocument.Document)
 
@@ -175,39 +175,39 @@ type SeffAddin()= // : IExternalApplication = // don't rename ! This is referenc
     member this.OnStartup(uiConApp:UIControlledApplication) = 
         try
             ResolveFSharpCore.setup()   // needed! (at least in Revit 2023)
-            SeffAddin.Instance <- this
+            FeshAddin.Instance <- this
 
             // ------------------- create Ribbon and button -------------------------------------------
             let thisAssemblyPath = Reflection.Assembly.GetExecutingAssembly().Location
-            let button = new PushButtonData("Seff", "Open Fsharp Editor", thisAssemblyPath, "Seff.Revit.StartEditorCommand")
-            button.ToolTip <- "This will open the Seff F# Script Editor Window"
+            let button = new PushButtonData("Fesh", "Open Fsharp Editor", thisAssemblyPath, "Fesh.Revit.StartEditorCommand")
+            button.ToolTip <- "This will open the Fesh F# Script Editor Window"
 
-            let uriImage32 = new Uri("pack://application:,,,/Seff.Revit;component/Media/logo32.png") // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" />
-            let uriImage16 = new Uri("pack://application:,,,/Seff.Revit;component/Media/logo16.png")
+            let uriImage32 = new Uri("pack://application:,,,/Fesh.Revit;component/Media/logo32.png") // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" />
+            let uriImage16 = new Uri("pack://application:,,,/Fesh.Revit;component/Media/logo16.png")
             button.LargeImage <- Media.Imaging.BitmapImage(uriImage32)//for ribbon in tab
             button.Image      <- Media.Imaging.BitmapImage(uriImage16)//for quick access toolbar
 
-            let tabId = "Seff"
+            let tabId = "Fesh"
             uiConApp.CreateRibbonTab(tabId)
-            let panel = uiConApp.CreateRibbonPanel(tabId,"Seff")
+            let panel = uiConApp.CreateRibbonPanel(tabId,"Fesh")
             panel.AddItem(button) |> ignore
 
             Result.Succeeded
 
         with ex ->
-            App.alert "OnStartup of Seff.Revit.dll:\r\n%A" ex
+            App.alert "OnStartup of Fesh.Revit.dll:\r\n%A" ex
             Result.Failed
 
     
 
     member this.OnShutdown(app:UIControlledApplication) = 
         // https://forums.autodesk.com/t5/revit-api-forum/how-stop-or-cancel-revit-closing/td-p/5983643
-        //Your add-in OnShutdown method should be called when and only when Revit is closing.
-        //That will at least give you a chance to display the message to the user and "force her to press a button",
-        //if you really think that is a good idea, even if it does not enable you to prevent Revit from closing.
-        match App.Seff with 
+        // Your add-in OnShutdown method should be called when and only when Revit is closing.
+        // That will at least give you a chance to display the message to the user and "force her to press a button",
+        // if you really think that is a good idea, even if it does not enable you to prevent Revit from closing.
+        match App.Fesh with 
         |None -> () 
-        |Some seff -> seff.Tabs.AskForFileSavingToKnowIfClosingWindowIsOk()  |> ignore // this will try to save files too. ignore result since it not possible to prevent Revit from closing eventually
+        |Some Fesh -> Fesh.Tabs.AskForFileSavingToKnowIfClosingWindowIsOk()  |> ignore // this will try to save files too. ignore result since it not possible to prevent Revit from closing eventually
         Result.Succeeded
         //Result.Cancelled //TODO use this to dispose resources correctly ?
 
@@ -225,17 +225,17 @@ type SeffAddin()= // : IExternalApplication = // don't rename ! This is referenc
 [<Transaction(TransactionMode.Manual)>]
 type StartEditorCommand() = // don't rename ! string referenced in  PushButtonData //new instance is created on every button click
     member this.Execute(commandData: ExternalCommandData, message: byref<string>, elements: ElementSet): Result = 
-        let seff =
-            match App.Seff with 
+        let Fesh =
+            match App.Fesh with 
             |None -> 
                 
-                //-------------- start Seff -------------------------------------------------------------
-                // originally this was done in the OnStartup event but some how there was a problem getting a synchronisation context.
+                //-------------- start Fesh -------------------------------------------------------------
+                // originally this was done in the OnStartup event but some how there was a problem getting a synchronization context.
                 // so we do it here on the first button click
                 //https://thebuildingcoder.typepad.com/blog/2018/11/revit-window-handle-and-parenting-an-add-in-form.html
                 let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
                 let canRun = fun () ->  true // TODO check if in command, or enqueued anyway ?  !!
-                let logo = new Uri("pack://application:,,,/Seff.Revit;component/Media/logo.ico")
+                let logo = new Uri("pack://application:,,,/Fesh.Revit;component/Media/logo.ico")
                 let hostData = {
                     hostName = Version.name
                     mainWindowHandel = winHandle
@@ -248,11 +248,11 @@ type StartEditorCommand() = // don't rename ! string referenced in  PushButtonDa
                 at https://github.com/dotnet/fsharp/blob/7b46dad60df8da830dcc398c0d4a66f6cdf75cb1/src/Compiler/Interactive/fsi.fs#L3213   *)
                 //let prevDir = Environment.CurrentDirectory
                 //IO.Directory.SetCurrentDirectory(IO.Path.GetDirectoryName(Reflection.Assembly.GetAssembly([].GetType()).Location))              
-                let sff = Seff.App.createEditorForHosting(hostData)
+                let sff = Fesh.App.createEditorForHosting(hostData)
                 //IO.Directory.SetCurrentDirectory(prevDir)
-                App.Seff <- Some sff
+                App.Fesh <- Some sff
 
-                //TODO make a C# plugin that loads Seff.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI
+                //TODO make a C# plugin that loads Fesh.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI
                 sff.Fsi.OnRuntimeError.Add (fun e ->
                     match e with
                     | :? MissingMethodException -> sff.Log.PrintfnFsiErrorMsg "*** To avoid this MissingMethodException exception try restarting Revit without a document.\r\n*** Then from within Revit open your desired project.\r\n*** If the error persits please report it!"
@@ -261,18 +261,18 @@ type StartEditorCommand() = // don't rename ! string referenced in  PushButtonDa
                 
                 // just keep everything alive:
                 sff.Window.Closing.Add (fun e ->
-                    if not e.Cancel then // closing might be already cancelled in Seff.fs in main Seff lib.               
+                    if not e.Cancel then // closing might be already cancelled in Fesh.fs in main Fesh lib.               
                         // even if closing is not canceled, don't close, just hide window
                         sff.Window.Visibility <- Windows.Visibility.Hidden
                         e.Cancel <- true
                         )           
 
 
-                //-------------- hook up Seff -------------------------------------------------------------
-                if isNull SeffAddin.Instance then 
-                    App.alert "%s" "SeffAddin.Instance not set up yet"
+                //-------------- hook up Fesh -------------------------------------------------------------
+                if isNull FeshAddin.Instance then 
+                    App.alert "%s" "FeshAddin.Instance not set up yet"
                 else
-                    SeffAddin.Instance.ExternalEv <- Some <| ExternalEvent.Create(FsiRunEventHandler(sff, SeffAddin.Instance.RequestQueue))
+                    FeshAddin.Instance.ExternalEv <- Some <| ExternalEvent.Create(FsiRunEventHandler(sff, FeshAddin.Instance.RequestQueue))
 
                 sff
             
@@ -280,36 +280,36 @@ type StartEditorCommand() = // don't rename ! string referenced in  PushButtonDa
                 s      
                 
                 (* //TODO Alt enter does not work !?!
-                seff.Window.KeyDown.Add(fun e -> //to avoid pressing alt to focus on menu and the disabling Alt+Enter for Evaluating selection in FSI
-                    seff.Log.PrintDebugMsg "key: %A, system key: %A, mod: %A " e.Key e.SystemKey Keyboard.Modifiers
+                Fesh.Window.KeyDown.Add(fun e -> //to avoid pressing alt to focus on menu and the disabling Alt+Enter for Evaluating selection in FSI
+                    Fesh.Log.PrintDebugMsg "key: %A, system key: %A, mod: %A " e.Key e.SystemKey Keyboard.Modifiers
                     //if e.Key = Key.LeftAlt || e.Key = Key.RightAlt then
                     //    e.Handled <- true
                     //elif (Keyboard.Modifiers = ModifierKeys.Alt && e.Key = Key.Enter) ||
                     //   (Keyboard.Modifiers = ModifierKeys.Alt && e.Key = Key.Return) then
-                    //        seff.Fsi.Evaluate{code = seff.Tabs.CurrAvaEdit.SelectedText ; file=seff.Tabs.Current.FilePath; allOfFile=false}
+                    //        Fesh.Fsi.Evaluate{code = Fesh.Tabs.CurrAvaEdit.SelectedText ; file=Fesh.Tabs.Current.FilePath; allOfFile=false}
                     //        e.Handled <- true
                     )
-                seff.Tabs.Control.PreviewKeyDown.Add (fun e ->
+                Fesh.Tabs.Control.PreviewKeyDown.Add (fun e ->
                     if Keyboard.Modifiers = ModifierKeys.Alt && Keyboard.IsKeyDown(Key.Enter) then
-                        seff.Log.PrintDebugMsg "Alt+Enter"
+                        Fesh.Log.PrintDebugMsg "Alt+Enter"
                     elif Keyboard.Modifiers = ModifierKeys.Alt && Keyboard.IsKeyDown(Key.Return) then
-                        seff.Log.PrintDebugMsg "Alt+Return"
+                        Fesh.Log.PrintDebugMsg "Alt+Return"
                     else
-                        seff.Log.PrintDebugMsg "not Alt+Enter"
+                        Fesh.Log.PrintDebugMsg "not Alt+Enter"
                         )   
                 *)
         
         try
-            if not App.seffWasEverShown then
-                seff.Window.Show()
-                App.seffWasEverShown <- true
+            if not App.FeshWasEverShown then
+                Fesh.Window.Show()
+                App.FeshWasEverShown <- true
                 Result.Succeeded
             else
-                seff.Window.Visibility <- Visibility.Visible
+                Fesh.Window.Visibility <- Visibility.Visible
                 Result.Succeeded
 
         with ex ->
-            TaskDialog.Show("Execute Button Seff", sprintf "StartEditorCommand: message %s\r\ncommandData:%A\r\nelements:%A\r\nException:%A" message commandData elements ex ) |> ignore
+            TaskDialog.Show("Execute Button Fesh", sprintf "StartEditorCommand: message %s\r\ncommandData:%A\r\nelements:%A\r\nException:%A" message commandData elements ex ) |> ignore
             Result.Failed
 
 

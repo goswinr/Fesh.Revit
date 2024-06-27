@@ -1,19 +1,19 @@
-﻿namespace Seff.Revit
+﻿namespace Fesh.Revit
 
 open Autodesk.Revit.UI
 open Autodesk.Revit.DB
 open Autodesk.Revit.Attributes
 open System
-open Seff
+open Fesh
 
 
 module ScriptingSyntax = 
 
     /// Runs a function in a transaction
-    /// Will log errors to Seff Log if transaction has problems
+    /// Will log errors to Fesh Log if transaction has problems
     let run (f: Document-> unit)  = 
-        SeffAddin.Instance.RunOnDoc (fun (doc:Document) ->
-            use t = new Transaction(doc, "Seff F# script")
+        FeshAddin.Instance.RunOnDoc (fun (doc:Document) ->
+            use t = new Transaction(doc, "Fesh F# script")
             let s = t.Start()
             match s with
             |TransactionStatus.Started -> ()      //transaction has begun (until committed or rolled back)
@@ -30,9 +30,9 @@ module ScriptingSyntax =
             try
                 f(doc)
             with ex ->
-                match App.Seff with 
+                match App.Fesh with 
                 |None -> () 
-                |Some seff -> seff.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
+                |Some Fesh -> Fesh.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
 
             let r = t.Commit()
             match r with
@@ -49,11 +49,11 @@ module ScriptingSyntax =
             )
 
     /// Runs a function in a transaction
-    /// Will log errors to Seff Log if transaction has problems
+    /// Will log errors to Fesh Log if transaction has problems
     let runApp (f: UIApplication-> unit)  = 
-        SeffAddin.Instance.RunOnApp (fun (app:UIApplication) ->
+        FeshAddin.Instance.RunOnApp (fun (app:UIApplication) ->
             let doc = app.ActiveUIDocument.Document
-            use t = new Transaction(doc, "Seff F# script")
+            use t = new Transaction(doc, "Fesh F# script")
             let s = t.Start()
             match s with
             |TransactionStatus.Started -> ()      //transaction has begun (until committed or rolled back)
@@ -70,9 +70,9 @@ module ScriptingSyntax =
             try
                 f(app)
             with ex ->
-                match App.Seff with 
+                match App.Fesh with 
                 |None -> () 
-                |Some seff -> seff.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
+                |Some Fesh -> Fesh.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
 
             let r = t.Commit()
             match r with
