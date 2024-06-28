@@ -89,9 +89,9 @@
         better: https://stackoverflow.com/questions/44043918/running-a-target-before-the-corebuild
         -->
 
-    <!-- take latest SyntaxHighlightingFSharp.xshd from https://github.com/goswinr/Fesh .
-    This is only needed if there are recent changes to this file that are not published with to the Fesh nuget.  SyntaxHighlightingFSharp.xshd is in the Fesh nuget too.-->
-    <Copy SourceFiles="../Fesh/Src/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" />
+    <!-- take latest SyntaxHighlightingFSharp.xshd from https://github.com/goswinr/Fesh nuget.-->
+    <Copy SourceFiles="$(PkgFesh)/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" />
+    <!-- <Copy SourceFiles="../Fesh/Src/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" /> -->
 
     <!--dll is needed for editor tooling only, it might not be installed on host PC . see also  https://github.com/fsprojects/IfSharp/issues/213 -->
     <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.dll" DestinationFiles="$(TargetDir)netstandard.dll" ContinueOnError="false" />
