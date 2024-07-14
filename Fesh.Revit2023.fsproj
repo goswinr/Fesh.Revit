@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
-  <!--Win desktop needed so that rescources work with dotnet build:-->
+  <!--Win desktop needed so that resources work with dotnet build:-->
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>net48</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <LangVersion>preview</LangVersion>
+
     <NeutralLanguage>en</NeutralLanguage>
-    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-    <!--to only have the english resources-->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages><!--to only have the english resources-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <FSharpCoreIncludeDocFileInOutput>true</FSharpCoreIncludeDocFileInOutput>
     <!--<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects> does this solve:? Could not load file or assembly 'FSharp.Core, Version=4.5.0.0-->
@@ -18,22 +18,26 @@
     <Title>Fesh.Revit</Title>
     <Product>Fesh.Revit</Product>
     <!-- <PackageId>Fesh.Revit</PackageId> -->
+
     <Version>0.9.0</Version>
     <AssemblyVersion>0.9.0</AssemblyVersion>
     <FileVersion>0.9.0</FileVersion>
     <PackageReleaseNotes>First release</PackageReleaseNotes>
+
     <Authors>GoswinR</Authors>
     <Copyright>Goswin Rothenthal 2021</Copyright>
+
     <Description>A Scripting editor for fsharp in Revit.</Description>
     <ApplicationIcon>Media/logo.ico</ApplicationIcon>
-    <Win32Resource>Media/logo.res</Win32Resource>
-    <!--  for Application Icon in explorer-->
-    <!--neede to silence errors with revit dlls?
+    <Win32Resource>Media/logo.res</Win32Resource>    <!--  for Application Icon in explorer-->
+
+    <!--needed to silence errors with Revit dlls?
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
     -->
+
     <Configuration>Release</Configuration>
-    <PlatformTarget>x64</PlatformTarget>
-    <!--  x64 is required e.g by Revit, dont us just 'Platform' tag-->
+    <PlatformTarget>x64</PlatformTarget> <!--  x64 is required e.g by Revit, do not us just 'Platform' tag-->
+
     <OutputPath>bin2023</OutputPath>
     <DefineConstants>REVIT2023</DefineConstants>
   </PropertyGroup>
@@ -42,11 +46,12 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsBase" />
+
     <!-- use PrivateAssets="all" ExcludeAssets="runtime" to exclude these dlls from the output folder-->
     <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2023.0.0" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Update="FSharp.Core" Version="8.0.300" />
 
-    <!--FSharp.Compiler.Service needs to be refernced here too because
+    <PackageReference Update="FSharp.Core" Version="8.0.300" />
+    <!--FSharp.Compiler.Service needs to be referenced here too because
      somehow FSharp.DependencyManager.Nuget doesn't get copied over from /Fesh/binHosting/x64/net472
      (don't load it from Nuget see https://github.com/dotnet/fsharp/issues/10467#issuecomment-774430370) -->
     <PackageReference Include="FSharp.Compiler.Service" Version="43.8.300" />
@@ -60,6 +65,9 @@
 	  <PackageReference Include="AvalonEditB" Version="2.3.0" GeneratePathProperty="true" />
 	  <PackageReference Include="Fesh" Version="0.9.0" GeneratePathProperty="true" />
 
+    <PackageReference Include="Fody" Version="6.8.1" PrivateAssets="all" IncludeAssets="runtime; compile; build; native; contentfiles; analyzers" />
+    <PackageReference Include="Costura.Fody" Version="5.7.0" PrivateAssets="all" IncludeAssets="runtime; compile; build; native; contentfiles; analyzers" />
+
   </ItemGroup>
 
   <ItemGroup>
@@ -67,7 +75,6 @@
     <Resource Include="Media/logo.ico" />
     <Resource Include="Media/logo16.png" />
     <Resource Include="Media/logo32.png" />
-    <!-- <Resource Include="Media/FiraCode-Regular.ttf" /> -->
 
     <Compile Include="Src/Addin.fs" />
     <Compile Include="Src/ScriptingSyntax.fs" />
@@ -75,13 +82,8 @@
     <None Include="AddIn/2023/Fesh.addin" />
   </ItemGroup>
 
-  <Target Name="CopyFilesOverAfterBuild" BeforeTargets="AfterBuild">
-    <!-- Replaces AfterBuild target,
-      help:   https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-well-known-item-metadata?view=vs-2015&redirectedfrom=MSDN
-      see:    https://stackoverflow.com/questions/43921992/how-can-i-use-beforebuild-and-afterbuild-targets-with-visual-studio-2017
-      tasks:  https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-task-reference?view=vs-2019
-      better: https://stackoverflow.com/questions/44043918/running-a-target-before-the-corebuild
-      -->
+  <Target Name="CopyFilesOverBeforeBuild" BeforeTargets="BeforeBuild">
+
     <!-- take latest SyntaxHighlightingFSharp.xshd from https://github.com/goswinr/Fesh nuget.-->
     <Copy SourceFiles="$(PkgFesh)/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" />
     <!-- <Copy SourceFiles="../Fesh/Src/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" /> -->
@@ -99,8 +101,9 @@
     <Copy SourceFiles="$(PkgFittings)/lib/net472/Fittings.xml" DestinationFiles="$(TargetDir)Fittings.xml" ContinueOnError="false" />
     <Copy SourceFiles="$(PkgFesh)/lib/net472/Fesh.xml" DestinationFiles="$(TargetDir)Fesh.xml" ContinueOnError="false" />
   </Target>
+
   <Target Name="CopyRevitAddin" BeforeTargets="AfterBuild">
-    <!--copy addin file to revit appdata-->
+    <!--copy addin file to revit appdata,-->
     <Copy SourceFiles="AddIn/2023/Fesh.addin" DestinationFiles="C:/ProgramData/Autodesk/Revit/Addins/2023/Fesh.addin" ContinueOnError="false" />
   </Target>
 </Project>

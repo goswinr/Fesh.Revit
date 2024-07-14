@@ -3,9 +3,10 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+FodyWeavers.xsd
 
 #build results, bin folder:
-[Bb]in/ 
+[Bb]in/
 bin2018/
 bin2019/
 bin2020/
@@ -29,9 +30,9 @@ bin2024/
 mono_crash.*
 
 # Build results
-[Dd]ebug/                  
+[Dd]ebug/
 [Dd]ebugPublic/
-[Rr]elease/                
+[Rr]elease/
 [Rr]eleases/
 x64/
 x86/

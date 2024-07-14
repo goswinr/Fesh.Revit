@@ -38,26 +38,28 @@ module ResolveFSharpCore =
     //let pubTok = "b03f5f7f11d50a3a" // PublicKeyToken
     let tarVer = Reflection.Assembly.GetAssembly([].GetType()).GetName().Version //new Version("7.0.0.0"); //  Reflection.Assembly.GetAssembly([].GetType()).GetName().Version
 
-    let setup() =
-        // to fix  Could not load file or assembly 'FSharp.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
 
-        let handler = ResolveEventHandler (fun sender args ->
-            //gets the name of the assembly being requested by the plugin
-            let requestedAssembly = new AssemblyName(args.Name)
+    // AssemblyResolve is done buy Costura.Fody now
+    //let setup() =
+    //    // to fix  Could not load file or assembly 'FSharp.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
 
-            //if it is not the assembly we are trying to redirect, return null
-            if requestedAssembly.Name <> "FSharp.Core" then
-                null
-            else
-                //if it IS the assembly we are trying to redirect, change it's version and public key token information
-                requestedAssembly.Version <- tarVer
-                //requestedAssembly.SetPublicKeyToken(new AssemblyName("x, PublicKeyToken=" + pubTok).GetPublicKeyToken())
-                //requestedAssembly.CultureInfo <- CultureInfo.InvariantCulture
+    //    let handler = ResolveEventHandler (fun sender args ->
+    //        //gets the name of the assembly being requested by the plugin
+    //        let requestedAssembly = new AssemblyName(args.Name)
 
-                //finally, load the assembly
-                Assembly.Load(requestedAssembly)
-            )
-        AppDomain.CurrentDomain.add_AssemblyResolve handler
+    //        //if it is not the assembly we are trying to redirect, return null
+    //        if requestedAssembly.Name <> "FSharp.Core" then
+    //            null
+    //        else
+    //            //if it IS the assembly we are trying to redirect, change it's version and public key token information
+    //            requestedAssembly.Version <- tarVer
+    //            //requestedAssembly.SetPublicKeyToken(new AssemblyName("x, PublicKeyToken=" + pubTok).GetPublicKeyToken())
+    //            //requestedAssembly.CultureInfo <- CultureInfo.InvariantCulture
+
+    //            //finally, load the assembly
+    //            Assembly.Load(requestedAssembly)
+    //        )
+    //    AppDomain.CurrentDomain.add_AssemblyResolve handler
 
 
 // example of mode-less dialog: https://github.com/pierpaolo-canini/Lame-Duck
@@ -174,7 +176,7 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
 
     member this.OnStartup(uiConApp:UIControlledApplication) =
         try
-            ResolveFSharpCore.setup()   // needed! (at least in Revit 2023)
+            //ResolveFSharpCore.setup()   // needed! (at least in Revit 2023) // AssemblyResolve is done buy Costura.Fody now
             FeshAddin.Instance <- this
 
             // ------------------- create Ribbon and button -------------------------------------------
