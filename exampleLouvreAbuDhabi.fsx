@@ -1,7 +1,6 @@
-﻿#r @"C:\Program Files\Autodesk\Revit 2019\RevitAPIUI.dll"
-#r @"C:\Program Files\Autodesk\Revit 2019\RevitAPI.dll"
-
-
+﻿#r "C:/Program Files/Autodesk/Revit 2024/RevitAPI.dll"
+#r "C:/Program Files/Autodesk/Revit 2024/RevitAPIUI.dll"
+#r "Fesh.Revit"
 open Autodesk.Revit
 open Autodesk.Revit.DB
 open Autodesk.Revit.UI
@@ -57,17 +56,8 @@ module Louvre =
 Fesh.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  ->
     let doc = app.ActiveUIDocument.Document
     let ds = DirectShape.CreateElement(doc, ElementId(BuiltInCategory.OST_GenericModel))//, "ME", "MEo")
-
     Louvre.edgesShifted
     |> Array.map Louvre.setLineToSphere
     |> ds.SetShape
     )
-
-/// Reference the editor to print in color
-#r @"D:\Git\_Fesh_\Fesh.Revit\bin\2019\net48\AvalonEditB.dll"
-#r @"D:\Git\_Fesh_\Fesh.Revit\bin\2019\net48\Fesh.Revit.dll"
-#r @"D:\Git\_Fesh_\Fesh.Revit\bin\2019\net48\Fesh.dll"
-Fesh.Model.IFeshLog.printnColor 255 0 0 "Done!" // print in red
-Fesh.Model.IFeshLog.printnColor 0 150 0 "go to the 3D view!" // print in green
-
 

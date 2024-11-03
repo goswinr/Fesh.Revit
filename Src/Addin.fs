@@ -8,35 +8,72 @@ open System.Windows
 open Fesh
 open Fesh.Config
 open System.Collections.Concurrent
+open System.Windows.Controls
+open System.IO
+open System.Text
 
 
 module Version =
     let name =
-
-#if REVIT2019
-        "Revit 2019"
-#else
-    #if REVIT2021
-        "Revit 2021"
-    #else
-        #if REVIT2023
-            "Revit 2023"
-        #else
-            "Revit"
+        let mutable n = "Revit"
+        #if REVIT2018
+        n <- n + " 2018"
         #endif
-    #endif
-#endif
+        #if REVIT2019
+        n <- n + " 2019"
+        #endif
+        #if REVIT2020
+        n <- n + " 2020"
+        #endif
+        #if REVIT2021
+        n <- n + " 2021"
+        #endif
+        #if REVIT2022
+        n <- n + " 2022"
+        #endif
+        #if REVIT2023
+        n <- n + " 2023"
+        #endif
+        #if REVIT2024
+        n <- n + " 2024"
+        #endif
+        #if REVIT2025
+        n <- n + " 2025"
+        #endif
+        #if REVIT2026
+        n <- n + " 2026"
+        #endif
+        #if REVIT2027
+        n <- n + " 2027"
+        #endif
+        n
+
+module DefaultCode =
+    let code =
+        let year = Version.name.Replace("Revit","").Trim()
+        $"""#r "C:/Program Files/Autodesk/Revit {year}/RevitAPI.dll"
+#r "C:/Program Files/Autodesk/Revit {year}/RevitAPIUI.dll"
+#r "Fesh.Revit"
+open Autodesk.Revit
+open Autodesk.Revit.DB
+open Autodesk.Revit.UI
+
+// Run your Revit code inside a transaction:
+Fesh.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  ->
+    let doc = app.ActiveUIDocument.Document
+    // ...
+    // ...your code
+    // ...
+    printfn "Done"
+    )"""
 
 
-module ResolveFSharpCore =
-    open System.Reflection
-    open System.Globalization
+// module ResolveFSharpCore =
+//     open System.Reflection
+//     open System.Globalization
 
     // adapted from https://stackoverflow.com/questions/245825/what-does-initializecomponent-do-and-how-does-it-work-in-wpf
-
-    //let reqVer = new Version("4.5.0.0") //because of Fittings ??
-    //let pubTok = "b03f5f7f11d50a3a" // PublicKeyToken
-    let tarVer = Reflection.Assembly.GetAssembly([].GetType()).GetName().Version //new Version("7.0.0.0"); //  Reflection.Assembly.GetAssembly([].GetType()).GetName().Version
+    // let tarVer = Assembly.GetAssembly([].GetType()).GetName().Version
 
 
     // AssemblyResolve is done buy Costura.Fody now
@@ -227,6 +264,17 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
 [<Transaction(TransactionMode.Manual)>]
 type StartEditorCommand() = // don't rename ! string referenced in  PushButtonData //new instance is created on every button click
     member this.Execute(commandData: ExternalCommandData, message: byref<string>, elements: ElementSet): Result =
+        // let assemblyNames = // for debugging loaded assemblies
+        //     AppDomain.CurrentDomain.GetAssemblies()
+        //     |> Array.map (fun asm ->
+        //         let loc = if asm.IsDynamic then "*Dynamic*" else asm.Location
+        //         $"{asm.FullName} , {loc}" )
+        //     |> Array.sort
+        //     |> String.concat Environment.NewLine
+        // let desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+        // let filePath = Path.Combine(desktopPath, "Revit 2024 LoadedAssemblies-2.csv")
+        // File.WriteAllText(filePath, assemblyNames)
+
         let Fesh =
             match App.Fesh with
             |None ->
@@ -243,40 +291,34 @@ type StartEditorCommand() = // don't rename ! string referenced in  PushButtonDa
                     mainWindowHandel = winHandle
                     fsiCanRun =  canRun
                     logo = Some logo
+                    defaultCode = Some DefaultCode.code
                     }
 
-                (*  This is needed since FCS 34. it solves https://github.com/dotnet/fsharp/issues/9064
-                FCS takes the current Directory which might be the one of the hosting App and will then probably not contain FSharp.Core.
-                at https://github.com/dotnet/fsharp/blob/7b46dad60df8da830dcc398c0d4a66f6cdf75cb1/src/Compiler/Interactive/fsi.fs#L3213   *)
-                //let prevDir = Environment.CurrentDirectory
-                //IO.Directory.SetCurrentDirectory(IO.Path.GetDirectoryName(Reflection.Assembly.GetAssembly([].GetType()).Location))
-                let sff = Fesh.App.createEditorForHosting(hostData)
-                //IO.Directory.SetCurrentDirectory(prevDir)
-                App.Fesh <- Some sff
+                let feshApp = Fesh.App.createEditorForHosting(hostData)
+                App.Fesh <- Some feshApp
 
                 //TODO make a C# plugin that loads Fesh.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI
-                sff.Fsi.OnRuntimeError.Add (fun e ->
+                feshApp.Fsi.OnRuntimeError.Add (fun e ->
                     match e with
-                    | :? MissingMethodException -> sff.Log.PrintfnFsiErrorMsg "*** To avoid this MissingMethodException exception try restarting Revit without a document.\r\n*** Then from within Revit open your desired project.\r\n*** If the error persits please report it!"
+                    | :? MissingMethodException -> feshApp.Log.PrintfnFsiErrorMsg "*** To avoid this MissingMethodException exception try restarting Revit without a document.\r\n*** Then from within Revit open your desired project.\r\n*** If the error persits please report it!"
                     | _ -> ()
                     )
 
                 // just keep everything alive:
-                sff.Window.Closing.Add (fun e ->
+                feshApp.Window.Closing.Add (fun e ->
                     if not e.Cancel then // closing might be already cancelled in Fesh.fs in main Fesh lib.
                         // even if closing is not canceled, don't close, just hide window
-                        sff.Window.Visibility <- Windows.Visibility.Hidden
+                        feshApp.Window.Visibility <- Windows.Visibility.Hidden
                         e.Cancel <- true
                         )
-
 
                 //-------------- hook up Fesh -------------------------------------------------------------
                 if isNull FeshAddin.Instance then
                     App.alert "%s" "FeshAddin.Instance not set up yet"
                 else
-                    FeshAddin.Instance.ExternalEv <- Some <| ExternalEvent.Create(FsiRunEventHandler(sff, FeshAddin.Instance.RequestQueue))
+                    FeshAddin.Instance.ExternalEv <- Some <| ExternalEvent.Create(FsiRunEventHandler(feshApp, FeshAddin.Instance.RequestQueue))
 
-                sff
+                feshApp
 
             |Some s ->
                 s
@@ -319,7 +361,6 @@ type StartEditorCommand() = // don't rename ! string referenced in  PushButtonDa
         member this.Execute(commandData: ExternalCommandData, message: byref<string>, elements: ElementSet): Result =
             this.Execute(commandData, &message, elements)
 
-
             (* let uiApp =
                  let versionNumber = int uiConApp.ControlledApplication.VersionNumber
                  let fieldName = if versionNumber >= 2017 then  "m_uiapplication" else "m_application"
@@ -327,4 +368,4 @@ type StartEditorCommand() = // don't rename ! string referenced in  PushButtonDa
                  fi.GetValue(uiConApp) :?> UIApplication  *)
 
 
-// System.Guid.NewGuid().ToString().ToUpper() // for FSI
+

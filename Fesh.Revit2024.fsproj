@@ -18,27 +18,27 @@
     <Product>Fesh.Revit</Product>
     <!-- <PackageId>Fesh.Revit</PackageId> -->
 
-    <Version>0.9.0</Version>
-    <AssemblyVersion>0.9.0</AssemblyVersion>
-    <FileVersion>0.9.0</FileVersion>
+    <Version>0.14.0</Version>
+    <AssemblyVersion>0.14.0</AssemblyVersion>
+    <FileVersion>0.14.0</FileVersion>
     <PackageReleaseNotes>First release</PackageReleaseNotes>
 
     <Authors>GoswinR</Authors>
-    <Copyright>Goswin Rothenthal 2021</Copyright>
+    <Copyright>Goswin Rothenthal 2019</Copyright>
 
     <Description>A Scripting editor for fsharp in Revit.</Description>
     <ApplicationIcon>Media/logo.ico</ApplicationIcon>
     <Win32Resource>Media/logo.res</Win32Resource><!--  for Application Icon in explorer-->
 
-    <!--need to silence errors with Revit dlls?
-    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
-    -->
+    <!--needed to silence errors with Revit dlls?-->
+    <!-- <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch> -->
+
 
     <Configuration>Release</Configuration>
     <PlatformTarget>x64</PlatformTarget><!--  x64 is required e.g by Revit, do not us just 'Platform' tag-->
 
-    <OutputPath>bin2021</OutputPath>
-    <DefineConstants>REVIT2021</DefineConstants>
+    <OutputPath>bin/2024</OutputPath>
+    <DefineConstants>REVIT2024</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -46,26 +46,17 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsBase" />
 
-    <!-- use PrivateAssets="all" ExcludeAssets="runtime" to exclude these dlls from the output folder-->
-    <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2021.0.0" PrivateAssets="all" ExcludeAssets="runtime" />
-
-    <PackageReference Update="FSharp.Core" Version="8.0.300" />
-    <!--FSharp.Compiler.Service needs to be referenced here too because
-     somehow FSharp.DependencyManager.Nuget doesn't get copied over from /Fesh/binHosting/x64/net472
-     (don't load it from Nuget see https://github.com/dotnet/fsharp/issues/10467#issuecomment-774430370) -->
-    <PackageReference Include="FSharp.Compiler.Service" Version="43.8.300" />
-
     <!--this reference is needed for tooling only, it might not be installed on host PC. see also https://github.com/fsprojects/IfSharp/issues/213 -->
     <PackageReference Include="NETStandard.Library" Version="2.0.3" GeneratePathProperty="true" />
 
-    <!-- These packages are just added  explicitly again to pull in XML too below. -->
-    <PackageReference Include="AvalonLog" Version="0.13.0" GeneratePathProperty="true" />
-    <PackageReference Include="Fittings" Version="0.6.0" GeneratePathProperty="true" />
-	  <PackageReference Include="AvalonEditB" Version="2.3.0" GeneratePathProperty="true" />
-    <PackageReference Include="Fesh" Version="0.9.0"  GeneratePathProperty="true" />
+    <!-- use PrivateAssets="all" ExcludeAssets="runtime" to exclude these dlls from the output folder-->
+    <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2024.2.0" PrivateAssets="all" ExcludeAssets="runtime"/>
 
-    <PackageReference Include="Fody" Version="6.8.1" PrivateAssets="all" IncludeAssets="runtime; compile; build; native; contentfiles; analyzers" />
-    <PackageReference Include="Costura.Fody" Version="5.7.0" PrivateAssets="all" IncludeAssets="runtime; compile; build; native; contentfiles; analyzers" />
+    <PackageReference Include="AvalonLog" Version="0.15.8" GeneratePathProperty="true"/>
+    <PackageReference Include="Fittings" Version="0.8.8"  GeneratePathProperty="true"/>
+    <PackageReference Include="Fesh" Version="0.14.0"  GeneratePathProperty="true" />
+    <PackageReference Update="FSharp.Core" Version="8.0.400"   GeneratePathProperty="true" />
+
   </ItemGroup>
 
  <ItemGroup>
@@ -76,16 +67,12 @@
 
     <Compile Include="Src/Addin.fs" />
     <Compile Include="Src/ScriptingSyntax.fs" />
-
-    <None Include="AddIn/2021/Fesh.addin" />
   </ItemGroup>
-
 
   <Target Name="CopyFilesOverBeforeBuild" BeforeTargets="BeforeBuild">
 
     <!-- take latest SyntaxHighlightingFSharp.xshd from https://github.com/goswinr/Fesh nuget.-->
     <Copy SourceFiles="$(PkgFesh)/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" />
-    <!-- <Copy SourceFiles="../Fesh/Src/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" /> -->
 
     <!--dll is needed for editor tooling only, it might not be installed on host PC . see also  https://github.com/fsprojects/IfSharp/issues/213 -->
     <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.dll" DestinationFiles="$(TargetDir)netstandard.dll" ContinueOnError="false" />
@@ -93,17 +80,15 @@
     <!-- needed for docstring type info , if dot net sdk is not installed. -->
     <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.xml" DestinationFiles="$(TargetDir)netstandard.xml" ContinueOnError="false" />
 
-    <!--because <FSharpCoreIncludeDocFileInOutput>true</FSharpCoreIncludeDocFileInOutput>  does not work in visual studio: -->
-	  <Copy SourceFiles="$(PkgFSharp_Compiler_Service)/lib/netstandard2.0/FSharp.Compiler.Service.xml" DestinationFiles="$(TargetDir)FSharp.Compiler.Service.xml" ContinueOnError="false" />
+    <!--because <FSharpCoreIncludeDocFileInOutput>true</FSharpCoreIncludeDocFileInOutput>  does not seem to work -->
 	  <Copy SourceFiles="$(PkgFSharp_Core)/lib/netstandard2.0/FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" />
 	  <Copy SourceFiles="$(PkgAvalonLog)/lib/net472/AvalonLog.xml" DestinationFiles="$(TargetDir)AvalonLog.xml" ContinueOnError="false" />
-	  <Copy SourceFiles="$(PkgAvalonEditB)/lib/net472/AvalonEditB.xml" DestinationFiles="$(TargetDir)AvalonEditB.xml" ContinueOnError="false" />
 	  <Copy SourceFiles="$(PkgFittings)/lib/net472/Fittings.xml" DestinationFiles="$(TargetDir)Fittings.xml" ContinueOnError="false" />
     <Copy SourceFiles="$(PkgFesh)/lib/net472/Fesh.xml" DestinationFiles="$(TargetDir)Fesh.xml" ContinueOnError="false" />
   </Target>
 
   <Target Name="CopyRevitAddin" BeforeTargets="AfterBuild">
-    <!--copy addin file to revit appdata-->
-    <Copy SourceFiles="AddIn/2021/Fesh.addin" DestinationFiles="C:/ProgramData/Autodesk/Revit/Addins/2021/Fesh.addin" ContinueOnError="false" />
+    <!--copy addin file to Revit Addins folder-->
+    <Copy SourceFiles="AddIn/2024/Fesh.addin" DestinationFiles="C:/ProgramData/Autodesk/Revit/Addins/2024/Fesh.addin" ContinueOnError="false" />
   </Target>
 </Project>
