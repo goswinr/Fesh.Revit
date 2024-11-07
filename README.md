@@ -16,14 +16,17 @@ See also my talk at <a href="https://www.youtube.com/watch?v=ZY-bvZZZZnE" target
 
 
 ### How to build
-Before compiling make sure the path in the file `AddIn\20XX\Fesh.addin` matches your local path.\
-![](Docs/addinPath.png)
 
-Then just run  `dotnet build`.\
-The `addin` file will then be copied to `C:/ProgramData/Autodesk/Revit/Addins/20XX/Fesh.addin` as the last step of the build process.\
-See end of the `.fsproj` file.\
-Now just start Revit and the Fesh addin should be available in the tabs:\
-![alt text](Docs/tab.png)
+To build use the [.NET SDK](https://dotnet.microsoft.com/en-us/download) via the command line.\
+You need to use pass in your Revit version as an argument like this:
+
+```bash
+dotnet build -p:RevitVersion=2024
+```
+This will find and compile `Fesh.Revit.fsproj` since it is the only *.fsproj file in the root folder.\
+It will automatically create an `Fesh.addin` xml file for the specified Revit version\
+in the Revit Addins folder at `C:/ProgramData/Autodesk/Revit/Addins/20XX/Fesh.addin`.
+
 
 
 ### How to use F# with Revit

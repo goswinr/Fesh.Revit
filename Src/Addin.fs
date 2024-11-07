@@ -11,6 +11,7 @@ open System.Collections.Concurrent
 open System.Windows.Controls
 open System.IO
 open System.Text
+open System.Net.Http
 
 
 module Version =
@@ -46,6 +47,9 @@ module Version =
         #if REVIT2027
         n <- n + " 2027"
         #endif
+        #if REVIT2027
+        n <- n + " 2028"
+        #endif
         n
 
 module DefaultCode =
@@ -71,32 +75,25 @@ Fesh.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  ->
 // module ResolveFSharpCore =
 //     open System.Reflection
 //     open System.Globalization
-
-    // adapted from https://stackoverflow.com/questions/245825/what-does-initializecomponent-do-and-how-does-it-work-in-wpf
-    // let tarVer = Assembly.GetAssembly([].GetType()).GetName().Version
-
-
-    // AssemblyResolve is done buy Costura.Fody now
-    //let setup() =
-    //    // to fix  Could not load file or assembly 'FSharp.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
-
-    //    let handler = ResolveEventHandler (fun sender args ->
-    //        //gets the name of the assembly being requested by the plugin
-    //        let requestedAssembly = new AssemblyName(args.Name)
-
-    //        //if it is not the assembly we are trying to redirect, return null
-    //        if requestedAssembly.Name <> "FSharp.Core" then
-    //            null
-    //        else
-    //            //if it IS the assembly we are trying to redirect, change it's version and public key token information
-    //            requestedAssembly.Version <- tarVer
-    //            //requestedAssembly.SetPublicKeyToken(new AssemblyName("x, PublicKeyToken=" + pubTok).GetPublicKeyToken())
-    //            //requestedAssembly.CultureInfo <- CultureInfo.InvariantCulture
-
-    //            //finally, load the assembly
-    //            Assembly.Load(requestedAssembly)
-    //        )
-    //    AppDomain.CurrentDomain.add_AssemblyResolve handler
+// adapted from https://stackoverflow.com/questions/245825/what-does-initializecomponent-do-and-how-does-it-work-in-wpf
+// let tarVer = Assembly.GetAssembly([].GetType()).GetName().Version
+//let setup() =
+//    // to fix  Could not load file or assembly 'FSharp.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+//    let handler = ResolveEventHandler (fun sender args ->
+//        //gets the name of the assembly being requested by the plugin
+//        let requestedAssembly = new AssemblyName(args.Name)
+//        //if it is not the assembly we are trying to redirect, return null
+//        if requestedAssembly.Name <> "FSharp.Core" then
+//            null
+//        else
+//            //if it IS the assembly we are trying to redirect, change it's version and public key token information
+//            requestedAssembly.Version <- tarVer
+//            //requestedAssembly.SetPublicKeyToken(new AssemblyName("x, PublicKeyToken=" + pubTok).GetPublicKeyToken())
+//            //requestedAssembly.CultureInfo <- CultureInfo.InvariantCulture
+//            //finally, load the assembly
+//            Assembly.Load(requestedAssembly)
+//        )
+//    AppDomain.CurrentDomain.add_AssemblyResolve handler
 
 
 // example of mode-less dialog: https://github.com/pierpaolo-canini/Lame-Duck
@@ -190,6 +187,9 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
 
     static member val Instance = null with get,set
 
+
+
+
     /// Runs a F# function via the IExternalEventHandler pattern for mode-less dialogs
     /// This is the only way to run code from mode-less dialogs such as Fesh editor
     member this.RunOnApp (f:UIApplication -> unit) =
@@ -213,7 +213,7 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
 
     member this.OnStartup(uiConApp:UIControlledApplication) =
         try
-            //ResolveFSharpCore.setup()   // needed! (at least in Revit 2023) // AssemblyResolve is done buy Costura.Fody now
+            //ResolveFSharpCore.setup()   // needed! (at least in Revit 2023)
             FeshAddin.Instance <- this
 
             // ------------------- create Ribbon and button -------------------------------------------
@@ -246,9 +246,13 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
         // if you really think that is a good idea, even if it does not enable you to prevent Revit from closing.
         match App.Fesh with
         |None -> ()
-        |Some fesh -> fesh.Tabs.AskForFileSavingToKnowIfClosingWindowIsOk()  |> ignore // this will try to save files too. ignore result since it not possible to prevent Revit from closing eventually
+        |Some fesh ->
+            fesh.Tabs.AskForFileSavingToKnowIfClosingWindowIsOk()  |> ignore // this will try to save files too. ignore result since it not possible to prevent Revit from closing eventually
+            fesh.Fsi.ShutDown()
+            fesh.Window.Close()
+
         Result.Succeeded
-        //Result.Cancelled //TODO use this to dispose resources correctly ?
+
 
     interface IExternalApplication with
         member this.OnStartup(uiConApp:UIControlledApplication) = this.OnStartup(uiConApp)
@@ -262,7 +266,34 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
 
 [<Regeneration(RegenerationOption.Manual)>]
 [<Transaction(TransactionMode.Manual)>]
-type StartEditorCommand() = // don't rename ! string referenced in  PushButtonData //new instance is created on every button click
+type StartEditorCommand() = // don't rename ! string referenced in  OnStartup -> PushButtonData //new instance is created on every button click
+
+    let checkForNewRelease(fesh:Fesh) =
+        async {
+            try
+                use client = new HttpClient()
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("Fesh")
+                let! response = client.GetStringAsync("https://api.github.com/repos/goswinr/Fesh.Revit/releases/latest") |> Async.AwaitTask
+                let v = response |> Fesh.Util.Str.between "\"tag_name\":\"" "\""
+                //let json = JObject.Parse(response)
+                //return json.["tag_name"].ToString()
+                do! Async.SwitchToContext Fittings.SyncWpf.context
+                match v with
+                | None -> fesh.Log.PrintfnInfoMsg "Could not check for updates on https://github.com/goswinr/Fesh.Revit/releases. \r\nAre you offline?"
+                | Some v ->
+                    let cv = Reflection.Assembly.GetAssembly(typeof<FeshAddin>).GetName().Version.ToString()
+                    let cv = if cv.EndsWith(".0") then cv[..^2] else cv
+                    if v <> cv then
+                        fesh.Log.PrintfnAppErrorMsg $"A newer version of Fesh.Revit is available: {v} , you are using {cv} \r\nPlease visit https://github.com/goswinr/Fesh.Revit/releases"
+                    else
+                        fesh.Log.PrintfnInfoMsg $"You are using the latest version of Fesh.Revit: {cv}"
+            with e ->
+                fesh.Log.PrintfnInfoMsg "Could not check for updates on https://github.com/goswinr/Fesh.Revit/releases. \r\nAre you offline?"
+                fesh.Log.PrintfnInfoMsg "The Error was: {e}"
+        }
+        |> Async.Start
+
+
     member this.Execute(commandData: ExternalCommandData, message: byref<string>, elements: ElementSet): Result =
         // let assemblyNames = // for debugging loaded assemblies
         //     AppDomain.CurrentDomain.GetAssemblies()
@@ -274,82 +305,82 @@ type StartEditorCommand() = // don't rename ! string referenced in  PushButtonDa
         // let desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
         // let filePath = Path.Combine(desktopPath, "Revit 2024 LoadedAssemblies-2.csv")
         // File.WriteAllText(filePath, assemblyNames)
-
-        let Fesh =
-            match App.Fesh with
-            |None ->
-
-                //-------------- start Fesh -------------------------------------------------------------
-                // originally this was done in the OnStartup event but some how there was a problem getting a synchronization context.
-                // so we do it here on the first button click
-                //https://thebuildingcoder.typepad.com/blog/2018/11/revit-window-handle-and-parenting-an-add-in-form.html
-                let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
-                let canRun = fun () ->  true // TODO check if in command, or enqueued anyway ?  !!
-                let logo = new Uri("pack://application:,,,/Fesh.Revit;component/Media/logo.ico")
-                let hostData = {
-                    hostName = Version.name
-                    mainWindowHandel = winHandle
-                    fsiCanRun =  canRun
-                    logo = Some logo
-                    defaultCode = Some DefaultCode.code
-                    }
-
-                let feshApp = Fesh.App.createEditorForHosting(hostData)
-                App.Fesh <- Some feshApp
-
-                //TODO make a C# plugin that loads Fesh.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI
-                feshApp.Fsi.OnRuntimeError.Add (fun e ->
-                    match e with
-                    | :? MissingMethodException -> feshApp.Log.PrintfnFsiErrorMsg "*** To avoid this MissingMethodException exception try restarting Revit without a document.\r\n*** Then from within Revit open your desired project.\r\n*** If the error persits please report it!"
-                    | _ -> ()
-                    )
-
-                // just keep everything alive:
-                feshApp.Window.Closing.Add (fun e ->
-                    if not e.Cancel then // closing might be already cancelled in Fesh.fs in main Fesh lib.
-                        // even if closing is not canceled, don't close, just hide window
-                        feshApp.Window.Visibility <- Windows.Visibility.Hidden
-                        e.Cancel <- true
-                        )
-
-                //-------------- hook up Fesh -------------------------------------------------------------
-                if isNull FeshAddin.Instance then
-                    App.alert "%s" "FeshAddin.Instance not set up yet"
-                else
-                    FeshAddin.Instance.ExternalEv <- Some <| ExternalEvent.Create(FsiRunEventHandler(feshApp, FeshAddin.Instance.RequestQueue))
-
-                feshApp
-
-            |Some s ->
-                s
-
-                (* //TODO Alt enter does not work !?!
-                Fesh.Window.KeyDown.Add(fun e -> //to avoid pressing alt to focus on menu and the disabling Alt+Enter for Evaluating selection in FSI
-                    fesh.Log.PrintDebugMsg "key: %A, system key: %A, mod: %A " e.Key e.SystemKey Keyboard.Modifiers
-                    //if e.Key = Key.LeftAlt || e.Key = Key.RightAlt then
-                    //    e.Handled <- true
-                    //elif (Keyboard.Modifiers = ModifierKeys.Alt && e.Key = Key.Enter) ||
-                    //   (Keyboard.Modifiers = ModifierKeys.Alt && e.Key = Key.Return) then
-                    //        Fesh.Fsi.Evaluate{code = Fesh.Tabs.CurrAvaEdit.SelectedText ; file=Fesh.Tabs.Current.FilePath; allOfFile=false}
-                    //        e.Handled <- true
-                    )
-                Fesh.Tabs.Control.PreviewKeyDown.Add (fun e ->
-                    if Keyboard.Modifiers = ModifierKeys.Alt && Keyboard.IsKeyDown(Key.Enter) then
-                        fesh.Log.PrintDebugMsg "Alt+Enter"
-                    elif Keyboard.Modifiers = ModifierKeys.Alt && Keyboard.IsKeyDown(Key.Return) then
-                        fesh.Log.PrintDebugMsg "Alt+Return"
-                    else
-                        fesh.Log.PrintDebugMsg "not Alt+Enter"
-                        )
-                *)
-
         try
+            let fesh =
+                match App.Fesh with
+                |None ->
+
+                    //-------------- start Fesh -------------------------------------------------------------
+                    // originally this was done in the OnStartup event but some how there was a problem getting a synchronization context.
+                    // so we do it here on the first button click
+                    //https://thebuildingcoder.typepad.com/blog/2018/11/revit-window-handle-and-parenting-an-add-in-form.html
+                    let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
+                    let canRun = fun () ->  true // TODO check if in command, or enqueued anyway ?  !!
+                    let logo = new Uri("pack://application:,,,/Fesh.Revit;component/Media/logo.ico")
+                    let hostData = {
+                        hostName = Version.name
+                        mainWindowHandel = winHandle
+                        fsiCanRun =  canRun
+                        logo = Some logo
+                        defaultCode = Some DefaultCode.code
+                        }
+
+                    let feshApp = Fesh.App.createEditorForHosting(hostData)
+                    App.Fesh <- Some feshApp
+
+                    //TODO make a C# plugin that loads Fesh.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI
+                    feshApp.Fsi.OnRuntimeError.Add (fun e ->
+                        match e with
+                        | :? MissingMethodException -> feshApp.Log.PrintfnFsiErrorMsg "*** To avoid this MissingMethodException exception try restarting Revit without a document.\r\n*** Then from within Revit open your desired project.\r\n*** If the error persits please report it!"
+                        | _ -> ()
+                        )
+
+                    // just keep everything alive:
+                    feshApp.Window.Closing.Add (fun e ->
+                        if not e.Cancel then // closing might be already cancelled in Fesh.fs in main Fesh lib.
+                            // even if closing is not canceled, don't close, just hide window
+                            feshApp.Window.Visibility <- Windows.Visibility.Hidden
+                            e.Cancel <- true
+                            )
+
+                    //-------------- hook up Fesh -------------------------------------------------------------
+                    if isNull FeshAddin.Instance then
+                        App.alert "%s" "FeshAddin.Instance not set up yet"
+                    else
+                        FeshAddin.Instance.ExternalEv <- Some <| ExternalEvent.Create(FsiRunEventHandler(feshApp, FeshAddin.Instance.RequestQueue))
+
+                    checkForNewRelease(feshApp )
+                    feshApp
+
+                |Some s ->
+                    s
+
+                    (* //TODO Alt enter does not work !?!
+                    Fesh.Window.KeyDown.Add(fun e -> //to avoid pressing alt to focus on menu and the disabling Alt+Enter for Evaluating selection in FSI
+                        fesh.Log.PrintDebugMsg "key: %A, system key: %A, mod: %A " e.Key e.SystemKey Keyboard.Modifiers
+                        //if e.Key = Key.LeftAlt || e.Key = Key.RightAlt then
+                        //    e.Handled <- true
+                        //elif (Keyboard.Modifiers = ModifierKeys.Alt && e.Key = Key.Enter) ||
+                        //   (Keyboard.Modifiers = ModifierKeys.Alt && e.Key = Key.Return) then
+                        //        Fesh.Fsi.Evaluate{code = Fesh.Tabs.CurrAvaEdit.SelectedText ; file=Fesh.Tabs.Current.FilePath; allOfFile=false}
+                        //        e.Handled <- true
+                        )
+                    Fesh.Tabs.Control.PreviewKeyDown.Add (fun e ->
+                        if Keyboard.Modifiers = ModifierKeys.Alt && Keyboard.IsKeyDown(Key.Enter) then
+                            fesh.Log.PrintDebugMsg "Alt+Enter"
+                        elif Keyboard.Modifiers = ModifierKeys.Alt && Keyboard.IsKeyDown(Key.Return) then
+                            fesh.Log.PrintDebugMsg "Alt+Return"
+                        else
+                            fesh.Log.PrintDebugMsg "not Alt+Enter"
+                            )
+                    *)
+
             if not App.FeshWasEverShown then
-                Fesh.Window.Show()
+                fesh.Window.Show()
                 App.FeshWasEverShown <- true
                 Result.Succeeded
             else
-                Fesh.Window.Visibility <- Visibility.Visible
+                fesh.Window.Visibility <- Visibility.Visible
                 Result.Succeeded
 
         with ex ->
