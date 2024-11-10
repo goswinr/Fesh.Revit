@@ -3,8 +3,8 @@
   <AddIn Type="Application">
     <Name>Fesh | F# Editor and Scripting Host for Revit 2024</Name>
 	<!-- 
-	    This .addin file is installed to "%CommonAppData%/Autodesk/Revit/Addins/Fesh.addin",
-		and should point to "%CommonAppData%/Autodesk/Revit/Addins/Fesh.Revit/Fesh.Revit.dll".
+	    This .addin file is installed to "%ProgramData%/Autodesk/Revit/Addins/Fesh.addin",
+		and should point to "%ProgramData%/Autodesk/Revit/Addins/Fesh.Revit/Fesh.Revit.dll".
 	-->
     <Assembly>Fesh.Revit\Fesh.Revit.dll</Assembly>
     <FullClassName>Fesh.Revit.FeshAddin</FullClassName>

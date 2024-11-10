@@ -38,7 +38,6 @@ pipeline "Fesh.Revit" {
     }
 
     stage "Build Addin" {
-        // run $"dotnet build {addinProjDir}\\Fesh.Revit2024.fsproj -p:RevitVersion=2024"
         run (fun ctx -> asyncResult {
             for year in supportedRevitYears do
                 do! ctx.RunCommand $"dotnet build {addinProjDir}\\Fesh.Revit%i{year}.fsproj -c Release -p:RevitVersion=%i{year}"
@@ -46,11 +45,7 @@ pipeline "Fesh.Revit" {
     }
     
     stage "Build Installer" {
-        run (fun _ ->
-            let setParams p = { p with DoRestore = true; Properties = ["Configuration", "Release"] }
-            MSBuild.build setParams installerProj
-        )
-        //run $"dotnet build {installerProj} -c Release"
+        run $"dotnet build {installerProj} -c Release"
     }
 
     stage "Copy Installer to Build Dir" {

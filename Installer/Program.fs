@@ -9,12 +9,10 @@ let run () =
     let productName = "Fesh.Revit"
     let supportedRevitYears = [| 2024 |]
     
-    failwith $"src: {src.FullName}"
-
     // Content paths
     let getReleasePath year = 
         let platform = if year <= 2024 then "net48" else "net8-windows"
-        $"%s{src.FullName}/Fesh.Revit/bin/%i{year}/%s{platform}"
+        $"%s{src.FullName}/bin/%i{year}/%s{platform}"
 
     let dllVer = System.Reflection.Assembly.LoadFile(getReleasePath (supportedRevitYears |> Seq.head) + "/Fesh.Revit.dll").GetName().Version
     let version = Version(dllVer.ToString())
@@ -33,10 +31,7 @@ let run () =
                     let feshRevitDir = getDir releasePath feature |> renameDir "Fesh.Revit"
 
                     Dir(feature, $"%i{year}", 
-                        File(feature, "Resources/Fesh.addin"),
-                        //Dir(feature, "Fesh.Revit",
-                        //    feshRevitDir
-                        //)
+                        File(feature, "Resources/Fesh.Revit.addin"),
                         feshRevitDir
                     ) :> WixEntity 
                 )
@@ -65,7 +60,8 @@ let run () =
 
     project.Scope <- InstallScope.perMachine
     project.LicenceFile <- "Resources/End User License Agreement.rtf"
-    project.ControlPanelInfo.Manufacturer <- "goswinr"
+    project.ControlPanelInfo.Manufacturer <- "Goswin Rothenthal"
+    project.ControlPanelInfo.UrlInfoAbout <- "https://github.com/goswinr/Fesh.Revit"
     
     // Create the installer
     Compiler.BuildMsi(project) |> ignore

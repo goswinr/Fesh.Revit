@@ -8,7 +8,7 @@
 	
 	<ItemGroup>
 		<None Include="Resources\End User License Agreement.rtf" />
-		<Content Include="Resources\Fesh.addin" />
+		<Content Include="Resources\Fesh.Revit.addin" />
 		<Compile Include="FileSystem.fs" />
 		<Compile Include="Program.fs" />
 	</ItemGroup>
