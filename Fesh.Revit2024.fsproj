@@ -87,8 +87,8 @@
     <Copy SourceFiles="$(PkgFesh)/lib/net472/Fesh.xml" DestinationFiles="$(TargetDir)Fesh.xml" ContinueOnError="false" />
   </Target>
 
-  <Target Name="CopyRevitAddin" BeforeTargets="AfterBuild">
+  <Target Name="CopyRevitAddin" BeforeTargets="AfterBuild" Condition="'$(BuildingInsideVisualStudio)' == 'true'">
     <!--copy addin file to Revit Addins folder-->
-    <Copy SourceFiles="AddIn/2024/Fesh.addin" DestinationFiles="C:/ProgramData/Autodesk/Revit/Addins/2024/Fesh.addin" ContinueOnError="false" />
+    <Copy SourceFiles="AddIn/2024/Fesh.Revit.addin" DestinationFiles="C:/ProgramData/Autodesk/Revit/Addins/2024/Fesh.Revit.addin" ContinueOnError="false" />
   </Target>
 </Project>
