@@ -33,7 +33,6 @@ pipeline "Fesh.Revit" {
     }
     
     stage "Restore Tools" {
-        //run $"dotnet tool restore" $"--tool-manifest {rootDir}/.config/dotnet-tools.json --configfile {__SOURCE_DIRECTORY__}/nuget.config"
         run "dotnet tool install --global wix --version 5.0.0"
     }
 
