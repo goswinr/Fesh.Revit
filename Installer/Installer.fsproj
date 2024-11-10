@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net48</TargetFramework>
+		<!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
+		<WarnOn>3390;$(WarnOn)</WarnOn>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<None Include="Resources\End User License Agreement.rtf" />
+		<Content Include="Resources\Fesh.addin" />
+		<Compile Include="FileSystem.fs" />
+		<Compile Include="Program.fs" />
+	</ItemGroup>
+	
+	<ItemGroup />
+
+	<ItemGroup>
+		<PackageReference Include="WixSharp_wix4" Version="2.1.5" />
+		<PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Include="System.Windows.Forms" />
+	</ItemGroup>
+	
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command=":: Needed by WixSharp&#xD;&#xA;:: NOTE: The below will fail if the Installer build has errors and does not complete.&#xD;&#xA;:: (Ignore any errors here and instead focus on fixing installer errors.)&#xD;&#xA;cd .\&#xD;&#xA;set ide=true&#xD;&#xA;&quot;$(TargetPath)&quot;" />
+	</Target>
+	
+</Project>

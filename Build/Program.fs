@@ -16,7 +16,7 @@ let installerProjDir = path [ rootDir; "Installer" ]
 let installerProj = path [ installerProjDir; "Installer.fsproj" ]
 let installerBinReleaseDir = path [ installerProjDir; "bin"; "Release" ]
 
-let revitYears = [ 2024 ]
+let supportedRevitYears = [ 2024 ]
 
 pipeline "Fesh.Revit" {
 
@@ -29,26 +29,27 @@ pipeline "Fesh.Revit" {
     }
 
     stage "Build Addin" {
-        //run $"dotnet build {addinProjDir}\\Fesh.Revit2024.fsproj -p:RevitVersion=2024"
+        // run $"dotnet build {addinProjDir}\\Fesh.Revit2024.fsproj -p:RevitVersion=2024"
         run (fun ctx -> asyncResult {
-            for year in revitYears do
-                do! ctx.RunCommand $"dotnet build {addinProjDir}\\Fesh.Revit%i{year}.fsproj -p:RevitVersion=%i{year}"
+            for year in supportedRevitYears do
+                do! ctx.RunCommand $"dotnet build {addinProjDir}\\Fesh.Revit%i{year}.fsproj -c Release -p:RevitVersion=%i{year}"
         })        
     }
     
-    //stage "Build Installer" {
-    //    run (fun _ ->
-    //        let setParams p = { p with DoRestore = true; Properties = ["Configuration", "Release"] }
-    //        MSBuild.build setParams installerProj
-    //    )
-    //}
+    stage "Build Installer" {
+        run (fun _ ->
+            let setParams p = { p with DoRestore = true; Properties = ["Configuration", "Release"] }
+            MSBuild.build setParams installerProj
+        )
+        //run $"dotnet build {installerProj} -c Release"
+    }
 
-    //stage "Copy Installer to Build Dir" {
-    //    run (fun _ -> 
-    //        !! $"{installerBinReleaseDir}/*.msi"
-    //        |> Shell.copyFiles buildDir
-    //    )
-    //}
+    stage "Copy Installer to Build Dir" {
+        run (fun _ -> 
+            !! $"{installerBinReleaseDir}/*.msi"
+            |> Shell.copyFiles buildDir
+        )
+    }
 
     runIfOnlySpecified false
 }

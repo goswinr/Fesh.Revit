@@ -15,9 +15,13 @@
 		<PackageReference Include="Fake.Core.Environment" Version="5.22.0" />
 		<PackageReference Include="Fake.DotNet.Cli" Version="5.22.0" />
 		<PackageReference Include="Fake.IO.Zip" Version="5.22.0" />
-		<PackageReference Include="Fun.Build" Version="1.1.4" />
+		<PackageReference Include="Fun.Build" Version="1.1.14" />
 		<PackageReference Include="Fun.Result" Version="2.1.0" />
 		<PackageReference Include="MSBuild.StructuredLogger" Version="2.2.206" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Update="FSharp.Core" Version="8.0.401" />
 	</ItemGroup>
 
 
