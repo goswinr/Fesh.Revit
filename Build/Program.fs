@@ -27,6 +27,15 @@ pipeline "Fesh.Revit" {
             Shell.cleanDir (path [ installerProjDir; "bin" ])
         )
     }
+    
+    stage "Restore Packages" {        
+        run $"dotnet restore {rootDir}/Fesh.Revit.sln"
+    }
+    
+    stage "Restore Tools" {
+        //run $"dotnet tool restore" $"--tool-manifest {rootDir}/.config/dotnet-tools.json --configfile {__SOURCE_DIRECTORY__}/nuget.config"
+        run "dotnet tool install --global wix --version 5.0.0"
+    }
 
     stage "Build Addin" {
         // run $"dotnet build {addinProjDir}\\Fesh.Revit2024.fsproj -p:RevitVersion=2024"
