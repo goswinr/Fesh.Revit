@@ -4,59 +4,26 @@ open Autodesk.Revit.UI
 open Autodesk.Revit.DB
 open Autodesk.Revit.Attributes
 open System
+open System.IO
 open System.Windows
 open Fesh
 open Fesh.Config
 open System.Collections.Concurrent
-open System.Windows.Controls
-open System.IO
-open System.Text
-open System.Net.Http
+open Velopack
+open Velopack.Sources
+open Velopack.Locators
+open System.Reflection
+open Microsoft.Extensions.Logging
 
-
-module Version =
-    let name =
-        let mutable n = "Revit"
-        #if REVIT2018
-        n <- n + " 2018"
-        #endif
-        #if REVIT2019
-        n <- n + " 2019"
-        #endif
-        #if REVIT2020
-        n <- n + " 2020"
-        #endif
-        #if REVIT2021
-        n <- n + " 2021"
-        #endif
-        #if REVIT2022
-        n <- n + " 2022"
-        #endif
-        #if REVIT2023
-        n <- n + " 2023"
-        #endif
-        #if REVIT2024
-        n <- n + " 2024"
-        #endif
-        #if REVIT2025
-        n <- n + " 2025"
-        #endif
-        #if REVIT2026
-        n <- n + " 2026"
-        #endif
-        #if REVIT2027
-        n <- n + " 2027"
-        #endif
-        #if REVIT2027
-        n <- n + " 2028"
-        #endif
-        n
+module AppName =
+    let get(year:string) =
+        let year = year.Replace("Revit","").Trim() // just in case
+        $"Revit {year}"
 
 module DefaultCode =
-    let code =
-        let year = Version.name.Replace("Revit","").Trim()
-        $"""#r "C:/Program Files/Autodesk/Revit {year}/RevitAPI.dll"
-#r "C:/Program Files/Autodesk/Revit {year}/RevitAPIUI.dll"
+    let get(appName:string) =
+        $"""#r "C:/Program Files/Autodesk/{appName}/RevitAPI.dll"
+#r "C:/Program Files/Autodesk/{appName}/RevitAPIUI.dll"
 #r "Fesh.Revit"
 open Autodesk.Revit
 open Autodesk.Revit.DB
@@ -72,31 +39,9 @@ Fesh.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  ->
     )"""
 
 
-// module ResolveFSharpCore =
-//     open System.Reflection
-//     open System.Globalization
-// adapted from https://stackoverflow.com/questions/245825/what-does-initializecomponent-do-and-how-does-it-work-in-wpf
-// let tarVer = Assembly.GetAssembly([].GetType()).GetName().Version
-//let setup() =
-//    // to fix  Could not load file or assembly 'FSharp.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
-//    let handler = ResolveEventHandler (fun sender args ->
-//        //gets the name of the assembly being requested by the plugin
-//        let requestedAssembly = new AssemblyName(args.Name)
-//        //if it is not the assembly we are trying to redirect, return null
-//        if requestedAssembly.Name <> "FSharp.Core" then
-//            null
-//        else
-//            //if it IS the assembly we are trying to redirect, change it's version and public key token information
-//            requestedAssembly.Version <- tarVer
-//            //requestedAssembly.SetPublicKeyToken(new AssemblyName("x, PublicKeyToken=" + pubTok).GetPublicKeyToken())
-//            //requestedAssembly.CultureInfo <- CultureInfo.InvariantCulture
-//            //finally, load the assembly
-//            Assembly.Load(requestedAssembly)
-//        )
-//    AppDomain.CurrentDomain.add_AssemblyResolve handler
-
-
 // example of mode-less dialog: https://github.com/pierpaolo-canini/Lame-Duck
+
+
 
 /// A static class to provide logging and  access to the Fesh Editor
 [<AbstractClass; Sealed>]
@@ -108,7 +53,8 @@ type App private () =
     static member val internal FeshWasEverShown: bool =  false with get,set
 
     /// a static reference to the current Fesh Editor
-    static member val Fesh : Fesh option = None with get,set
+    static member val Fesh : Fesh option =
+        None with get,set
 
     /// creates a log or debug txt file on the desktop
     /// file name includes datetime to be unique
@@ -159,7 +105,6 @@ type App private () =
            ) msg
 
 
-
 [<Transaction(TransactionMode.Manual)>]
 type internal FsiRunEventHandler (fesh:Fesh, queue: ConcurrentQueue< UIApplication->unit >) =
     member this.GetName() = "Run in Fesh"
@@ -169,7 +114,7 @@ type internal FsiRunEventHandler (fesh:Fesh, queue: ConcurrentQueue< UIApplicati
             try
                 f.Value(app)
             with e ->
-                fesh.Log.PrintfnFsiErrorMsg "Error caught in FsiRunEventHandler(a IExternalEventHandler) in  this.Execute(app:UIApplication): %A" e
+                fesh.Log.PrintfnFsiErrorMsg "Error caught in FsiRunEventHandler(a IExternalEventHandler) in this.Execute(app:UIApplication):\r\n%A" e
 
     interface IExternalEventHandler with
         member this.GetName() = this.GetName()
@@ -186,8 +131,6 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
     member val ExternalEv: ExternalEvent option = None with get, set
 
     static member val Instance = null with get,set
-
-
 
 
     /// Runs a F# function via the IExternalEventHandler pattern for mode-less dialogs
@@ -221,8 +164,8 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
             let button = new PushButtonData("Fesh", "Open Fsharp Editor", thisAssemblyPath, "Fesh.Revit.StartEditorCommand")
             button.ToolTip <- "This will open the Fesh F# Script Editor Window"
 
-            let uriImage32 = new Uri("pack://application:,,,/Fesh.Revit;component/Media/logo32.png") // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" />
-            let uriImage16 = new Uri("pack://application:,,,/Fesh.Revit;component/Media/logo16.png")
+            let uriImage32 = new Uri("pack://application:,,,/Fesh.Revit;component/Media32/logo32.png") // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" />
+            let uriImage16 = new Uri("pack://application:,,,/Fesh.Revit;component/Media32/logo16.png")
             button.LargeImage <- Media.Imaging.BitmapImage(uriImage32)//for ribbon in tab
             button.Image      <- Media.Imaging.BitmapImage(uriImage16)//for quick access toolbar
 
@@ -239,7 +182,7 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
 
 
 
-    member this.OnShutdown(app:UIControlledApplication) =
+    member this.OnShutdown(_app:UIControlledApplication) =
         // https://forums.autodesk.com/t5/revit-api-forum/how-stop-or-cancel-revit-closing/td-p/5983643
         // Your add-in OnShutdown method should be called when and only when Revit is closing.
         // That will at least give you a chance to display the message to the user and "force her to press a button",
@@ -252,6 +195,7 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
             fesh.Window.Close()
 
         Result.Succeeded
+
 
 
     interface IExternalApplication with
@@ -268,32 +212,6 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
 [<Transaction(TransactionMode.Manual)>]
 type StartEditorCommand() = // don't rename ! string referenced in  OnStartup -> PushButtonData //new instance is created on every button click
 
-    let checkForNewRelease(fesh:Fesh) =
-        async {
-            try
-                use client = new HttpClient()
-                client.DefaultRequestHeaders.UserAgent.ParseAdd("Fesh")
-                let! response = client.GetStringAsync("https://api.github.com/repos/goswinr/Fesh.Revit/releases/latest") |> Async.AwaitTask
-                let v = response |> Fesh.Util.Str.between "\"tag_name\":\"" "\""
-                //let json = JObject.Parse(response)
-                //return json.["tag_name"].ToString()
-                do! Async.SwitchToContext Fittings.SyncWpf.context
-                match v with
-                | None -> fesh.Log.PrintfnInfoMsg "Could not check for updates on https://github.com/goswinr/Fesh.Revit/releases. \r\nAre you offline?"
-                | Some v ->
-                    let cv = Reflection.Assembly.GetAssembly(typeof<FeshAddin>).GetName().Version.ToString()
-                    let cv = if cv.EndsWith(".0") then cv[..^2] else cv
-                    if v <> cv then
-                        fesh.Log.PrintfnAppErrorMsg $"A newer version of Fesh.Revit is available: {v} , you are using {cv} \r\nPlease visit https://github.com/goswinr/Fesh.Revit/releases"
-                    else
-                        fesh.Log.PrintfnInfoMsg $"You are using the latest version of Fesh.Revit: {cv}"
-            with e ->
-                fesh.Log.PrintfnInfoMsg "Could not check for updates on https://github.com/goswinr/Fesh.Revit/releases. \r\nAre you offline?"
-                fesh.Log.PrintfnInfoMsg "The Error was: {e}"
-        }
-        |> Async.Start
-
-
     member this.Execute(commandData: ExternalCommandData, message: byref<string>, elements: ElementSet): Result =
         // let assemblyNames = // for debugging loaded assemblies
         //     AppDomain.CurrentDomain.GetAssemblies()
@@ -305,24 +223,36 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
         // let desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
         // let filePath = Path.Combine(desktopPath, "Revit 2024 LoadedAssemblies-2.csv")
         // File.WriteAllText(filePath, assemblyNames)
+
         try
             let fesh =
                 match App.Fesh with
                 |None ->
 
-                    //-------------- start Fesh -------------------------------------------------------------
+                    //-------------- Start Fesh -------------------------------------------------------------
                     // originally this was done in the OnStartup event but some how there was a problem getting a synchronization context.
                     // so we do it here on the first button click
                     //https://thebuildingcoder.typepad.com/blog/2018/11/revit-window-handle-and-parenting-an-add-in-form.html
                     let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
-                    let canRun = fun () ->  true // TODO check if in command, or enqueued anyway ?  !!
-                    let logo = new Uri("pack://application:,,,/Fesh.Revit;component/Media/logo.ico")
+                    let canRun = fun () ->
+                        // this is a workaround to check if a transaction is open in the document.
+                        if commandData.Application.ActiveUIDocument.Document.IsModifiable then
+                            eprintfn "Document.IsModifiable is true, there is an active transaction open in the document. This is not allowed for Fesh to run. Please close the transaction first."
+                            false
+                        else
+                            true
+                        // If Document.IsModifiable returns TRUE, then there is an active transaction open in that document.
+                        // https://thebuildingcoder.typepad.com/blog/2015/06/archsample-active-transaction-and-adnrme-for-revit-mep-2016.html#3
+
+                    let appName = AppName.get(commandData.Application.Application.VersionNumber)
+                    let logo = new Uri("pack://application:,,,/Fesh.Revit;component/Media32/logo.ico")
                     let hostData = {
-                        hostName = Version.name
+                        hostName = appName
                         mainWindowHandel = winHandle
                         fsiCanRun =  canRun
                         logo = Some logo
-                        defaultCode = Some DefaultCode.code
+                        defaultCode = Some (DefaultCode.get(appName))
+                        hostAssembly = Some (Reflection.Assembly.GetAssembly(typeof<FeshAddin>))
                         }
 
                     let feshApp = Fesh.App.createEditorForHosting(hostData)
@@ -331,7 +261,8 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
                     //TODO make a C# plugin that loads Fesh.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI
                     feshApp.Fsi.OnRuntimeError.Add (fun e ->
                         match e with
-                        | :? MissingMethodException -> feshApp.Log.PrintfnFsiErrorMsg "*** To avoid this MissingMethodException exception try restarting Revit without a document.\r\n*** Then from within Revit open your desired project.\r\n*** If the error persits please report it!"
+                        | :? MissingMethodException ->
+                            feshApp.Log.PrintfnFsiErrorMsg "*** To avoid this MissingMethodException exception try restarting Revit without a document.\r\n*** Then from within Revit open your desired project.\r\n*** If the error persist please report it!"
                         | _ -> ()
                         )
 
@@ -343,13 +274,19 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
                             e.Cancel <- true
                             )
 
-                    //-------------- hook up Fesh -------------------------------------------------------------
+
+                    feshApp.Window.Loaded.Add (fun _ ->
+                        Velo.checkForNewVelopackRelease(feshApp)
+                        Velo.updateOnRevitClose(commandData.Application, App.alert "%s")
+                        )
+
+
+                    //-------------- Hook up Fesh -------------------------------------------------------------
                     if isNull FeshAddin.Instance then
                         App.alert "%s" "FeshAddin.Instance not set up yet"
                     else
                         FeshAddin.Instance.ExternalEv <- Some <| ExternalEvent.Create(FsiRunEventHandler(feshApp, FeshAddin.Instance.RequestQueue))
 
-                    checkForNewRelease(feshApp )
                     feshApp
 
                 |Some s ->
@@ -392,11 +329,63 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
         member this.Execute(commandData: ExternalCommandData, message: byref<string>, elements: ElementSet): Result =
             this.Execute(commandData, &message, elements)
 
-            (* let uiApp =
-                 let versionNumber = int uiConApp.ControlledApplication.VersionNumber
-                 let fieldName = if versionNumber >= 2017 then  "m_uiapplication" else "m_application"
-                 let fi = uiConApp.GetType().GetField(fieldName, BindingFlags.NonPublic ||| BindingFlags.Instance)
-                 fi.GetValue(uiConApp) :?> UIApplication  *)
 
 
 
+   (* let uiApp =
+        let versionNumber = int uiConApp.ControlledApplication.VersionNumber
+        let fieldName = if versionNumber >= 2017 then  "m_uiapplication" else "m_application"
+        let fi = uiConApp.GetType().GetField(fieldName, BindingFlags.NonPublic ||| BindingFlags.Instance)
+        fi.GetValue(uiConApp) :?> UIApplication
+
+
+
+    let checkForNewRelease(fesh:Fesh) =
+        async {
+            try
+                use client = new HttpClient()
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("Fesh")
+                let! response = client.GetStringAsync("https://api.github.com/repos/goswinr/Fesh.Revit/releases/latest") |> Async.AwaitTask
+                let v = response |> Fesh.Util.Str.between "\"tag_name\":\"" "\""
+                //let json = JObject.Parse(response)
+                //return json.["tag_name"].ToString()
+                do! Async.SwitchToContext Fittings.SyncWpf.context
+                match v with
+                | None -> fesh.Log.PrintfnInfoMsg "Could not check for updates on https://github.com/goswinr/Fesh.Revit/releases. \r\nAre you offline?"
+                | Some v ->
+                    let cv = Reflection.Assembly.GetAssembly(typeof<FeshAddin>).GetName().Version.ToString()
+                    let cv = if cv.EndsWith(".0") then cv[..^2] else cv
+                    if v <> cv then
+                        fesh.Log.PrintfnAppErrorMsg $"A newer version of Fesh.Revit is available: {v} , you are using {cv} \r\nPlease visit https://github.com/goswinr/Fesh.Revit/releases"
+                    else
+                        fesh.Log.PrintfnInfoMsg $"You are using the latest version of Fesh.Revit: {cv}"
+            with e ->
+                fesh.Log.PrintfnInfoMsg "Could not check for updates on https://github.com/goswinr/Fesh.Revit/releases. \r\nAre you offline?"
+                fesh.Log.PrintfnInfoMsg "The Error was: {e}"
+        }
+        |> Async.Start
+        ()
+    *)
+
+// module ResolveFSharpCore =
+//     open System.Reflection
+//     open System.Globalization
+// adapted from https://stackoverflow.com/questions/245825/what-does-initializecomponent-do-and-how-does-it-work-in-wpf
+// let tarVer = Assembly.GetAssembly([].GetType()).GetName().Version
+//let setup() =
+//    // to fix  Could not load file or assembly 'FSharp.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+//    let handler = ResolveEventHandler (fun sender args ->
+//        //gets the name of the assembly being requested by the plugin
+//        let requestedAssembly = new AssemblyName(args.Name)
+//        //if it is not the assembly we are trying to redirect, return null
+//        if requestedAssembly.Name <> "FSharp.Core" then
+//            null
+//        else
+//            //if it IS the assembly we are trying to redirect, change it's version and public key token information
+//            requestedAssembly.Version <- tarVer
+//            //requestedAssembly.SetPublicKeyToken(new AssemblyName("x, PublicKeyToken=" + pubTok).GetPublicKeyToken())
+//            //requestedAssembly.CultureInfo <- CultureInfo.InvariantCulture
+//            //finally, load the assembly
+//            Assembly.Load(requestedAssembly)
+//        )
+//    AppDomain.CurrentDomain.add_AssemblyResolve handler

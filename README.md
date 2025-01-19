@@ -2,7 +2,8 @@
 ![Logo](https://raw.githubusercontent.com/goswinr/Fesh.Revit/main/Media/logo128.png)
 
 # Fesh.Revit
-
+[![Build](https://github.com/goswinr/Fesh.Revit/actions/workflows/build.yml/badge.svg?event=push)](https://github.com/goswinr/Fesh.Revit/actions/workflows/build.yml)
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fgoswinr%2FFesh.Revit&count_bg=%2379C83D&title_bg=%23555555&icon=github.svg&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 ![code size](https://img.shields.io/github/languages/code-size/goswinr/Fesh.Revit.svg)
 [![license](https://img.shields.io/github/license/goswinr/Fesh.Revit)](LICENSE)
 
@@ -10,32 +11,37 @@ Fesh.Revit is an F# scripting editor hosted inside [Revit]("https://www.autodesk
 It has semantic syntax highlighting, auto completion, type info tooltips and more.\
 The output window supports colored text.
 
-![](Docs/screen1.png)
+![Screenshot](Media/screen1.png)
 The example script in the root folder generates the axes for cladding of the Louvre Abu Dhabi.\
 See also my talk at <a href="https://www.youtube.com/watch?v=ZY-bvZZZZnE" target="_blank">FSharpConf 2016</a>
 
 
-### How to build
+## How to install
 
-To build use the [.NET SDK](https://dotnet.microsoft.com/en-us/download) via the command line.\
-You need to use pass in your Revit version as an argument like this:
 
-```bash
-dotnet build -p:RevitVersion=2024
-```
-This will find and compile `Fesh.Revit.fsproj` since it is the only *.fsproj file in the root folder.\
-It will automatically create an `Fesh.addin` xml file for the specified Revit version\
-in the Revit Addins folder at `C:/ProgramData/Autodesk/Revit/Addins/20XX/Fesh.addin`.
+Download and run the Setup.exe from [Releases](https://github.com/goswinr/Fesh.Revit/releases).\
+Use the .NET 8 version if you have Revit 2025 or later.\
+Use the .NET 4.8 version if you have Revit 2024 or earlier.
 
+Fesh.Revit will automatically offer to update itself when a new version is available.
+
+The installer is created with [Velopack](https://velopack.io) and digitally signed.
+
+No admin rights are required to install or run the app.\
+The app will be installed in `\AppData\Local\Fesh.Revit`. \
+Setup will launch the `Fesh.Revit.Bootstrapper.exe`. It will register the `Fesh.Revit.dll` with Revit \
+by creating an `Fesh.Revit.addin` xml file in the Revit Addins folder at `C:/ProgramData/Autodesk/Revit/Addins/20XX/Fesh.Revit.addin`.
 
 
 ### How to use F# with Revit
 By default a f# script evaluation starts asynchronous on a new thread. The `Fesh.Revit.dll` also provides utility functions to run <a href="https://knowledge.autodesk.com/support/revit-products/learn-explore/caas/CloudHelp/cloudhelp/2014/ENU/Revit/files/GUID-C946A4BA-2E70-4467-91A0-1B6BA69DBFBE-htm.html" target="_blank">synchronous transaction</a> on the current document or app instance:
 
-    Fesh.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  -> ...)
+```fsharp
+Fesh.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  -> ...)
+```
 
+## Release Notes
+For changes in each release see the  [CHANGELOG.md](https://github.com/goswinr/Fesh.Revit/blob/main/CHANGELOG.md)
 
-### License
-[MIT](https://github.com/goswinr/Fesh.Revit/blob/main/LICENSE.md)
-
-
+## License
+Fesh is licensed under the [MIT License](https://github.com/goswinr/Fesh.Revit/blob/main/LICENSE.md).

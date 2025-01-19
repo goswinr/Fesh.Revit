@@ -1,0 +1,146 @@
+name: Release with Velopack
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest # wil run commands on powershell, windows is needed so that ATS signtool.exe works inside --azureTrustedSignFile
+    permissions: write-all # or Workflow permissions https://github.com/goswinr/Fesh/settings/actions  ??
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Push tag with -net48 suffix
+      uses: richardsimko/update-tag@v1
+      with:
+        tag_name: "${{ github.ref_name }}-net48"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Run dotnet publish net48
+      run: |
+        dotnet publish Fesh.Revit.Bootstrapper/Fesh.Revit.Bootstrapper.fsproj `
+          --configuration release `
+          --runtime win-x64 `
+          --output bin/publish/net48 `
+          --framework net48 `
+          --no-self-contained
+
+    - name: Run dotnet publish net8.0
+      run: |
+        dotnet publish Fesh.Revit.Bootstrapper/Fesh.Revit.Bootstrapper.fsproj `
+          --configuration release `
+          --runtime win-x64 `
+          --output bin/publish/net8.0 `
+          --framework net8.0-windows `
+          --no-self-contained
+
+    - name: Check version consistency of git tag and CHANGELOG.md
+      # needs in fsproj:
+      # <Target Name="WriteChangelogVersion" AfterTargets="AfterBuild"><!-- for version checks in github tag based builds -->
+      #   <WriteLinesToFile File="./ChangelogVersion.txt" Lines="@(CurrentReleaseChangelog)" Overwrite="true" ContinueOnError="false" />
+      # </Target>
+      id: check_version
+      shell: bash
+      run: |
+        CHANGELOG_VERSION=$(cat ./ChangelogVersion.txt | tr -d '[:space:]')
+        if [ "${{ github.ref_name }}" != "$CHANGELOG_VERSION" ]; then
+          echo "Version mismatch: git tag (${{ github.ref_name }}) and version in CHANGELOG.md ($CHANGELOG_VERSION) are not the same."
+          exit 1
+        fi
+        echo "CHANGELOG_VERSION=$CHANGELOG_VERSION"
+        echo "github.ref_name=${{ github.ref_name }}"
+        echo "Version check of git tag and CHANGELOG.md passed successfully."
+
+    - name: Azure login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        enable-AzPSSession: true
+
+    - name: Pack, Sign and Release with Velopack .NET Framework 4.8
+      # https://docs.velopack.io/reference/cli/content/vpk-windows
+      # If you are publishing your application with --no-self-contained,
+      # then you should provide the --framework argument. https://docs.velopack.io/packaging/bootstrapping
+      run: |
+        dotnet tool install vpk  --global
+
+        vpk download github `
+          --repoUrl https://github.com/goswinr/Fesh.Revit `
+          --token ${{secrets.GITHUB_TOKEN}} `
+          --outputDir bin/installer/net48 `
+          --channel framework
+
+        vpk pack `
+          --packId Fesh.Revit.net48 `
+          --packVersion "${{github.ref_name}}"  `
+          --packDir bin/publish/net48 `
+          --mainExe Fesh.Revit.Bootstrapper.exe `
+          --framework net48 `
+          --icon Media/logoInstaller.ico  `
+          --packAuthors "Goswin R" `
+          --releaseNotes .github/InstallNotes-net48.md `
+          --azureTrustedSignFile .github/signing-metadata.json `
+          --splashImage Media/logo128.png `
+          --outputDir bin/installer/net48 `
+          --noPortable `
+          --shortcuts None `
+          --channel framework
+
+        vpk upload github `
+          --publish `
+          --repoUrl https://github.com/goswinr/Fesh.Revit `
+          --releaseName "Fesh.Revit ${{github.ref_name}} net4.8" `
+          --tag "${{github.ref_name}}-net48" `
+          --token ${{secrets.GITHUB_TOKEN}} `
+          --outputDir bin/installer/net48 `
+          --channel framework
+
+
+
+    - name: Pack, Sign and Release with Velopack .NET 8.0
+      # https://docs.velopack.io/reference/cli/content/vpk-windows
+      # If you are publishing your application with --no-self-contained, then you should provide the --framework argument. https://docs.velopack.io/packaging/bootstrapping
+      run: |
+        dotnet tool install vpk  --global
+
+        vpk download github `
+        --repoUrl https://github.com/goswinr/Fesh.Revit `
+        --token ${{secrets.GITHUB_TOKEN}} `
+        --outputDir bin/installer/net8.0 `
+        --channel net8
+
+        vpk pack `
+          --packId Fesh.Revit `
+          --packVersion ${{github.ref_name}} `
+          --packDir bin/publish/net8.0 `
+          --mainExe Fesh.Revit.Bootstrapper.exe `
+          --framework net8.0-x64-desktop `
+          --icon Media/logoInstaller.ico  `
+          --packAuthors "Goswin R" `
+          --releaseNotes .github/InstallNotes-net8.md `
+          --azureTrustedSignFile .github/signing-metadata.json `
+          --splashImage Media/logo128.png `
+          --outputDir bin/installer/net8.0 `
+          --noPortable `
+          --shortcuts None `
+          --channel net8
+
+        vpk upload github `
+          --publish `
+          --repoUrl https://github.com/goswinr/Fesh.Revit `
+          --releaseName "Fesh.Revit ${{github.ref_name}} net8" `
+          --tag ${{github.ref_name}} `
+          --token ${{secrets.GITHUB_TOKEN}} `
+          --outputDir bin/installer/net8.0 `
+          --channel net8
+
