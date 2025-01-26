@@ -9,7 +9,12 @@ updates:
 
   # Update to newer NuGet dependencies
   - package-ecosystem: "nuget"
-    directory: "/"
+    directory: "./Fesh.Revit/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "nuget"
+    directory: "./Fesh.Revit.Bootstrapper/"
     schedule:
       interval: "daily"
 

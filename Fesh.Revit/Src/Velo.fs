@@ -52,12 +52,12 @@ module Velo =
 
                         match updateManager.Value.CheckForUpdatesAsync().Result with
                         | null ->
-                            fesh.Log.PrintfnInfoMsg $"You are using the latest version of Fesh: {cv}"
+                            fesh.Log.PrintfnInfoMsg $"You are using the latest version of Fesh for Revit: {cv}"
                             updateManager <- None
                         | upInfo ->
                             if isNull updateManager.Value.UpdatePendingRestart then
                                 let nv = upInfo.TargetFullRelease.Version.ToString()
-                                fesh.Log.PrintfnInfoMsg $"A newer version of Fesh is available: {nv} , you are using {cv}"
+                                fesh.Log.PrintfnInfoMsg $"A newer version of Fesh for Revit is available: {nv} , you are using {cv}"
                                 let exe = ass.Location
                                 let exeFolder = IO.Path.GetDirectoryName(exe)
                                 let parentFolder = IO.Path.GetDirectoryName(exeFolder)
@@ -72,20 +72,20 @@ module Velo =
                                     match MessageBox.Show(
                                         fesh.Window,
                                         $"Update Fesh.Revit from {cv} to {nv} after the next Revit restart?",
-                                        "Fesh Updates available!",
+                                        "Fesh for Revit | Updates available!",
                                         MessageBoxButton.YesNo,
                                         MessageBoxImage.Question,
                                         MessageBoxResult.Yes, // default result
                                         MessageBoxOptions.None) with
                                             | MessageBoxResult.No  ->
-                                                fesh.Log.PrintfnInfoMsg "Updating Fesh.Revit  was skipped."
+                                                fesh.Log.PrintfnInfoMsg "Updating Fesh for Revit was skipped."
                                             | MessageBoxResult.Yes ->
                                                 fesh.Log.PrintfnInfoMsg "Downloading Updates for Fesh ..."
                                                 do! Async.AwaitTask (updateManager.Value.DownloadUpdatesAsync(upInfo))
                                                 updatesDownloaded <- true
                                                 fesh.Log.PrintfnInfoMsg "Updates are downloaded and will be applied when all running Revit instances are closed."
                                             | r ->
-                                                fesh.Log.PrintfnInfoMsg $"Fesh.Revit Updates available, Unknown result from MessageBox.Show: {r}"
+                                                fesh.Log.PrintfnInfoMsg $"Fesh for Revit Updates are available, Unknown result from MessageBox.Show: {r}"
                             else
                                 updatesDownloaded <- true
                                 fesh.Log.PrintfnInfoMsg "Updates are downloaded and will be applied when all running Revit instances are closed."
@@ -94,7 +94,6 @@ module Velo =
                         fesh.Log.PrintfnIOErrorMsg "Automatic updates are not available because Fesh.Revit.Bootstrapper.exe was not found at:"
                         fesh.Log.PrintfnIOErrorMsg $"{exePath}"
                         fesh.Log.PrintfnIOErrorMsg "Please re-install from https://github.com/goswinr/Fesh.Revit/releases"
-
 
                 with e ->
                     updateManager <- None
