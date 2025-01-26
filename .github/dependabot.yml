@@ -1,4 +1,3 @@
-name: Dependabot for Nuget dependencies and Github Actions
 version: 2
 updates:
   # Update to newer version of GitHub Actions
@@ -9,12 +8,9 @@ updates:
 
   # Update to newer NuGet dependencies
   - package-ecosystem: "nuget"
-    directory: "./Fesh.Revit/"
-    schedule:
-      interval: "daily"
-
-  - package-ecosystem: "nuget"
-    directory: "./Fesh.Revit.Bootstrapper/"
+    directories:
+      - "/Fesh.Revit.Bootstrapper"
+      - "/Fesh.Revit"
     schedule:
       interval: "daily"
 
