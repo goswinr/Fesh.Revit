@@ -48,6 +48,9 @@ module Velo =
                             with e ->
                                 failwithf $"Reflection Invoking the Constructor of WindowsVelopackLocator(\"{exePath}\", null) failed:\r\n{e}"
 
+                        // let loc = VelopackLocator.GetDefault(null)
+                        // loc.
+
                         updateManager <- Some (new UpdateManager(source, locator = loc))
 
                         match updateManager.Value.CheckForUpdatesAsync().Result with

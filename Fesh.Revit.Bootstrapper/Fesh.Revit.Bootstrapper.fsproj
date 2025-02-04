@@ -11,6 +11,7 @@
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>    <!-- <SatelliteResourceLanguages> to only have the English resources-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>    <!-- <GenerateDocumentationFile> just in case the editor itself gets referenced from a script-->
     <FSharpCoreIncludeDocFileInOutput>true</FSharpCoreIncludeDocFileInOutput>    <!-- doesn't seem to work -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting> <!-- so that a GH action can run on linux -->
 
     <RootNamespace>Fesh.Revit.Bootstrapper</RootNamespace>
     <AssemblyName>Fesh.Revit.Bootstrapper</AssemblyName>
