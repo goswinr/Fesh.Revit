@@ -4,7 +4,8 @@
     <OutputType>Library</OutputType>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>    <!--inherited from Avalonedit ?-->
-    <TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
+    <!-- <TargetFrameworks>net48;net8.0-windows</TargetFrameworks> -->
+    <TargetFramework>net8.0-windows</TargetFramework>
     <PlatformTarget>x64</PlatformTarget>
     <LangVersion>preview</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>

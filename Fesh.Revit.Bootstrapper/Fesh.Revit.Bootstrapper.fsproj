@@ -4,7 +4,8 @@
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>    <!--inherited from Avalonedit ?-->
-    <TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
+    <!-- <TargetFrameworks>net48;net8.0-windows</TargetFrameworks> -->
+    <TargetFramework>net8.0-windows</TargetFramework>
 
     <LangVersion>preview</LangVersion>    <!-- to enable indexing from end via ^ -->
     <NeutralLanguage>en</NeutralLanguage>
