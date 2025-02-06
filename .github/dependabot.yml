@@ -1,15 +1,17 @@
-name: Dependabot for Nuget dependencies and Github Actions
 version: 2
 updates:
-  # Update to newer version of GitHub Actions
+  # Update GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
 
-  # Update to newer NuGet dependencies
+
+  # Update NuGet dependencies
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
       interval: "daily"
+    ignore:
+      - dependency-name: "Autodesk.Revit.SDK"
 

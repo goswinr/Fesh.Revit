@@ -1,16 +1,39 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
+
+  <Choose>
+    <When Condition="'$(RevitVersion)' == '2025'">
+      <PropertyGroup>
+        <TargetFramework>net8.0-windows</TargetFramework>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <TargetFramework>net48</TargetFramework>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+
+
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>    <!--inherited from Avalonedit ?-->
-    <TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
+    <!-- <TargetFrameworks>net8.0-windows;net48</TargetFrameworks>  -->
+    <!-- dependabot fails to build with multiple Target frameworks -->
+    <!-- <TargetFramework>net48</TargetFramework> -->
+
+    <!-- <TargetFrameworks>net8.0-windows;net48</TargetFrameworks>-->  <!-- dependabot fails to build with multiple Target frameworks -->
+    <!-- <TargetFramework>net48</TargetFramework>
+    <TargetFramework Condition="'$(RevitVersion)' == '2025'" >net8.0-windows</TargetFramework> -->
 
     <LangVersion>preview</LangVersion>    <!-- to enable indexing from end via ^ -->
     <NeutralLanguage>en</NeutralLanguage>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>    <!-- <SatelliteResourceLanguages> to only have the English resources-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>    <!-- <GenerateDocumentationFile> just in case the editor itself gets referenced from a script-->
     <FSharpCoreIncludeDocFileInOutput>true</FSharpCoreIncludeDocFileInOutput>    <!-- doesn't seem to work -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting> <!-- so that a GH action can run on linux -->
 
     <RootNamespace>Fesh.Revit.Bootstrapper</RootNamespace>
     <AssemblyName>Fesh.Revit.Bootstrapper</AssemblyName>
@@ -32,15 +55,17 @@
     <OtherFlags>$(OtherFlags) --warnon:1182</OtherFlags>    <!-- 1182: warn on unused variables -->
     <ChangelogFile>../CHANGELOG.md</ChangelogFile>    <!-- for Ionide.KeepAChangelog.Tasks -->
     <Configurations>Release</Configurations>
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>    <!-- so that dependabot can update FSharp.Core-->
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Fesh.Revit\Fesh.Revit.fsproj" />
+    <ProjectReference Include="..\Fesh.Revit\Fesh.Revit.fsproj" Property="RevitVersion=$(RevitVersion)" />
     <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" PrivateAssets="all" />
+    <PackageReference Include="FSharp.Core" Version="9.0.101" /> <!-- use 'Include' syntax so that dependabot can update FSharp.Core-->
 
     <!--this reference is needed for tooling only, it might not be installed on host PC. (running the .NET Framework version) see also https://github.com/fsprojects/IfSharp/issues/213 -->
     <PackageReference Include="NETStandard.Library" Version="2.0.3" Condition="'$(TargetFramework)' == 'net48'" GeneratePathProperty="true" />    <!-- Generated PathProperty will be 'PkgNETStandard_Library' -->
-    <PackageReference Include="Fesh" Version="0.20.0"  GeneratePathProperty="true" /> <!-- just to copy SyntaxHighlightingFSharp.xshd below -->
+    <PackageReference Include="Fesh" Version="0.21.0"  GeneratePathProperty="true" /> <!-- just to copy SyntaxHighlightingFSharp.xshd below -->
   </ItemGroup>
 
   <ItemGroup>
@@ -52,14 +77,13 @@
 
   <Target Name="CopyFilesOverAfterBuild" AfterTargets="Publish" >
     <!-- to check output from Ionide.KeepAChangelog.Tasks current git tag in gh actions -->
-    <WriteLinesToFile File="../ChangelogVersion.txt" Lines="@(CurrentReleaseChangelog)" Overwrite="true" ContinueOnError="false" />
+    <WriteLinesToFile File="../bin/ChangelogVersion.txt" Lines="@(CurrentReleaseChangelog)" Overwrite="true" ContinueOnError="false" />
 
     <!--netstandard dll is needed for editor tooling only, copy it because it might not be installed on host PC . see also  https://github.com/fsprojects/IfSharp/issues/213 -->
     <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.dll" DestinationFolder="$(PublishDir)" ContinueOnError="false" Condition="'$(TargetFramework)' == 'net48'" />
     <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.xml" DestinationFolder="$(PublishDir)" ContinueOnError="false" Condition="'$(TargetFramework)' == 'net48'" />
 
-    <!--FSharp.Core.xml because <FSharpCoreIncludeDocFileInOutput> does not seem to work add it explicitly: -->
-    <Copy SourceFiles="$(PkgFSharp_Core)/lib/netstandard2.0/FSharp.Core.xml" DestinationFolder="$(PublishDir)" ContinueOnError="false" />
+    <!--FSharp.Core.xml because <FSharpCoreIncludeDocFileInOutput> does not seem to work add it explicitly: -->    <Copy SourceFiles="$(PkgFSharp_Core)/lib/netstandard2.0/FSharp.Core.xml" DestinationFolder="$(PublishDir)" ContinueOnError="false" />
     <Copy SourceFiles="$(PkgFesh)/SyntaxHighlightingFSharp.xshd"             DestinationFolder="$(PublishDir)" ContinueOnError="false" />
   </Target>
 

@@ -30,7 +30,7 @@ module ScriptingSyntax =
             try
                 f(doc)
             with ex ->
-                match App.Fesh with
+                match DebugUtils.Fesh with
                 |None -> ()
                 |Some fesh -> fesh.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
 
@@ -70,7 +70,7 @@ module ScriptingSyntax =
             try
                 f(app)
             with ex ->
-                match App.Fesh with 
+                match DebugUtils.Fesh with 
                 |None -> () 
                 |Some fesh -> fesh.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
 

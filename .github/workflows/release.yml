@@ -42,17 +42,18 @@ jobs:
           --runtime win-x64 `
           --output bin/publish/net8.0 `
           --framework net8.0-windows `
+          --property:RevitVersion=2025 `
           --no-self-contained
 
     - name: Check version consistency of git tag and CHANGELOG.md
       # needs in fsproj:
       # <Target Name="WriteChangelogVersion" AfterTargets="AfterBuild"><!-- for version checks in github tag based builds -->
-      #   <WriteLinesToFile File="./ChangelogVersion.txt" Lines="@(CurrentReleaseChangelog)" Overwrite="true" ContinueOnError="false" />
+      #   <WriteLinesToFile File="./bin/ChangelogVersion.txt" Lines="@(CurrentReleaseChangelog)" Overwrite="true" ContinueOnError="false" />
       # </Target>
       id: check_version
       shell: bash
       run: |
-        CHANGELOG_VERSION=$(cat ./ChangelogVersion.txt | tr -d '[:space:]')
+        CHANGELOG_VERSION=$(cat ./bin/ChangelogVersion.txt | tr -d '[:space:]')
         if [ "${{ github.ref_name }}" != "$CHANGELOG_VERSION" ]; then
           echo "Version mismatch: git tag (${{ github.ref_name }}) and version in CHANGELOG.md ($CHANGELOG_VERSION) are not the same."
           exit 1

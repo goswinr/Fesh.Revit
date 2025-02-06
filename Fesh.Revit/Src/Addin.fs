@@ -4,16 +4,11 @@ open Autodesk.Revit.UI
 open Autodesk.Revit.DB
 open Autodesk.Revit.Attributes
 open System
-open System.IO
 open System.Windows
 open Fesh
 open Fesh.Config
 open System.Collections.Concurrent
-open Velopack
-open Velopack.Sources
-open Velopack.Locators
-open System.Reflection
-open Microsoft.Extensions.Logging
+
 
 module AppName =
     let get(year:string) =
@@ -45,7 +40,7 @@ Fesh.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  ->
 
 /// A static class to provide logging and  access to the Fesh Editor
 [<AbstractClass; Sealed>]
-type App private () =
+type DebugUtils private () =
 
     static let mutable logFileOnDesktopCount = ref 0
 
@@ -58,12 +53,12 @@ type App private () =
 
     /// creates a log or debug txt file on the desktop
     /// file name includes datetime to be unique
-    /// sprintf "%sFesh.Revit.Log-%s.txt" filePrefix time
+    /// sprintf "%sFesh.AutoCAD.Log-%s.txt" filePrefix time
     static member logToFile filePrefix (content:string) =
-       let checkedPrefix = if isNull filePrefix then "NULLPREFIX" else filePrefix
+       let checkedPrefix = if isNull filePrefix then "NULL-PREFIX" else filePrefix
        let checkedContent = if String.IsNullOrWhiteSpace content then "content is String.IsNullOrWhiteSpace" else content
        let time = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss-fff") // ensure unique name
-       let filename = sprintf "%sFesh.Revit.Log-%s.txt" checkedPrefix time
+       let filename = sprintf "%sFesh.AutoCAD.Log-%s.txt" checkedPrefix time
        async {
            try
                let file = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),filename)
@@ -74,32 +69,30 @@ type App private () =
 
     /// logs text to Fesh editor window in red
     /// if Fesh is null it writes a text file to desktop instead and shows a Task Dialog.
-    static member alert msg =
-       Printf.kprintf (fun s ->
-           match App.Fesh with
-           |Some fesh when fesh.Window.IsLoaded ->
-                try
-                    fesh.Log.PrintnColor 180 100 10 s
-                with e -> // in case the logging fails
-                    incr logFileOnDesktopCount
-                    let printE = sprintf "\r\nLog.PrintnColor error:\r\n%A" e
-                    App.logToFile "App.alertFailed-" (s+printE)
-                    TaskDialog.Show("Fesh AddIn App.alertFailed", s+printE) |> ignore
-
-           | _ when logFileOnDesktopCount.Value < 10 ->
+    static member alert (msg:string) =
+        match DebugUtils.Fesh with
+        |Some fesh when fesh.Window.IsLoaded ->
+            try
+                fesh.Log.PrintnColor 180 100 10 msg
+            with e -> // in case the logging fails
                 incr logFileOnDesktopCount
-                App.logToFile "App.alert-" s
-                TaskDialog.Show("Fesh AddIn App.alert", s) |> ignore
+                let errMsg = $"\r\nLog.PrintnColor error:\r\n{msg}\r\n{e}"
+                DebugUtils.logToFile "App.alertFailed-" errMsg
+                TaskDialog.Show("Fesh AddIn. normal alert failed", errMsg) |> ignore
 
-           | _ -> () // do nothing , we already have 10 log files on the desktop
-           ) msg
+        | _ when logFileOnDesktopCount.Value < 10 ->
+                    incr logFileOnDesktopCount
+                    DebugUtils.logToFile "App.alert-" msg
+                    TaskDialog.Show("Fesh AddIn alert", msg) |> ignore
+
+        | _ -> () // do nothing , there are already 10 log files on the desktop
 
 
     /// logs text to Fesh editor window in green
     /// does nothing if Fesh is null
     static member log msg =
        Printf.kprintf (fun s ->
-           match App.Fesh with
+           match DebugUtils.Fesh with
            |None -> ()
            |Some fesh ->  fesh.Log.PrintnColor 50 100 10 s
            ) msg
@@ -139,14 +132,14 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
         this.RequestQueue.Enqueue(f)
         match this.ExternalEv with
         |None ->
-            App.alert "ExternalEvent not set up yet"
+            DebugUtils.alert "ExternalEvent not set up yet"
         | Some exEvent ->
             match exEvent.Raise() with
             |ExternalEventRequest.Accepted -> ()
-            |ExternalEventRequest.Denied   -> App.alert "exEvent.Raise() returned ExternalEventRequest.Denied"
-            |ExternalEventRequest.Pending  -> App.alert "exEvent.Raise() returned ExternalEventRequest.Pending"
-            |ExternalEventRequest.TimedOut -> App.alert "exEvent.Raise() returned ExternalEventRequest.TimedOut"
-            |x -> App.alert "exEvent.Raise() returned unknown ExternalEventRequest: %A" x
+            |ExternalEventRequest.Denied   -> DebugUtils.alert "exEvent.Raise() returned ExternalEventRequest.Denied"
+            |ExternalEventRequest.Pending  -> DebugUtils.alert "exEvent.Raise() returned ExternalEventRequest.Pending"
+            |ExternalEventRequest.TimedOut -> DebugUtils.alert "exEvent.Raise() returned ExternalEventRequest.TimedOut"
+            |x -> DebugUtils.alert $"exEvent.Raise() returned unknown ExternalEventRequest: {x}"
 
     /// runs a F# function via the IExternalEventHandler pattern for mode-less dialogs
     /// this is the only way to run code from mode-less dialogs such as Fesh editor
@@ -161,8 +154,8 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
 
             // ------------------- create Ribbon and button -------------------------------------------
             let thisAssemblyPath = Reflection.Assembly.GetExecutingAssembly().Location
-            let button = new PushButtonData("Fesh", "Open Fsharp Editor", thisAssemblyPath, "Fesh.Revit.StartEditorCommand")
-            button.ToolTip <- "This will open the Fesh F# Script Editor Window"
+            let button = new PushButtonData("Fesh", "Open Fesh F# Editor", thisAssemblyPath, "Fesh.Revit.StartEditorCommand") // a reference to type StartEditorCommand()
+            button.ToolTip <- "This will open Fesh in a new window, the F# Scripting Editor."
 
             let uriImage32 = new Uri("pack://application:,,,/Fesh.Revit;component/Media32/logo32.png") // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" />
             let uriImage16 = new Uri("pack://application:,,,/Fesh.Revit;component/Media32/logo16.png")
@@ -177,7 +170,7 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
             Result.Succeeded
 
         with ex ->
-            App.alert "OnStartup of Fesh.Revit.dll:\r\n%A" ex
+            DebugUtils.alert $"OnStartup of Fesh.Revit.dll:\r\n{ex}"
             Result.Failed
 
 
@@ -187,7 +180,7 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
         // Your add-in OnShutdown method should be called when and only when Revit is closing.
         // That will at least give you a chance to display the message to the user and "force her to press a button",
         // if you really think that is a good idea, even if it does not enable you to prevent Revit from closing.
-        match App.Fesh with
+        match DebugUtils.Fesh with
         |None -> ()
         |Some fesh ->
             fesh.Tabs.AskForFileSavingToKnowIfClosingWindowIsOk()  |> ignore // this will try to save files too. ignore result since it not possible to prevent Revit from closing eventually
@@ -226,7 +219,7 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
 
         try
             let fesh =
-                match App.Fesh with
+                match DebugUtils.Fesh with
                 |None ->
 
                     //-------------- Start Fesh -------------------------------------------------------------
@@ -256,7 +249,7 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
                         }
 
                     let feshApp = Fesh.App.createEditorForHosting(hostData)
-                    App.Fesh <- Some feshApp
+                    DebugUtils.Fesh <- Some feshApp
 
                     //TODO make a C# plugin that loads Fesh.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI
                     feshApp.Fsi.OnRuntimeError.Add (fun e ->
@@ -274,16 +267,15 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
                             e.Cancel <- true
                             )
 
-
                     feshApp.Window.Loaded.Add (fun _ ->
                         Velo.checkForNewVelopackRelease(feshApp)
-                        Velo.updateOnRevitClose(commandData.Application, App.alert "%s")
+                        Velo.updateOnRevitClose(commandData.Application, DebugUtils.alert )
                         )
 
 
                     //-------------- Hook up Fesh -------------------------------------------------------------
                     if isNull FeshAddin.Instance then
-                        App.alert "%s" "FeshAddin.Instance not set up yet"
+                        DebugUtils.alert "FeshAddin.Instance not set up yet"
                     else
                         FeshAddin.Instance.ExternalEv <- Some <| ExternalEvent.Create(FsiRunEventHandler(feshApp, FeshAddin.Instance.RequestQueue))
 
@@ -292,29 +284,9 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
                 |Some s ->
                     s
 
-                    (* //TODO Alt enter does not work !?!
-                    Fesh.Window.KeyDown.Add(fun e -> //to avoid pressing alt to focus on menu and the disabling Alt+Enter for Evaluating selection in FSI
-                        fesh.Log.PrintDebugMsg "key: %A, system key: %A, mod: %A " e.Key e.SystemKey Keyboard.Modifiers
-                        //if e.Key = Key.LeftAlt || e.Key = Key.RightAlt then
-                        //    e.Handled <- true
-                        //elif (Keyboard.Modifiers = ModifierKeys.Alt && e.Key = Key.Enter) ||
-                        //   (Keyboard.Modifiers = ModifierKeys.Alt && e.Key = Key.Return) then
-                        //        Fesh.Fsi.Evaluate{code = Fesh.Tabs.CurrAvaEdit.SelectedText ; file=Fesh.Tabs.Current.FilePath; allOfFile=false}
-                        //        e.Handled <- true
-                        )
-                    Fesh.Tabs.Control.PreviewKeyDown.Add (fun e ->
-                        if Keyboard.Modifiers = ModifierKeys.Alt && Keyboard.IsKeyDown(Key.Enter) then
-                            fesh.Log.PrintDebugMsg "Alt+Enter"
-                        elif Keyboard.Modifiers = ModifierKeys.Alt && Keyboard.IsKeyDown(Key.Return) then
-                            fesh.Log.PrintDebugMsg "Alt+Return"
-                        else
-                            fesh.Log.PrintDebugMsg "not Alt+Enter"
-                            )
-                    *)
-
-            if not App.FeshWasEverShown then
+            if not DebugUtils.FeshWasEverShown then
                 fesh.Window.Show()
-                App.FeshWasEverShown <- true
+                DebugUtils.FeshWasEverShown <- true
                 Result.Succeeded
             else
                 fesh.Window.Visibility <- Visibility.Visible
@@ -332,13 +304,7 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
 
 
 
-   (* let uiApp =
-        let versionNumber = int uiConApp.ControlledApplication.VersionNumber
-        let fieldName = if versionNumber >= 2017 then  "m_uiapplication" else "m_application"
-        let fi = uiConApp.GetType().GetField(fieldName, BindingFlags.NonPublic ||| BindingFlags.Instance)
-        fi.GetValue(uiConApp) :?> UIApplication
-
-
+   (*
 
     let checkForNewRelease(fesh:Fesh) =
         async {
@@ -365,6 +331,13 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
         }
         |> Async.Start
         ()
+
+   let uiApp =
+        let versionNumber = int uiConApp.ControlledApplication.VersionNumber
+        let fieldName = if versionNumber >= 2017 then  "m_uiapplication" else "m_application"
+        let fi = uiConApp.GetType().GetField(fieldName, BindingFlags.NonPublic ||| BindingFlags.Instance)
+        fi.GetValue(uiConApp) :?> UIApplication
+
     *)
 
 // module ResolveFSharpCore =
