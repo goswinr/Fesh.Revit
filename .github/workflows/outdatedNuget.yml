@@ -43,7 +43,7 @@ jobs:
       run: dotnet tool install -g dotnet-outdated-tool
 
     - name: Simulate Update NuGet packages to get JSON output
-      run: dotnet outdated --output outdated.json  --exclude RhinoCommon
+      run: dotnet outdated --output outdated.json --exclude Autodesk.Revit.SDK
 
     - name: Parse JSON and concatenate unique versions
       shell: pwsh
@@ -73,7 +73,7 @@ jobs:
     - name: Update NuGet packages and get Markdown output
       # if no updates are available, no output.json file is created
       if: ${{env.COMMIT_MSG }}
-      run: dotnet outdated --upgrade --output outdated.md --output-format Markdown --exclude RhinoCommon
+      run: dotnet outdated --upgrade --output outdated.md --output-format Markdown --exclude Autodesk.Revit.SDK
 
 
     - name: Read outdated.md file

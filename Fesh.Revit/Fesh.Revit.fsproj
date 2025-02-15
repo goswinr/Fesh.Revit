@@ -24,6 +24,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
+    <TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>    <!--inherited from Avalonedit ?-->
     <PlatformTarget>x64</PlatformTarget>  <!-- x64 seems required by Revit, do not us just Platform tag-->
@@ -69,11 +70,13 @@
     <PackageReference Include="Velopack" Version="0.0.1053" />
     <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" PrivateAssets="all" />
 
-    <!-- <PackageReference Include="FSharp.Compiler.Service" Version="43.9.101" /> -->
-    <!-- <PackageReference Update="FSharp.Core" Version="9.0.101"  GeneratePathProperty="true"/> -->
+    <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2018.*" Condition="'$(TargetFramework)' == 'net48'" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2025.*" Condition="'$(TargetFramework)' == 'net8.0-windows'" PrivateAssets="all" ExcludeAssets="runtime" />
 
     <PackageReference Include="Fesh" Version="0.21.0" GeneratePathProperty="true" /> <!--  let Fesh dictate FSharp.Core version ? -->
     <!-- <ProjectReference Include="../Fesh/FeshHosting.fsproj" /> -->
+
+    <PackageReference Include="NETStandard.Library" Version="2.0.3" Condition="'$(TargetFramework)' == 'net48'" GeneratePathProperty="true" />
   </ItemGroup>
 
   <ItemGroup>
@@ -97,5 +100,10 @@
     <!-- take latest SyntaxHighlightingFSharp.xshd from Fesh nuget.-->
     <Copy SourceFiles="$(PkgFesh)/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" />
     <!-- <Copy SourceFiles="../Fesh/Src/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" /> -->
+
+       <!--netstandard dll is needed for editor tooling only, it might not be installed on host PC. see also  https://github.com/fsprojects/IfSharp/issues/213 -->
+    <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.dll" DestinationFiles="$(TargetDir)netstandard.dll" Condition="'$(TargetFramework)' == 'net48'" ContinueOnError="false" />
+    <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.xml" DestinationFiles="$(TargetDir)netstandard.xml" Condition="'$(TargetFramework)' == 'net48'" ContinueOnError="false" />
+
   </Target>
 </Project>
