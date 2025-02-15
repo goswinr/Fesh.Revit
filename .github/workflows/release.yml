@@ -41,8 +41,7 @@ jobs:
           --configuration release `
           --runtime win-x64 `
           --output bin/publish/net8.0 `
-          --framework net8.0-windows `
-          --property:RevitVersion=2025 `
+          --framework net8.0-windows `          
           --no-self-contained
 
     - name: Check version consistency of git tag and CHANGELOG.md

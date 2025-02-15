@@ -1,26 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <Choose> <!-- this When / Otherwise  setup  seems to be needed so that dependabot can build a WPf app on Linux -->
-    <When Condition="'$(RevitVersion)' == '2025'">
-      <PropertyGroup>
-        <TargetFramework>net8.0-windows</TargetFramework>
-      </PropertyGroup>
-      <ItemGroup>
-        <PackageReference Include="Autodesk.Revit.SDK" Version="2025.0.2.419" PrivateAssets="all" ExcludeAssets="runtime" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <TargetFramework>net48</TargetFramework>
-      </PropertyGroup>
-      <ItemGroup>
-        <PackageReference Include="Autodesk.Revit.SDK" Version="2018.2.0.2001" PrivateAssets="all" ExcludeAssets="runtime" />
-        <!--this reference is needed for tooling only, it might not be installed on host PC. see also https://github.com/fsprojects/IfSharp/issues/213 -->
-        <PackageReference Include="NETStandard.Library" Version="2.0.3" GeneratePathProperty="true" />
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -29,19 +8,13 @@
     <UseWindowsForms>true</UseWindowsForms>    <!--inherited from Avalonedit ?-->
     <PlatformTarget>x64</PlatformTarget>  <!-- x64 seems required by Revit, do not us just Platform tag-->
 
-    <!-- <TargetFrameworks>net8.0-windows;net48</TargetFrameworks>-->  <!-- dependabot fails to build with multiple Target frameworks -->
-    <!-- <TargetFramework>net48</TargetFramework>
-    <TargetFramework Condition="'$(RevitVersion)' == '2025'" >net8.0-windows</TargetFramework>
-      -->
-
     <LangVersion>preview</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>    <!--to only have the english resources-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <FSharpCoreIncludeDocFileInOutput>true</FSharpCoreIncludeDocFileInOutput>
-    <EnableWindowsTargeting>true</EnableWindowsTargeting> <!-- needed so that a GH action can run on linux ?-->
-    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>    <!-- so that dependabot can update FSharp.Core --> <!--  let Fesh dictate FSharp.Core version ? -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>  <!-- CopyLocalLockFileAssemblies is important! without this FSharp.Core fails to load in Revit 2025 on net8-windows , see https://github.com/Nice3point/Revit.Build.Tasks?tab=readme-ov-file#msbuild-properties -->
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference> <!-- needed so that the Fesh nuget can pull in  the latest version for dotnet-outdated tool -->
 
     <RootNamespace>Fesh.Revit</RootNamespace>
     <AssemblyName>Fesh.Revit</AssemblyName>
@@ -65,16 +38,17 @@
     <Configurations>Release</Configurations>
   </PropertyGroup>
   <ItemGroup>
-    <!-- <PackageReference Include="FSharp.Core" Version="9.0.101" />  -->
+    <PackageReference Include="Fesh" Version="0.21.0" GeneratePathProperty="true" /> <!--  let Fesh dictate FSharp.Core version ? -->
+    <!-- <ProjectReference Include="../Fesh/FeshHosting.fsproj" /> -->
+
+    <!-- <PackageReference Include="FSharp.Core" Version="6.0.7" />  -->
     <!-- use 'Include' syntax so that dependabot can update FSharp.Core-->
     <PackageReference Include="Velopack" Version="0.0.1053" />
     <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" PrivateAssets="all" />
 
-    <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2018.*" Condition="'$(TargetFramework)' == 'net48'" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2025.*" Condition="'$(TargetFramework)' == 'net8.0-windows'" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Autodesk.Revit.SDK" Version="2018.*" Condition="'$(TargetFramework)' == 'net48'" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Autodesk.Revit.SDK" Version="2025.*" Condition="'$(TargetFramework)' == 'net8.0-windows'" PrivateAssets="all" ExcludeAssets="runtime" />
 
-    <PackageReference Include="Fesh" Version="0.21.0" GeneratePathProperty="true" /> <!--  let Fesh dictate FSharp.Core version ? -->
-    <!-- <ProjectReference Include="../Fesh/FeshHosting.fsproj" /> -->
 
     <PackageReference Include="NETStandard.Library" Version="2.0.3" Condition="'$(TargetFramework)' == 'net48'" GeneratePathProperty="true" />
   </ItemGroup>
@@ -94,14 +68,14 @@
   <Target Name="AddXmlDocFilesToOutput" BeforeTargets="AfterBuild">
 
     <!--because <FSharpCoreIncludeDocFileInOutput>  does not seem to work -->
-    <Copy SourceFiles="$(PkgFSharp_Core)/lib/netstandard2.0/FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" />
+    <!-- <Copy SourceFiles="$(PkgFSharp_Core)/lib/netstandard2.0/FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" /> -->
     <Copy SourceFiles="$(PkgFesh)/lib/net472/Fesh.xml" DestinationFiles="$(TargetDir)Fesh.xml" ContinueOnError="false" />
 
     <!-- take latest SyntaxHighlightingFSharp.xshd from Fesh nuget.-->
     <Copy SourceFiles="$(PkgFesh)/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" />
     <!-- <Copy SourceFiles="../Fesh/Src/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" /> -->
 
-       <!--netstandard dll is needed for editor tooling only, it might not be installed on host PC. see also  https://github.com/fsprojects/IfSharp/issues/213 -->
+    <!--netstandard dll is needed for editor tooling only, it might not be installed on host PC. see also  https://github.com/fsprojects/IfSharp/issues/213 -->
     <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.dll" DestinationFiles="$(TargetDir)netstandard.dll" Condition="'$(TargetFramework)' == 'net48'" ContinueOnError="false" />
     <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.xml" DestinationFiles="$(TargetDir)netstandard.xml" Condition="'$(TargetFramework)' == 'net48'" ContinueOnError="false" />
 
