@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0] - 2025-02-15
+### Changed
+- Update to [Fesh 0.22.0](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md)
+
 ## [0.21.0] - 2025-02-05
 ### Changed
 - Update to [Fesh 0.21.0](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md)
@@ -26,7 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - First public release
 
-[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.20.0...HEAD
+[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.22.0...HEAD
+[0.22.0]: https://github.com/goswinr/Fesh.Revit/compare/0.21.0...0.22.0
+[0.21.0]: https://github.com/goswinr/Fesh.Revit/compare/0.20.0...0.21.0
 [0.20.0]: https://github.com/goswinr/Fesh.Revit/compare/0.14.1...0.20.0
 [0.14.1]: https://github.com/goswinr/Fesh.Revit/compare/0.14.0...0.14.1
 [0.14.0]: https://github.com/goswinr/Fesh.Revit/releases/tag/0.14.0

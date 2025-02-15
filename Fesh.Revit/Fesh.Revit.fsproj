@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Choose>
+  <Choose> <!-- this When / Otherwise  setup  seems to be needed so that dependabot can build a WPf app on Linux -->
     <When Condition="'$(RevitVersion)' == '2025'">
       <PropertyGroup>
         <TargetFramework>net8.0-windows</TargetFramework>
@@ -16,6 +16,8 @@
       </PropertyGroup>
       <ItemGroup>
         <PackageReference Include="Autodesk.Revit.SDK" Version="2018.2.0.2001" PrivateAssets="all" ExcludeAssets="runtime" />
+        <!--this reference is needed for tooling only, it might not be installed on host PC. see also https://github.com/fsprojects/IfSharp/issues/213 -->
+        <PackageReference Include="NETStandard.Library" Version="2.0.3" GeneratePathProperty="true" />
       </ItemGroup>
     </Otherwise>
   </Choose>
@@ -24,6 +26,7 @@
     <OutputType>Library</OutputType>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>    <!--inherited from Avalonedit ?-->
+    <PlatformTarget>x64</PlatformTarget>  <!-- x64 seems required by Revit, do not us just Platform tag-->
 
     <!-- <TargetFrameworks>net8.0-windows;net48</TargetFrameworks>-->  <!-- dependabot fails to build with multiple Target frameworks -->
     <!-- <TargetFramework>net48</TargetFramework>
@@ -36,6 +39,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <FSharpCoreIncludeDocFileInOutput>true</FSharpCoreIncludeDocFileInOutput>
     <EnableWindowsTargeting>true</EnableWindowsTargeting> <!-- needed so that a GH action can run on linux ?-->
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>    <!-- so that dependabot can update FSharp.Core --> <!--  let Fesh dictate FSharp.Core version ? -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>  <!-- CopyLocalLockFileAssemblies is important! without this FSharp.Core fails to load in Revit 2025 on net8-windows , see https://github.com/Nice3point/Revit.Build.Tasks?tab=readme-ov-file#msbuild-properties -->
 
     <RootNamespace>Fesh.Revit</RootNamespace>
     <AssemblyName>Fesh.Revit</AssemblyName>
@@ -55,23 +60,19 @@
 
     <OtherFlags>$(OtherFlags) --warnon:1182</OtherFlags>  <!-- 1182: warn on unused variables -->
     <ChangelogFile>../CHANGELOG.md</ChangelogFile>  <!-- for Ionide.KeepAChangelog.Tasks -->
-    <PlatformTarget>x64</PlatformTarget>  <!-- x64 seems required by Revit, do not us just Platform tag-->
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>  <!-- CopyLocalLockFileAssemblies is important! without this FSharp.Core fails to load in Revit 2025 on net8-windows -->
 
-    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>    <!-- so that dependabot can update FSharp.Core-->
     <Configurations>Release</Configurations>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FSharp.Core" Version="9.0.101" /> <!-- use 'Include' syntax so that dependabot can update FSharp.Core-->
+    <!-- <PackageReference Include="FSharp.Core" Version="9.0.101" />  -->
+    <!-- use 'Include' syntax so that dependabot can update FSharp.Core-->
     <PackageReference Include="Velopack" Version="0.0.1053" />
     <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" PrivateAssets="all" />
-    <!-- <PackageReference Include="FSharp.Compiler.Service" Version="43.9.101" />
-    <PackageReference Update="FSharp.Core" Version="9.0.101"  GeneratePathProperty="true"/> -->
-    <!--this reference is needed for tooling only, it might not be installed on host PC. see also https://github.com/fsprojects/IfSharp/issues/213 -->
-    <PackageReference Include="NETStandard.Library" Version="2.0.3" GeneratePathProperty="true" />
-    <!-- <PackageReference Include="Autodesk.Revit.SDK" Version="2018.2.0.2001" Condition="'$(TargetFramework)' == 'net48'" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="Autodesk.Revit.SDK" Version="2025.0.2.419" Condition="'$(TargetFramework)' == 'net8.0-windows'" PrivateAssets="all" ExcludeAssets="runtime" /> -->
-    <PackageReference Include="Fesh" Version="0.21.0" GeneratePathProperty="true" />
+
+    <!-- <PackageReference Include="FSharp.Compiler.Service" Version="43.9.101" /> -->
+    <!-- <PackageReference Update="FSharp.Core" Version="9.0.101"  GeneratePathProperty="true"/> -->
+
+    <PackageReference Include="Fesh" Version="0.21.0" GeneratePathProperty="true" /> <!--  let Fesh dictate FSharp.Core version ? -->
     <!-- <ProjectReference Include="../Fesh/FeshHosting.fsproj" /> -->
   </ItemGroup>
 
