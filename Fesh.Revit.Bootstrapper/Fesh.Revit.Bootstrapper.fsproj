@@ -44,7 +44,7 @@
 
     <!--this reference is needed for tooling only, it might not be installed on host PC. (running the .NET Framework version) see also https://github.com/fsprojects/IfSharp/issues/213 -->
     <PackageReference Include="NETStandard.Library" Version="2.0.3" Condition="'$(TargetFramework)' == 'net48'" GeneratePathProperty="true" />    <!-- Generated PathProperty will be 'PkgNETStandard_Library' -->
-    <PackageReference Include="Fesh" Version="0.21.0" GeneratePathProperty="true" /> <!-- just to copy SyntaxHighlightingFSharp.xshd below -->
+    <PackageReference Include="Fesh" Version="0.22.0" GeneratePathProperty="true" /> <!-- just to copy SyntaxHighlightingFSharp.xshd below -->
   </ItemGroup>
 
   <ItemGroup>
