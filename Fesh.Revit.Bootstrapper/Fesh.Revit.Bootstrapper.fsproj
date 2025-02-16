@@ -38,7 +38,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fesh" Version="0.22.0" GeneratePathProperty="true" /> <!-- just to copy SyntaxHighlightingFSharp.xshd below -->
+    <PackageReference Include="Fesh" Version="0.23.0" GeneratePathProperty="true" /> <!-- just to copy SyntaxHighlightingFSharp.xshd below -->
 
     <ProjectReference Include="..\Fesh.Revit\Fesh.Revit.fsproj" Property="RevitVersion=$(RevitVersion)" />
     <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" PrivateAssets="all" />

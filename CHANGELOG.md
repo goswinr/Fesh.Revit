@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] - 2024-02-16
+### Fixed
+- include FSharp.Core.xml
+
 ## [0.22.0] - 2025-02-15
 ### Changed
 - Update to [Fesh 0.22.0](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md)
