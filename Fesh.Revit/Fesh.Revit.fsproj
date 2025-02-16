@@ -49,8 +49,6 @@
     <PackageReference Include="Autodesk.Revit.SDK" Version="2018.*" Condition="'$(TargetFramework)' == 'net48'" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="Autodesk.Revit.SDK" Version="2025.*" Condition="'$(TargetFramework)' == 'net8.0-windows'" PrivateAssets="all" ExcludeAssets="runtime" />
 
-
-    <PackageReference Include="NETStandard.Library" Version="2.0.3" Condition="'$(TargetFramework)' == 'net48'" GeneratePathProperty="true" />
   </ItemGroup>
 
   <ItemGroup>
@@ -64,20 +62,9 @@
     <Compile Include="Src/ScriptingSyntax.fs" />
   </ItemGroup>
 
-  <!-- All these actions are only needed for local debugging, they are repeated in Fesh.Revit.Bootstrapper : -->
-  <Target Name="AddXmlDocFilesToOutput" BeforeTargets="AfterBuild">
-
-    <!--because <FSharpCoreIncludeDocFileInOutput>  does not seem to work -->
-    <!-- <Copy SourceFiles="$(PkgFSharp_Core)/lib/netstandard2.0/FSharp.Core.xml" DestinationFiles="$(TargetDir)FSharp.Core.xml" ContinueOnError="false" /> -->
-    <Copy SourceFiles="$(PkgFesh)/lib/net472/Fesh.xml" DestinationFiles="$(TargetDir)Fesh.xml" ContinueOnError="false" />
-
-    <!-- take latest SyntaxHighlightingFSharp.xshd from Fesh nuget.-->
-    <Copy SourceFiles="$(PkgFesh)/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" />
-    <!-- <Copy SourceFiles="../Fesh/Src/SyntaxHighlightingFSharp.xshd" DestinationFiles="$(TargetDir)SyntaxHighlightingFSharp.xshd" ContinueOnError="false" /> -->
-
-    <!--netstandard dll is needed for editor tooling only, it might not be installed on host PC. see also  https://github.com/fsprojects/IfSharp/issues/213 -->
-    <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.dll" DestinationFiles="$(TargetDir)netstandard.dll" Condition="'$(TargetFramework)' == 'net48'" ContinueOnError="false" />
-    <Copy SourceFiles="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.xml" DestinationFiles="$(TargetDir)netstandard.xml" Condition="'$(TargetFramework)' == 'net48'" ContinueOnError="false" />
-
+  <Target Name="CopyFilesOverAfterBuild" AfterTargets="Publish">
+    <!-- to check output from Ionide.KeepAChangelog.Tasks current git tag in gh actions -->
+    <WriteLinesToFile File="../bin/ChangelogVersion.txt" Lines="@(CurrentReleaseChangelog)" Overwrite="true" ContinueOnError="false" />
   </Target>
+
 </Project>
