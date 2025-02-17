@@ -38,7 +38,7 @@
     <Configurations>Release</Configurations>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Fesh" Version="0.22.0" GeneratePathProperty="true" /> <!--  let Fesh dictate FSharp.Core version ? -->
+    <PackageReference Include="Fesh" Version="0.23.0" GeneratePathProperty="true" /> <!--  let Fesh dictate FSharp.Core version ? -->
     <!-- <ProjectReference Include="../Fesh/FeshHosting.fsproj" /> -->
 
     <!-- <PackageReference Include="FSharp.Core" Version="6.0.7" />  -->
