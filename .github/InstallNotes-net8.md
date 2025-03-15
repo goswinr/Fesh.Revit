@@ -6,13 +6,10 @@ To install just download and run `Fesh.Revit-2025-Setup.exe` from the Assets.
 
 <summary>More Info on Installation</summary>
 
-No admin rights are required to install or run the app.\
-The app will be installed in `C:\Users\{username}\AppData\Local\Fesh.Revit\current`\
-and registerer as a plugin with any installed Revit version 2025 or later.
+No admin rights are required to install or run the app.<br>The app will be installed in `C:\Users\{username}\AppData\Local\Fesh.Revit\current`<br>and registerer as a plugin with any installed Revit version 2025 or later.
 It will automatically offer to update Fesh when a new version is available.
 
-The installer is digitally code-signed via Azure Trusted Signing Service.\
-It should not raise any security warnings.
+The installer is digitally code-signed via Azure Trusted Signing Service.<br>It should not raise any security warnings.
 
 See the [Changelog](https://github.com/goswinr/Fesh.Revit/blob/main/CHANGELOG.md) for changes in this release.
 

@@ -8,30 +8,22 @@
 ![code size](https://img.shields.io/github/languages/code-size/goswinr/Fesh.Revit.svg)
 [![license](https://img.shields.io/github/license/goswinr/Fesh.Revit)](LICENSE)
 
-Fesh.Revit is an F# scripting editor hosted inside [Revit]("https://www.autodesk.com/products/revit/overview"). It is based on [Fesh](https://github.com/goswinr/Fesh).\
-It has semantic syntax highlighting, auto completion, type info tooltips and more.\
-The output window supports colored text.
+Fesh.Revit is an F# scripting editor hosted inside [Revit]("https://www.autodesk.com/products/revit/overview"). It is based on [Fesh](https://github.com/goswinr/Fesh).<br>It has semantic syntax highlighting, auto completion, type info tooltips and more.<br>The output window supports colored text.
 
 ![Screenshot](Media/screen1.png)
-The example script in the root folder generates the axes for cladding of the Louvre Abu Dhabi.\
-See also my talk at <a href="https://www.youtube.com/watch?v=ZY-bvZZZZnE" target="_blank">FSharpConf 2016</a>
+The example script in the root folder generates the axes for cladding of the Louvre Abu Dhabi.<br>See also my talk at <a href="https://www.youtube.com/watch?v=ZY-bvZZZZnE" target="_blank">FSharpConf 2016</a>
 
 
 ## How to install
 
 
-Download and run the Setup.exe from [Releases](https://github.com/goswinr/Fesh.Revit/releases).\
-Use the .NET 8 version if you have Revit 2025 or later.\
-Use the .NET 4.8 version if you have Revit 2024 or earlier.
+Download and run the Setup.exe from [Releases](https://github.com/goswinr/Fesh.Revit/releases).<br>Use the .NET 8 version if you have Revit 2025 or later.<br>Use the .NET 4.8 version if you have Revit 2024 or earlier.
 
 Fesh.Revit will automatically offer to update itself when a new version is available.
 
 The installer is created with [Velopack](https://velopack.io) and digitally signed.
 
-No admin rights are required to install or run the app.\
-The app will be installed in `\AppData\Local\Fesh.Revit`. \
-Setup will launch the `Fesh.Revit.Bootstrapper.exe`. It will register the `Fesh.Revit.dll` with Revit \
-by creating an `Fesh.Revit.addin` xml file in the Revit Addins folder at `C:/ProgramData/Autodesk/Revit/Addins/20XX/Fesh.Revit.addin`.
+No admin rights are required to install or run the app.<br>The app will be installed in `\AppData\Local\Fesh.Revit`. <br>Setup will launch the `Fesh.Revit.Bootstrapper.exe`. It will register the `Fesh.Revit.dll` with Revit <br>by creating an `Fesh.Revit.addin` xml file in the Revit Addins folder at `C:/ProgramData/Autodesk/Revit/Addins/20XX/Fesh.Revit.addin`.
 
 
 ### How to use F# with Revit
