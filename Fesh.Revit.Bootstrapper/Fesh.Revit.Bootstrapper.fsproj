@@ -38,7 +38,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fesh" Version="0.23.0" GeneratePathProperty="true" /> <!-- just to copy SyntaxHighlightingFSharp.xshd below -->
+    <PackageReference Include="Fesh" Version="0.24.0" GeneratePathProperty="true" /> <!-- just to copy SyntaxHighlightingFSharp.xshd below -->
 
     <ProjectReference Include="..\Fesh.Revit\Fesh.Revit.fsproj" Property="RevitVersion=$(RevitVersion)" />
     <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" PrivateAssets="all" />
@@ -53,8 +53,8 @@
     <Compile Include="Revit.fs" />
     <Compile Include="Main.fs" />
 
-    <Content Include="$(PkgFesh)/FSharp.Core.xml" CopyToOutputDirectory="Always"  />
-    <Content Include="$(PkgFesh)/SyntaxHighlightingFSharp.xshd" CopyToOutputDirectory="Always"  />
+    <Content Include="$(PkgFesh)/FSharp.Core.xml" CopyToOutputDirectory="Always" />
+    <Content Include="$(PkgFesh)/SyntaxHighlightingFSharp.xshd" CopyToOutputDirectory="Always" />
     <Content Include="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.dll" Condition="'$(TargetFramework)' == 'net48'" CopyToOutputDirectory="Always" TargetPath="netstandard.dll" />
     <Content Include="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.xml" Condition="'$(TargetFramework)' == 'net48'" CopyToOutputDirectory="Always" TargetPath="netstandard.xml" />
   </ItemGroup>
