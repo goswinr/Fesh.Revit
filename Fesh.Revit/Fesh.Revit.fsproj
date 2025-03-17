@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
+    <!-- <OutputType>Library</OutputType> not needed -->
     <TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>    <!--inherited from Avalonedit ?-->
@@ -12,9 +12,11 @@
     <NeutralLanguage>en</NeutralLanguage>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>    <!--to only have the english resources-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <FSharpCoreIncludeDocFileInOutput>true</FSharpCoreIncludeDocFileInOutput>
+
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>  <!-- CopyLocalLockFileAssemblies is important! without this FSharp.Core fails to load in Revit 2025 on net8-windows , see https://github.com/Nice3point/Revit.Build.Tasks?tab=readme-ov-file#msbuild-properties -->
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference> <!-- needed so that the Fesh nuget can pull in  the latest version for dotnet-outdated tool -->
+    <CopyDebugSymbolFilesFromPackages>true</CopyDebugSymbolFilesFromPackages>
+    <CopyDocumentationFilesFromPackages>true</CopyDocumentationFilesFromPackages>
 
     <RootNamespace>Fesh.Revit</RootNamespace>
     <AssemblyName>Fesh.Revit</AssemblyName>
@@ -35,14 +37,11 @@
     <OtherFlags>$(OtherFlags) --warnon:1182</OtherFlags>  <!-- 1182: warn on unused variables -->
     <ChangelogFile>../CHANGELOG.md</ChangelogFile>  <!-- for Ionide.KeepAChangelog.Tasks -->
 
-    <Configurations>Release</Configurations>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Fesh" Version="0.24.0" GeneratePathProperty="true" /> <!--  let Fesh dictate FSharp.Core version ? -->
     <!-- <ProjectReference Include="../Fesh/FeshHosting.fsproj" /> -->
 
-    <!-- <PackageReference Include="FSharp.Core" Version="6.0.7" />  -->
-    <!-- use 'Include' syntax so that dependabot can update FSharp.Core-->
     <PackageReference Include="Velopack" Version="0.0.1053" />
     <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" PrivateAssets="all" />
 
@@ -62,9 +61,5 @@
     <Compile Include="Src/ScriptingSyntax.fs" />
   </ItemGroup>
 
-  <Target Name="CopyFilesOverAfterBuild" AfterTargets="Publish">
-    <!-- to check output from Ionide.KeepAChangelog.Tasks current git tag in gh actions -->
-    <WriteLinesToFile File="../bin/ChangelogVersion.txt" Lines="@(CurrentReleaseChangelog)" Overwrite="true" ContinueOnError="false" />
-  </Target>
 
 </Project>

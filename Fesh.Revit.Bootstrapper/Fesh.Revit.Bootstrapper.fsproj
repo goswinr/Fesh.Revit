@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -12,8 +12,9 @@
     <LangVersion>preview</LangVersion>    <!-- to enable indexing from end via ^ -->
     <NeutralLanguage>en</NeutralLanguage>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>    <!-- <SatelliteResourceLanguages> to only have the English resources-->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>    <!-- <GenerateDocumentationFile> just in case the editor itself gets referenced from a script-->
+
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference> <!-- needed so that the Fesh nuget can pull in  the latest version for dotnet-outdated tool -->
+
 
     <RootNamespace>Fesh.Revit.Bootstrapper</RootNamespace>
     <AssemblyName>Fesh.Revit.Bootstrapper</AssemblyName>
@@ -34,13 +35,12 @@
 
     <OtherFlags>$(OtherFlags) --warnon:1182</OtherFlags>    <!-- 1182: warn on unused variables -->
     <ChangelogFile>../CHANGELOG.md</ChangelogFile>    <!-- for Ionide.KeepAChangelog.Tasks -->
-    <Configurations>Release</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Fesh" Version="0.24.0" GeneratePathProperty="true" /> <!-- just to copy SyntaxHighlightingFSharp.xshd below -->
 
-    <ProjectReference Include="..\Fesh.Revit\Fesh.Revit.fsproj" Property="RevitVersion=$(RevitVersion)" />
+    <ProjectReference Include="../Fesh.Revit/Fesh.Revit.fsproj"/>
     <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" PrivateAssets="all" />
 
     <!--this reference is needed for tooling only, it might not be installed on host PC. (running the .NET Framework version) see also https://github.com/fsprojects/IfSharp/issues/213 -->
