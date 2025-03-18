@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.24.1] - 2025-03-18
+### Added
+- Fixed type load exception in Revit 2024
+(by removing explicit FSharp.Core refrence in AvalonLog depemdency)
 
 ## [0.24.0] - 2025-03-17
 ### Added
@@ -38,7 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - First public release
 
-[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.24.0...HEAD
+[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.24.1...HEAD
+[0.24.1]: https://github.com/goswinr/Fesh.Revit/compare/0.24.0...0.24.1
 [0.24.0]: https://github.com/goswinr/Fesh.Revit/compare/0.23.0...0.24.0
 [0.23.0]: https://github.com/goswinr/Fesh.Revit/compare/0.22.0...0.23.0
 [0.22.0]: https://github.com/goswinr/Fesh.Revit/compare/0.21.0...0.22.0

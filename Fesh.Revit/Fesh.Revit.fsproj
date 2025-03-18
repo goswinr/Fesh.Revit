@@ -15,8 +15,7 @@
 
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>  <!-- CopyLocalLockFileAssemblies is important! without this FSharp.Core fails to load in Revit 2025 on net8-windows , see https://github.com/Nice3point/Revit.Build.Tasks?tab=readme-ov-file#msbuild-properties -->
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference> <!-- needed so that the Fesh nuget can pull in  the latest version for dotnet-outdated tool -->
-    <CopyDebugSymbolFilesFromPackages>true</CopyDebugSymbolFilesFromPackages>
-    <CopyDocumentationFilesFromPackages>true</CopyDocumentationFilesFromPackages>
+
 
     <RootNamespace>Fesh.Revit</RootNamespace>
     <AssemblyName>Fesh.Revit</AssemblyName>
@@ -39,8 +38,9 @@
 
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Fesh" Version="0.24.0" GeneratePathProperty="true" /> <!--  let Fesh dictate FSharp.Core version ? -->
-    <!-- <ProjectReference Include="../Fesh/FeshHosting.fsproj" /> -->
+    <!--  let Fesh dictate FSharp.Core version ? -->
+    <PackageReference Include="Fesh" Version="0.24.1" GeneratePathProperty="true" />
+    <!-- <ProjectReference Include="../../Fesh/FeshHosting.fsproj" /> -->
 
     <PackageReference Include="Velopack" Version="0.0.1053" />
     <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" PrivateAssets="all" />
@@ -55,6 +55,7 @@
     <Resource Include="Media32/logo.ico" />
     <Resource Include="Media32/logo16.png" />
     <Resource Include="Media32/logo32.png" />
+    <Content Include="$(PkgFesh)/SyntaxHighlightingFSharp.xshd" CopyToOutputDirectory="Always" />
 
     <Compile Include="Src/Velo.fs" />
     <Compile Include="Src/Addin.fs" />
