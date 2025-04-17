@@ -39,7 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!--  let Fesh dictate FSharp.Core version ? -->
-    <PackageReference Include="Fesh" Version="0.25.0" GeneratePathProperty="true" />
+    <PackageReference Include="Fesh" Version="0.26.0" GeneratePathProperty="true" />
     <!-- <ProjectReference Include="../../Fesh/FeshHosting.fsproj" /> -->
 
     <PackageReference Include="Velopack" Version="0.0.1053" />
@@ -47,7 +47,7 @@
 
     <PackageReference Include="Autodesk.Revit.SDK" Version="2018.*" Condition="'$(TargetFramework)' == 'net48'" PrivateAssets="all" ExcludeAssets="runtime" />
     <!-- <PackageReference Include="Autodesk.Revit.SDK" Version="2025.*" Condition="'$(TargetFramework)' == 'net8.0-windows'" PrivateAssets="all" ExcludeAssets="runtime" /> -->
-    <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2025.0.0"  Condition="'$(TargetFramework)' == 'net8.0-windows'" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2026.0.0" Condition="'$(TargetFramework)' == 'net8.0-windows'" PrivateAssets="all" ExcludeAssets="runtime" />
 
     <!-- the official "Autodesk.Revit.SDK" 2025 nuget seems to have some native dlls packed in the wrong folder that causes:
      'warning MSB3246: Resolved file has a bad image, no metadata, or is otherwise inaccessible. PE image does not have metadata. PE image does not have metadata.'
