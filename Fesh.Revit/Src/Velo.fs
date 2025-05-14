@@ -9,7 +9,7 @@ open Velopack
 open Velopack.Sources
 open Velopack.Locators
 open System.Reflection
-open Microsoft.Extensions.Logging
+// open Microsoft.Extensions.Logging
 
 module Velo =
 
@@ -40,16 +40,17 @@ module Velo =
 
                         // Use reflection to call the internal constructor of WindowsVelopackLocator
                         // https://github.com/velopack/velopack/issues/461
-                        let loc =
-                            try
-                                let locType = typeof<WindowsVelopackLocator>
-                                let ctor = locType.GetConstructor(BindingFlags.Instance ||| BindingFlags.NonPublic, null, [| typeof<string>; typeof<ILogger> |], null)
-                                ctor.Invoke([| exePath; null |]) :?> WindowsVelopackLocator
-                            with e ->
-                                failwithf $"Reflection Invoking the Constructor of WindowsVelopackLocator(\"{exePath}\", null) failed:\r\n{e}"
+                        // let loc =
+                        //     try
+                        //         let locType = typeof<WindowsVelopackLocator>
+                        //         let ctor = locType.GetConstructor(BindingFlags.Instance ||| BindingFlags.NonPublic, null, [| typeof<string>; typeof<ILogger> |], null)
+                        //         ctor.Invoke([| exePath; null |]) :?> WindowsVelopackLocator
+                        //     with e ->
+                        //         failwithf $"Reflection Invoking the Constructor of WindowsVelopackLocator(\"{exePath}\", null) failed:\r\n{e}"
 
-                        // let loc = VelopackLocator.GetDefault(null)
-                        // loc.
+                        let processId = uint <|  System.Diagnostics.Process.GetCurrentProcess().Id
+                        let iLogger = null
+                        let loc = WindowsVelopackLocator(exePath, processId, iLogger)
 
                         updateManager <- Some (new UpdateManager(source, locator = loc))
 
@@ -65,7 +66,7 @@ module Velo =
                                 let exeFolder = IO.Path.GetDirectoryName(exe)
                                 let parentFolder = IO.Path.GetDirectoryName(exeFolder)
                                 let updater = IO.Path.Combine(parentFolder, "Update.exe")
-                                if not (IO.File.Exists(updater)) then
+                                if not (IO.File.Exists updater) then
                                     // this is expected when running a local build of Fesh not packaged with Velopack
                                     fesh.Log.PrintfnIOErrorMsg "Automatic updates are not available because Update.exe was not found at:"
                                     fesh.Log.PrintfnIOErrorMsg $"{updater}"
