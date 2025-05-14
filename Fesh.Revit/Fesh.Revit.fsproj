@@ -39,10 +39,10 @@
   </PropertyGroup>
   <ItemGroup>
     <!--  let Fesh dictate FSharp.Core version ? -->
-    <PackageReference Include="Fesh" Version="0.26.0" GeneratePathProperty="true" />
+    <PackageReference Include="Fesh" Version="0.26.1" GeneratePathProperty="true" />
     <!-- <ProjectReference Include="../../Fesh/FeshHosting.fsproj" /> -->
 
-    <PackageReference Include="Velopack" Version="0.0.1053" />
+    <PackageReference Include="Velopack" Version="0.0.1251" />
     <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" PrivateAssets="all" />
 
     <PackageReference Include="Autodesk.Revit.SDK" Version="2018.*" Condition="'$(TargetFramework)' == 'net48'" PrivateAssets="all" ExcludeAssets="runtime" />
