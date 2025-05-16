@@ -11,7 +11,7 @@ module ScriptingSyntax =
 
     /// Runs a function in a transaction
     /// Will log errors to Fesh Log if transaction has problems
-    let run (f: Document-> unit)  =
+    let run (transaction: Document-> unit)  =
         FeshAddin.Instance.RunOnDoc (fun (doc:Document) ->
             use t = new Transaction(doc, "Fesh F# script")
             let s = t.Start()
@@ -28,7 +28,7 @@ module ScriptingSyntax =
             |_ ->   eprintfn "Transaction.Start returned unknown state: %A" s
 
             try
-                f(doc)
+                transaction doc
             with ex ->
                 match DebugUtils.Fesh with
                 |None -> ()
@@ -50,7 +50,7 @@ module ScriptingSyntax =
 
     /// Runs a function in a transaction
     /// Will log errors to Fesh Log if transaction has problems
-    let runApp (f: UIApplication-> unit)  = 
+    let runApp (transaction: UIApplication-> unit)  =
         FeshAddin.Instance.RunOnApp (fun (app:UIApplication) ->
             let doc = app.ActiveUIDocument.Document
             use t = new Transaction(doc, "Fesh F# script")
@@ -68,10 +68,10 @@ module ScriptingSyntax =
             |_ ->   eprintfn "Transaction.Start returned unknown state: %A" s
 
             try
-                f(app)
+                transaction app
             with ex ->
-                match DebugUtils.Fesh with 
-                |None -> () 
+                match DebugUtils.Fesh with
+                |None -> ()
                 |Some fesh -> fesh.Log.PrintfnColor 240  0 0 "Function in transaction failed with:\r\n%A" ex
 
             let r = t.Commit()

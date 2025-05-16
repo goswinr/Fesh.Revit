@@ -1,4 +1,4 @@
-﻿namespace Fesh.Revit
+namespace Fesh.Revit
 
 open Autodesk.Revit.UI
 open Autodesk.Revit.DB
@@ -57,7 +57,7 @@ type DebugUtils private () =
     static member logToFile filePrefix (content:string) =
        let checkedPrefix = if isNull filePrefix then "NULL-PREFIX" else filePrefix
        let checkedContent = if String.IsNullOrWhiteSpace content then "content is String.IsNullOrWhiteSpace" else content
-       let time = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss-fff") // ensure unique name
+       let time = DateTime.UtcNow.ToString "yyyy-MM-dd_HH-mm-ss-fff" // ensure unique name
        let filename = sprintf "%sFesh.AutoCAD.Log-%s.txt" checkedPrefix time
        async {
            try
@@ -80,12 +80,12 @@ type DebugUtils private () =
                 DebugUtils.logToFile "App.alertFailed-" errMsg
                 TaskDialog.Show("Fesh AddIn. normal alert failed", errMsg) |> ignore
 
-        | _ when logFileOnDesktopCount.Value < 10 ->
+        | _ when logFileOnDesktopCount.Value < 5 ->
                     incr logFileOnDesktopCount
                     DebugUtils.logToFile "App.alert-" msg
                     TaskDialog.Show("Fesh AddIn alert", msg) |> ignore
 
-        | _ -> () // do nothing , there are already 10 log files on the desktop
+        | _ -> () // do nothing , there are already 5 log files on the desktop
 
 
     /// logs text to Fesh editor window in green
@@ -101,6 +101,7 @@ type DebugUtils private () =
 [<Transaction(TransactionMode.Manual)>]
 type internal FsiRunEventHandler (fesh:Fesh, queue: ConcurrentQueue< UIApplication->unit >) =
     member this.GetName() = "Run in Fesh"
+
     member this.Execute(app:UIApplication) =
         let f = ref Unchecked.defaultof<UIApplication->unit>
         while queue.TryDequeue(f) do //using a queue is only needed if a single script calls into a transaction more than once
@@ -111,7 +112,7 @@ type internal FsiRunEventHandler (fesh:Fesh, queue: ConcurrentQueue< UIApplicati
 
     interface IExternalEventHandler with
         member this.GetName() = this.GetName()
-        member this.Execute(app:UIApplication)  = this.Execute(app)
+        member this.Execute(app:UIApplication)  = this.Execute app
 
 
 [<Regeneration(RegenerationOption.Manual)>]
@@ -128,8 +129,8 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
 
     /// Runs a F# function via the IExternalEventHandler pattern for mode-less dialogs
     /// This is the only way to run code from mode-less dialogs such as Fesh editor
-    member this.RunOnApp (f:UIApplication -> unit) =
-        this.RequestQueue.Enqueue(f)
+    member this.RunOnApp (transaction:UIApplication -> unit) =
+        this.RequestQueue.Enqueue transaction
         match this.ExternalEv with
         |None ->
             DebugUtils.alert "ExternalEvent not set up yet"
@@ -143,8 +144,8 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
 
     /// runs a F# function via the IExternalEventHandler pattern for mode-less dialogs
     /// this is the only way to run code from mode-less dialogs such as Fesh editor
-    member this.RunOnDoc (f:Document->unit) =
-        this.RunOnApp (fun app -> f app.ActiveUIDocument.Document)
+    member this.RunOnDoc (transaction:Document->unit) =
+        this.RunOnApp (fun app -> transaction app.ActiveUIDocument.Document)
 
 
     member this.OnStartup(uiConApp:UIControlledApplication) =
@@ -157,15 +158,15 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
             let button = new PushButtonData("Fesh", "Open Fesh F# Editor", thisAssemblyPath, "Fesh.Revit.StartEditorCommand") // a reference to type StartEditorCommand()
             button.ToolTip <- "This will open Fesh in a new window, the F# Scripting Editor."
 
-            let uriImage32 = new Uri("pack://application:,,,/Fesh.Revit;component/Media32/logo32.png") // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" />
-            let uriImage16 = new Uri("pack://application:,,,/Fesh.Revit;component/Media32/logo16.png")
-            button.LargeImage <- Media.Imaging.BitmapImage(uriImage32)//for ribbon in tab
-            button.Image      <- Media.Imaging.BitmapImage(uriImage16)//for quick access toolbar
+            let uriImage32 = new Uri "pack://application:,,,/Fesh.Revit;component/Media32/logo32.png" // build from VS not via "dotnet build"  to include. <Resource Include="Media\LogoCursorTr32.png" />
+            let uriImage16 = new Uri "pack://application:,,,/Fesh.Revit;component/Media32/logo16.png"
+            button.LargeImage <- Media.Imaging.BitmapImage uriImage32 //for ribbon in tab
+            button.Image      <- Media.Imaging.BitmapImage uriImage16 //for quick access toolbar
 
             let tabId = "Fesh"
             uiConApp.CreateRibbonTab(tabId)
             let panel = uiConApp.CreateRibbonPanel(tabId,"Fesh")
-            panel.AddItem(button) |> ignore
+            panel.AddItem button |> ignore
 
             Result.Succeeded
 
@@ -192,8 +193,8 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
 
 
     interface IExternalApplication with
-        member this.OnStartup(uiConApp:UIControlledApplication) = this.OnStartup(uiConApp)
-        member this.OnShutdown(app:UIControlledApplication)     = this.OnShutdown(app)
+        member this.OnStartup(uiConApp:UIControlledApplication) = this.OnStartup uiConApp
+        member this.OnShutdown(app:UIControlledApplication)     = this.OnShutdown app
 
         //member this.Queue = queue
 
@@ -237,18 +238,18 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
                         // If Document.IsModifiable returns TRUE, then there is an active transaction open in that document.
                         // https://thebuildingcoder.typepad.com/blog/2015/06/archsample-active-transaction-and-adnrme-for-revit-mep-2016.html#3
 
-                    let appName = AppName.get(commandData.Application.Application.VersionNumber)
-                    let logo = new Uri("pack://application:,,,/Fesh.Revit;component/Media32/logo.ico")
+                    let appName = AppName.get commandData.Application.Application.VersionNumber
+                    let logo = new Uri "pack://application:,,,/Fesh.Revit;component/Media32/logo.ico"
                     let hostData = {
                         hostName = appName
                         mainWindowHandel = winHandle
                         fsiCanRun =  canRun
                         logo = Some logo
-                        defaultCode = Some (DefaultCode.get(appName))
-                        hostAssembly = Some (Reflection.Assembly.GetAssembly(typeof<FeshAddin>))
+                        defaultCode = Some (DefaultCode.get appName)
+                        hostAssembly = Some (Reflection.Assembly.GetAssembly typeof<FeshAddin>)
                         }
 
-                    let feshApp = Fesh.App.createEditorForHosting(hostData)
+                    let feshApp = Fesh.App.createEditorForHosting hostData
                     DebugUtils.Fesh <- Some feshApp
 
                     //TODO make a C# plugin that loads Fesh.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI

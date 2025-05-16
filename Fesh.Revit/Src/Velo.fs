@@ -101,25 +101,27 @@ module Velo =
 
                 with e ->
                     updateManager <- None
-                    fesh.Log.PrintfnInfoMsg "Could not check for Velopack updates:\r\n%A" e
+                    fesh.Log.PrintfnAppErrorMsg "Checking for updates of Fesh.Revit via Velopack failed."
+                    fesh.Log.PrintfnAppErrorMsg "If this error keeps repeating, reintall Fesh.Revit from https://github.com/goswinr/Fesh.Revit/releases"
+                    fesh.Log.PrintfnInfoMsg "Details:\r\n%A" e
 
             } |> Async.Start
 
 
-    let  updateOnRevitClose(revit:UIApplication, alert: string -> unit) =
+    let updateOnRevitClose(revit:UIApplication, alert: string -> unit) =
         // This event is raised when the Revit application is just about to be closed.
         // Event is not cancellable. The 'Cancellable' property of event's argument is always False.
         // No document may be modified at the time of the event.
         // The sender object of this event is UIControlledApplication object.
         revit.ApplicationClosing.Add(fun _ ->
             if updatesDownloaded then
-                let revitProcesses = System.Diagnostics.Process.GetProcessesByName("Revit")
+                let revitProcesses = System.Diagnostics.Process.GetProcessesByName "Revit"
                 if revitProcesses.Length = 1 then
                     let exe = Reflection.Assembly.GetAssembly(typeof<FeshRevitDummy>).Location
-                    let exeFolder = IO.Path.GetDirectoryName(exe)
-                    let parentFolder = IO.Path.GetDirectoryName(exeFolder)
+                    let exeFolder = IO.Path.GetDirectoryName exe
+                    let parentFolder = IO.Path.GetDirectoryName exeFolder
                     let updater = IO.Path.Combine(parentFolder, "Update.exe")
-                    if IO.File.Exists(updater) then
+                    if IO.File.Exists updater then
                         match updateManager with
                         | Some um  ->
                             if isNull um.UpdatePendingRestart then
