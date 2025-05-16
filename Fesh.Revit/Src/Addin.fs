@@ -1,4 +1,4 @@
-namespace Fesh.Revit
+﻿namespace Fesh.Revit
 
 open Autodesk.Revit.UI
 open Autodesk.Revit.DB
@@ -142,7 +142,7 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
             |ExternalEventRequest.TimedOut -> DebugUtils.alert "exEvent.Raise() returned ExternalEventRequest.TimedOut"
             |x -> DebugUtils.alert $"exEvent.Raise() returned unknown ExternalEventRequest: {x}"
 
-    /// runs a F# function via the IExternalEventHandler pattern for mode-less dialogs
+    /// Runs a F# function via the IExternalEventHandler pattern for mode-less dialogs
     /// this is the only way to run code from mode-less dialogs such as Fesh editor
     member this.RunOnDoc (transaction:Document->unit) =
         this.RunOnApp (fun app -> transaction app.ActiveUIDocument.Document)
