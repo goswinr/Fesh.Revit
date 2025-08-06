@@ -247,6 +247,7 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
                         logo = Some logo
                         defaultCode = Some (DefaultCode.get appName)
                         hostAssembly = Some (Reflection.Assembly.GetAssembly typeof<FeshAddin>)
+                        canRunAsync = true
                         }
 
                     let feshApp = Fesh.App.createEditorForHosting hostData
