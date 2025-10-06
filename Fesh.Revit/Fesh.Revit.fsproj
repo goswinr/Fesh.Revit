@@ -39,12 +39,12 @@
   </PropertyGroup>
   <ItemGroup>
     <!--  let Fesh dictate FSharp.Core version ? -->
-    <PackageReference Include="Fesh" Version="0.28.0" Condition="'$(TargetFramework)' == 'net48'" GeneratePathProperty="true" />
-    <PackageReference Include="Fesh" Version="0.28.0-net7" Condition="'$(TargetFramework)' == 'net8.0-windows'" GeneratePathProperty="true" />
+    <PackageReference Include="Fesh" Version="0.28.1" Condition="'$(TargetFramework)' == 'net48'" GeneratePathProperty="true" />
+    <PackageReference Include="Fesh" Version="0.28.1-net7" Condition="'$(TargetFramework)' == 'net8.0-windows'" GeneratePathProperty="true" />
     <!-- <ProjectReference Include="../../Fesh/FeshHosting.fsproj" /> -->
 
     <PackageReference Include="Velopack" Version="0.0.1298" />
-    <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" PrivateAssets="all" />
+    <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.3.0" PrivateAssets="all" />
 
     <PackageReference Include="Autodesk.Revit.SDK" Version="2018.*" Condition="'$(TargetFramework)' == 'net48'" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="Autodesk.Revit.SDK" Version="2025.*" Condition="'$(TargetFramework)' == 'net8.0-windows'" PrivateAssets="all" ExcludeAssets="runtime" />
