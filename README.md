@@ -44,5 +44,10 @@ Fesh.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  -> ...)
 ## Release Notes
 For changes in each release see the  [CHANGELOG.md](https://github.com/goswinr/Fesh.Revit/blob/main/CHANGELOG.md)
 
+## Publisher Privacy Policy
+Fesh.Revit does not collect any data.<br>
+The app only connects to the internet to check for updates on the [Github Releases](https://github.com/goswinr/Fesh.Revit/releases) page and downloads upon user confirmation.<br>
+The relevant source code is here: [Velo.fs](https://github.com/goswinr/Fesh.Revit/blob/main/Media/Velo.fs).
+
 ## License
 Fesh is licensed under the [MIT License](https://github.com/goswinr/Fesh.Revit/blob/main/LICENSE.md).
