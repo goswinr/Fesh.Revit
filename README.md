@@ -19,7 +19,6 @@ See also my talk at <a href="https://www.youtube.com/watch?v=ZY-bvZZZZnE" target
 
 ## How to install
 
-
 Download and run the Setup.exe from [Releases](https://github.com/goswinr/Fesh.Revit/releases).<br>
 Use the .NET 8 version if you have Revit 2025 or later.<br>
 Use the .NET 4.8 version if you have Revit 2024 or earlier.

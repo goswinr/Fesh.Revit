@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.29.0] - 2025-12-14
+### Changed
+- Update to [Fesh 0.29.0](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0290)
+- build for net8 and net48
+
 ## [0.28.1] - 2025-10-05
 ### Changed
 - Update to [Fesh 0.28.1](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0281)
@@ -66,8 +71,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - First public release
 
 
-[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.28.1...HEAD
-[0.28.1]: https://github.com/goswinr/Fesh.Revit/compare/0.26.4...0.28.1
+[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.29.0...HEAD
+[0.29.0]: https://github.com/goswinr/Fesh.Revit/compare/0.28.1...0.29.0
+[0.28.1]: https://github.com/goswinr/Fesh.Revit/compare/0.28.0...0.28.1
+[0.28.0]: https://github.com/goswinr/Fesh.Revit/compare/0.26.4...0.28.0
 [0.26.4]: https://github.com/goswinr/Fesh.Revit/compare/0.26.3...0.26.4
 [0.26.3]: https://github.com/goswinr/Fesh.Revit/compare/0.25.0...0.26.3
 [0.25.0]: https://github.com/goswinr/Fesh.Revit/compare/0.24.1...0.25.0

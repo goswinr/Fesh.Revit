@@ -39,8 +39,11 @@
   </PropertyGroup>
   <ItemGroup>
     <!--  let Fesh dictate FSharp.Core version ? -->
-    <PackageReference Include="Fesh" Version="0.28.1" Condition="'$(TargetFramework)' == 'net48'" GeneratePathProperty="true" />
-    <PackageReference Include="Fesh" Version="0.28.1-net7" Condition="'$(TargetFramework)' == 'net8.0-windows'" GeneratePathProperty="true" />
+    <PackageReference Include="Fesh" Version="0.29.0" Condition="'$(TargetFramework)' == 'net48'" GeneratePathProperty="true" />
+    <PackageReference Include="Fesh" Version="0.29.0-net7" Condition="'$(TargetFramework)' == 'net8.0-windows'" GeneratePathProperty="true" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="43.10.101" />
+    <PackageReference Update="FSharp.Core" Version="10.0.101" /> <!--even if this comes from Fesh reference already add it here again , may help solve F# core issues ? -->
+
     <!-- <ProjectReference Include="../../Fesh/FeshHosting.fsproj" /> -->
 
     <PackageReference Include="Velopack" Version="0.0.1298" />
