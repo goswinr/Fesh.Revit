@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.29.3] - 2025-12-14
+### Changed
+- Update to [Fesh 0.29.3](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0293) to try fix issue with FSharp.Core loading in Revit 2025
+
 ## [0.29.0] - 2025-12-14
 ### Changed
 - Update to [Fesh 0.29.0](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0290)
@@ -71,7 +75,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - First public release
 
 
-[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.29.0...HEAD
+[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.29.3...HEAD
+[0.29.3]: https://github.com/goswinr/Fesh.Revit/compare/0.29.0...0.29.3
 [0.29.0]: https://github.com/goswinr/Fesh.Revit/compare/0.28.1...0.29.0
 [0.28.1]: https://github.com/goswinr/Fesh.Revit/compare/0.28.0...0.28.1
 [0.28.0]: https://github.com/goswinr/Fesh.Revit/compare/0.26.4...0.28.0

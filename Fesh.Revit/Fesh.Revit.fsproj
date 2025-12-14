@@ -28,9 +28,9 @@
     <Copyright>Goswin Rothenthal 2019</Copyright>
     <Description>A Scripting editor for F# in Revit.</Description>
     <ApplicationIcon>../Media/logo.ico</ApplicationIcon>
-    <Win32Resource>Media32/logo.res</Win32Resource>    <!-- for Application Icon in explorer-->
+    <Win32Resource>Media32/logo.res</Win32Resource>    <!-- for Application Icon in explorer -->
 
-    <!--needed to silence errors with Revit dlls?-->
+    <!-- needed to silence errors with Revit dlls? -->
     <!-- <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch> -->
 
     <OtherFlags>$(OtherFlags) --warnon:1182</OtherFlags>  <!-- 1182: warn on unused variables -->
@@ -39,10 +39,13 @@
   </PropertyGroup>
   <ItemGroup>
     <!--  let Fesh dictate FSharp.Core version ? -->
-    <PackageReference Include="Fesh" Version="0.29.0" Condition="'$(TargetFramework)' == 'net48'" GeneratePathProperty="true" />
-    <PackageReference Include="Fesh" Version="0.29.0-net7" Condition="'$(TargetFramework)' == 'net8.0-windows'" GeneratePathProperty="true" />
-    <PackageReference Include="FSharp.Compiler.Service" Version="43.10.101" />
-    <PackageReference Update="FSharp.Core" Version="10.0.101" /> <!--even if this comes from Fesh reference already add it here again , may help solve F# core issues ? -->
+    <PackageReference Include="Fesh" Version="0.29.3"      Condition="'$(TargetFramework)' == 'net48'" GeneratePathProperty="true" />
+    <PackageReference Include="Fesh" Version="0.29.3-net8" Condition="'$(TargetFramework)' != 'net48'" GeneratePathProperty="true" />
+    <!-- build the NET core nuget for F#8 so that dependencies like System.Diagnostics.DiagnosticSource are also for Net80 and load properly in Rhino and Revit:-->
+    <PackageReference Include="FSharp.Compiler.Service" Version="43.10.101" Condition="'$(TargetFramework)' == 'net48'" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="43.8.403"  Condition="'$(TargetFramework)' != 'net48'" />
+    <PackageReference Include="FSharp.Core" Version="10.0.101"  Condition="'$(TargetFramework)' == 'net48'"/>
+    <PackageReference Update="FSharp.Core" Version="8.0.403"   Condition="'$(TargetFramework)' != 'net48'"/>
 
     <!-- <ProjectReference Include="../../Fesh/FeshHosting.fsproj" /> -->
 
@@ -50,11 +53,11 @@
     <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.3.1" PrivateAssets="all" />
 
     <PackageReference Include="Autodesk.Revit.SDK" Version="2018.*" Condition="'$(TargetFramework)' == 'net48'" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="Autodesk.Revit.SDK" Version="2025.*" Condition="'$(TargetFramework)' == 'net8.0-windows'" PrivateAssets="all" ExcludeAssets="runtime" />
-    <!-- <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2026.0.0" Condition="'$(TargetFramework)' == 'net8.0-windows'" PrivateAssets="all" ExcludeAssets="runtime" /> -->
+    <PackageReference Include="Autodesk.Revit.SDK" Version="2025.*" Condition="'$(TargetFramework)' != 'net48'" PrivateAssets="all" ExcludeAssets="runtime" />
+
 
     <!-- the official "Autodesk.Revit.SDK" 2025 nuget seems to have some native dlls packed in the wrong folder that causes:
-     'warning MSB3246: Resolved file has a bad image, no metadata, or is otherwise inaccessible. PE image does not have metadata. PE image does not have metadata.'
+     "warning MSB3246: Resolved file has a bad image, no metadata, or is otherwise inaccessible. PE image does not have metadata. PE image does not have metadata."
      see https://github.com/dotnet/sdk/issues/5857#issuecomment-215145669 -->
 
   </ItemGroup>
