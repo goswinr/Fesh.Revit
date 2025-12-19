@@ -34,10 +34,11 @@ by creating an `Fesh.Revit.addin` xml file in the Revit Addins folder at `C:/Pro
 
 
 ### How to use F# with Revit
-By default a f# script evaluation starts asynchronous on a new thread. The `Fesh.Revit.dll` also provides utility functions to run <a href="https://knowledge.autodesk.com/support/revit-products/learn-explore/caas/CloudHelp/cloudhelp/2014/ENU/Revit/files/GUID-C946A4BA-2E70-4467-91A0-1B6BA69DBFBE-htm.html" target="_blank">synchronous transaction</a> on the current document or app instance:
+By default a f# script evaluation starts asynchronous on a new thread. <br>
+The `Fesh.Revit.dll` also provides utility functions to run <a href="https://knowledge.autodesk.com/support/revit-products/learn-explore/caas/CloudHelp/cloudhelp/2014/ENU/Revit/files/GUID-C946A4BA-2E70-4467-91A0-1B6BA69DBFBE-htm.html" target="_blank">synchronous transaction</a> on the current document or app instance:
 
 ```fsharp
-Fesh.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  -> ...)
+Fesh.Revit.Scripting.transactWithApp (fun (app:UIApplication)  -> ... )
 ```
 
 ## Release Notes
