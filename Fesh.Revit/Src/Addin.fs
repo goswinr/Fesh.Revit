@@ -129,8 +129,8 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
 
     /// Runs a F# function via the IExternalEventHandler pattern for mode-less dialogs
     /// This is the only way to run code from mode-less dialogs such as Fesh editor
-    member this.RunOnApp (transaction:UIApplication -> unit) =
-        this.RequestQueue.Enqueue transaction
+    member this.RunOnApp (action:UIApplication -> unit) =
+        this.RequestQueue.Enqueue action
         match this.ExternalEv with
         |None ->
             DebugUtils.alert "ExternalEvent not set up yet"
@@ -144,8 +144,8 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
 
     /// Runs a F# function via the IExternalEventHandler pattern for mode-less dialogs
     /// this is the only way to run code from mode-less dialogs such as Fesh editor
-    member this.RunOnDoc (transaction:Document->unit) =
-        this.RunOnApp (fun app -> transaction app.ActiveUIDocument.Document)
+    member this.RunOnDoc (action:Document->unit) =
+        this.RunOnApp (fun app -> action app.ActiveUIDocument.Document)
 
 
     member this.OnStartup(uiConApp:UIControlledApplication) =

@@ -6,9 +6,7 @@ open Autodesk.Revit.Attributes
 open System
 open Fesh
 
-
-module ScriptingSyntax =
-
+module Scripting =
 
     let private transact (doc:Document) (action:unit->unit)=
         use t = new Transaction(doc, "Fesh F# script")
@@ -47,20 +45,53 @@ module ScriptingSyntax =
 
 
 
-    /// Runs a function in a transaction using a Document
+    /// Runs a function in a Revit API transaction.
+    /// You need to use this when making changes to the current Revit document.
     /// Will log errors to Fesh Log if transaction has problems
-    /// This function ca be invoked from any thread, it will switch to the Revit UI thread
-    let run (transaction: Document -> unit)  =
-        let action () =
-            FeshAddin.Instance.RunOnDoc (fun (doc:Document) -> transact doc (fun () -> transaction doc))
+    /// This function can be invoked from any thread, it will switch to the Revit UI thread
+    let transactWithDoc (transaction: Document -> unit)  =
+        let action () = FeshAddin.Instance.RunOnDoc (fun (doc:Document) -> transact doc (fun () -> transaction doc))
         Fittings.SyncWpf.doSync action
 
 
-    /// Runs a function in a transaction using an UIApplication
+    /// Runs a function in a RevitAPI transaction using an UIApplication
+    /// You need to use this when making changes to the current Revit document.
     /// (app.ActiveUIDocument.Document gets the active document)
     /// Will log errors to Fesh Log if transaction has problems
-    /// This function ca be invoked from any thread, it will switch to the Revit UI thread
-    let runApp (transaction: UIApplication-> unit)  =
-        let action () =
-            FeshAddin.Instance.RunOnApp (fun (app:UIApplication) -> transact app.ActiveUIDocument.Document (fun () -> transaction app))
+    /// This function can be invoked from any thread, it will switch to the Revit UI thread
+    let transactWithApp (transaction: UIApplication-> unit)  =
+        let action () = FeshAddin.Instance.RunOnApp (fun (app:UIApplication) -> transact app.ActiveUIDocument.Document (fun () -> transaction app))
         Fittings.SyncWpf.doSync action
+
+    /// Runs a function with the current Document
+    /// Without a document transaction.
+    /// Will log errors to Fesh Log if transaction has problems
+    /// This function can be invoked from any thread, it will switch to the Revit UI thread
+    let doWithDoc(action: Document -> unit)  =
+        let f () = FeshAddin.Instance.RunOnDoc (fun (doc:Document) -> action doc)
+        Fittings.SyncWpf.doSync f
+
+    /// Runs a function with the current UIApplication.
+    /// Without a document transaction.
+    /// Will log errors to Fesh Log if transaction has problems
+    /// This function can be invoked from any thread, it will switch to the Revit UI thread
+    let doWithApp(action: UIApplication -> unit)  =
+        let f () = FeshAddin.Instance.RunOnApp (fun (app:UIApplication) -> action app)
+        Fittings.SyncWpf.doSync f
+
+
+
+
+
+
+
+[<Obsolete("Renamed: Use Fesh.Revit.Scripting module functions instead")>]
+module ScriptingSyntax =
+
+    [<Obsolete("Renamed: Use Fesh.Revit.Scripting.transactWithDoc function instead")>]
+    let run (transaction: Document -> unit)  =
+        Scripting.transactWithDoc transaction
+
+    [<Obsolete("Renamed:Use Fesh.Revit.Scripting.transactWithApp function instead")>]
+    let runApp (transaction: UIApplication-> unit)  =
+        Scripting.transactWithApp transaction

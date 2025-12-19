@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.1] - 2025-12-19
+### Added
+- New functions in `Fesh.Revit.Scripting` module:
+  - `transactWithDoc` - Runs a function in a Revit API transaction with Document
+  - `transactWithApp` - Runs a function in a RevitAPI transaction using UIApplication
+  - `doWithDoc` - Runs a function with current Document without transaction
+  - `doWithApp` - Runs a function with current UIApplication without transaction
+
+### Changed
+- Update to [Fesh 0.30.1](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0301)
+
+### Deprecated
+- `ScriptingSyntax` module is now obsolete, use `Fesh.Revit.Scripting` module functions instead
+- `ScriptingSyntax.run` is deprecated, use `Fesh.Revit.Scripting.transactWithDoc` instead
+- `ScriptingSyntax.runApp` is deprecated, use `Fesh.Revit.Scripting.transactWithApp` instead
+
+
 ## [0.29.3] - 2025-12-14
 ### Changed
 - Update to [Fesh 0.29.3](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0293) to try fix issue with FSharp.Core loading in Revit 2025
@@ -75,7 +92,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - First public release
 
 
-[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.29.3...HEAD
+[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.30.1...HEAD
+[0.30.1]: https://github.com/goswinr/Fesh.Revit/compare/0.29.3...0.30.1
 [0.29.3]: https://github.com/goswinr/Fesh.Revit/compare/0.29.0...0.29.3
 [0.29.0]: https://github.com/goswinr/Fesh.Revit/compare/0.28.1...0.29.0
 [0.28.1]: https://github.com/goswinr/Fesh.Revit/compare/0.28.0...0.28.1
