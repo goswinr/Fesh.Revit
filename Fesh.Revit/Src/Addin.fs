@@ -17,21 +17,37 @@ module AppName =
 
 module DefaultCode =
     let get(appName:string) =
-        $"""#r "C:/Program Files/Autodesk/{appName}/RevitAPI.dll"
-#r "C:/Program Files/Autodesk/{appName}/RevitAPIUI.dll"
+        // This is your default code for new files.
+        // You can change it by going to the menu: File -> Edit Template File
+        // The default code is saved at at C:\Users\ROGO\AppData\Roaming\Fesh.Revit\Settings\Default-Code-for-New-Files.fsx
+        // the above is addet by Fesh iteself
+        $"""#I "C:/Program Files/Autodesk/{appName}"
+#r "RevitAPI.dll"
+#r "RevitAPIUI.dll"
 #r "Fesh.Revit"
 open Autodesk.Revit
 open Autodesk.Revit.DB
 open Autodesk.Revit.UI
 
 // Run your Revit code inside a transaction:
-Fesh.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  ->
+Fesh.Revit.Scripting.transactWithApp (fun (app:UIApplication)  ->
     let doc = app.ActiveUIDocument.Document
     // ...
-    // ...your code
+    // ...your code in a document transaction 
     // ...
-    printfn "Done"
-    )"""
+    printfn "Done1"
+    )
+
+// Run your Revit code without a transaction:
+Fesh.Revit.Scripting.doWithApp (fun (app:UIApplication)  ->
+    let doc = app.ActiveUIDocument.Document
+    // ...
+    // ...your code without a transaction 
+    // ...
+    printfn "Done2"
+    )
+
+"""
 
 
 // example of mode-less dialog: https://github.com/pierpaolo-canini/Lame-Duck
