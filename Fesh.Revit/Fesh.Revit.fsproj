@@ -25,7 +25,7 @@
 
     <!-- <Version></Version> taken from CHANGELOG.md by Ionide.KeepAChangelog.Tasks -->
     <Authors>GoswinR</Authors>
-    <Copyright>Goswin Rothenthal 2019</Copyright>
+    <Copyright>Goswin Rothenthal 2019-2026</Copyright>
     <Description>A Scripting editor for F# in Revit.</Description>
     <ApplicationIcon>../Media/logo.ico</ApplicationIcon>
     <Win32Resource>Media32/logo.res</Win32Resource>    <!-- for Application Icon in explorer -->
