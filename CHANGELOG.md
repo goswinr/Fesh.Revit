@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.32.0] - 2026-01-28
+### Fixed
+- Include netstandard.xml in output, to show better tooltips in net10
+
 ## [0.31.0] - 2025-12-19
 ### Changed
 - Update to [Fesh 0.31.0](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0310)
@@ -98,8 +103,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.14.0] - 2024-11-04
 ### Changed
 - First public release
-
-[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.30.2...HEAD
+[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.32.0...HEAD
+[0.32.0]: https://github.com/goswinr/Fesh.Revit/compare/0.31.0...0.32.0
+[0.31.0]: https://github.com/goswinr/Fesh.Revit/compare/0.30.2...0.31.0
 [0.30.2]: https://github.com/goswinr/Fesh.Revit/compare/0.30.1...0.30.2
 [0.30.1]: https://github.com/goswinr/Fesh.Revit/compare/0.29.3...0.30.1
 [0.29.3]: https://github.com/goswinr/Fesh.Revit/compare/0.29.0...0.29.3

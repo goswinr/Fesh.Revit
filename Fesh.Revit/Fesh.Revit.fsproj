@@ -40,19 +40,25 @@
 
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
-    <PackageReference Include="Fesh" Version="0.31.0-net8" GeneratePathProperty="true" />
+    <PackageReference Include="Fesh" Version="0.32.0-net8" GeneratePathProperty="true" />
     <PackageReference Include="Autodesk.Revit.SDK" Version="2025.*" Condition="'$(TargetFramework)' != 'net48'" PrivateAssets="all" ExcludeAssets="runtime" />
     <!-- the official "Autodesk.Revit.SDK" 2025 nuget seems to have some native dlls packed in the wrong folder that causes:
       "warning MSB3246: Resolved file has a bad image, no metadata, or is otherwise inaccessible. PE image does not have metadata. PE image does not have metadata."
       see https://github.com/dotnet/sdk/issues/5857#issuecomment-215145669 -->
+
+    <!-- netstandard reference is needed for tooling only,
+    in net 8 the F# Compiler.Service need the xml to show the tooltips, -->
+    <PackageReference Include="NETStandard.Library" Version="2.0.3" GeneratePathProperty="true" />
+    <Content Include="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.xml" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
-    <PackageReference Include="Fesh" Version="0.31.0-net472" GeneratePathProperty="true" />
+    <PackageReference Include="Fesh" Version="0.32.0-net472" GeneratePathProperty="true" />
     <PackageReference Include="Autodesk.Revit.SDK" Version="2018.*" Condition="'$(TargetFramework)' == 'net48'" PrivateAssets="all" ExcludeAssets="runtime" />
 
-    <!-- The NETStandard.Library reference is needed for tooling only, it might not be installed on host PC. see also https://github.com/fsprojects/IfSharp/issues/213 -->
+    <!-- netstandard reference is needed for tooling only,
+    in net48 it might not be installed on host PC. (running the .NET Framework version) see also https://github.com/fsprojects/IfSharp/issues/213 -->
     <PackageReference Include="NETStandard.Library" Version="2.0.3" GeneratePathProperty="true" />
     <Content Include="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.dll" CopyToOutputDirectory="Always" />
     <Content Include="$(PkgNETStandard_Library)/build/netstandard2.0/ref/netstandard.xml" CopyToOutputDirectory="Always" />
