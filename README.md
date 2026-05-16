@@ -3,7 +3,7 @@
 
 # Fesh.Revit
 [![Build](https://github.com/goswinr/Fesh.Revit/actions/workflows/build.yml/badge.svg?event=push)](https://github.com/goswinr/Fesh.Revit/actions/workflows/build.yml)
-[![Check NuGet](https://github.com/goswinr/Fesh.Revit/actions/workflows/outdatedNuget.yml/badge.svg)](https://github.com/goswinr/Fesh.Revit/actions/workflows/outdatedNuget.yml)
+<!-- [![Check NuGet](https://github.com/goswinr/Fesh.Revit/actions/workflows/outdatedNuget.yml/badge.svg)](https://github.com/goswinr/Fesh.Revit/actions/workflows/outdatedNuget.yml) -->
 
 ![code size](https://img.shields.io/github/languages/code-size/goswinr/Fesh.Revit.svg)
 [![license](https://img.shields.io/github/license/goswinr/Fesh.Revit)](LICENSE)
