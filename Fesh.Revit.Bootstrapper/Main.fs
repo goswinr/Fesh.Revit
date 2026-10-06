@@ -18,12 +18,8 @@ module Main =
 
 
     let greet (log:AvalonLog) =
-        if Revit.isNetFramework then
-            log.printfnBrush Brushes.Blue "Fesh.Revit.Bootstrapper on .NET Framework 4.8"
-            log.printfnBrush Brushes.Blue "for Registration and Updating Fesh.Revit with Revit 2024 or earlier versions."
-        else
-            log.printfnBrush Brushes.Blue "Fesh.Revit.Bootstrapper on .NET 8"
-            log.printfnBrush Brushes.Blue "for Registration and Updating Fesh.Revit with Revit 2025 or later versions."
+        log.printfnBrush Brushes.Blue "Fesh.Revit.Bootstrapper on .NET 10"
+        log.printfnBrush Brushes.Blue "for Registration and Updating Fesh.Revit with Revit 2026 or later versions."
 
 
     let velo(log:AvalonLog) =

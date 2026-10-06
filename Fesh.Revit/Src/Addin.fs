@@ -16,38 +16,59 @@ module AppName =
         $"Revit {year}"
 
 module DefaultCode =
-    let get(appName:string) =
+    let get(_appName:string) =
+        // the below comment is added by Fesh itself, don't include
         // This is your default code for new files.
         // You can change it by going to the menu: File -> Edit Template File
         // The default code is saved at at C:\Users\ROGO\AppData\Roaming\Fesh.Revit\Settings\Default-Code-for-New-Files.fsx
-        // the above is addet by Fesh iteself
-        $"""#I "C:/Program Files/Autodesk/{appName}"
-#r "RevitAPI.dll"
-#r "RevitAPIUI.dll"
+        $"""#r "RevitAPI"
+#r "RevitAPIUI"
 #r "Fesh.Revit"
 open Autodesk.Revit
 open Autodesk.Revit.DB
 open Autodesk.Revit.UI
 
 // Run your Revit code inside a transaction:
-Fesh.Revit.Scripting.transactWithApp (fun (app:UIApplication)  ->
-    let doc = app.ActiveUIDocument.Document
-    // ...
-    // ...your code in a document transaction 
-    // ...
-    printfn "Done1"
-    )
-
-// Run your Revit code without a transaction:
 Fesh.Revit.Scripting.doWithApp (fun (app:UIApplication)  ->
     let doc = app.ActiveUIDocument.Document
     // ...
-    // ...your code without a transaction 
+    // ...your code
     // ...
-    printfn "Done2"
+    printfn "Done"
     )
 
 """
+
+module LibFolders =
+
+    type private Dummy = class end
+
+    /// The folder of Revit.exe, e.g. "C:/Program Files/Autodesk/Revit 2026"
+    let revitExeFolder =
+        IO.Path.GetDirectoryName(Diagnostics.Process.GetCurrentProcess().MainModule.FileName).Replace("\\", "/")
+
+    /// The folder of the RevitAPI.dll that is loaded in this process.
+    /// It has RevitAPIUI.dll too. Usually that is the same as revitExeFolder.
+    let revitApiFolder =
+        let loc = typeof<Document>.Assembly.Location
+        if String.IsNullOrEmpty loc then revitExeFolder // should never happen, RevitAPI is always loaded from a file
+        else IO.Path.GetDirectoryName(loc).Replace("\\", "/")
+
+    /// The folder of the Fesh.Revit.dll that is loaded in this process.
+    let feshRevitFolder =
+        let loc = typeof<Dummy>.Assembly.Location
+        if String.IsNullOrEmpty loc then null
+        else IO.Path.GetDirectoryName(loc).Replace("\\", "/")
+
+    /// The folders to resolve #r "RevitAPI", #r "RevitAPIUI" and #r "Fesh.Revit" without a full path.
+    let get() =
+        [|
+        revitApiFolder
+        revitExeFolder
+        feshRevitFolder
+        |]
+        |> Array.filter (String.IsNullOrEmpty >> not)
+        |> Array.distinct
 
 
 // example of mode-less dialog: https://github.com/pierpaolo-canini/Lame-Duck
@@ -264,6 +285,7 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
                         defaultCode = Some (DefaultCode.get appName)
                         hostAssembly = Some (Reflection.Assembly.GetAssembly typeof<FeshAddin>)
                         canRunAsync = true
+                        libFolders = LibFolders.get() // so that #r "RevitAPI" and #r "Fesh.Revit" resolve without a full path
                         }
 
                     let feshApp = Fesh.App.createEditorForHosting hostData

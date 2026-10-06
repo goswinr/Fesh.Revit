@@ -16,8 +16,8 @@ jobs:
     # to this environment in repo Settings to gate who can release.
     environment:
       name: releaseRevit
-    # Least privilege: this workflow only pushes the -net48 tag and creates the GitHub Release,
-    # both of which need just `contents: write`. Avoid `write-all`, which also grants packages,
+    # Least privilege: this workflow only creates the GitHub Release,
+    # which needs just `contents: write`. Avoid `write-all`, which also grants packages,
     # deployments, actions, security-events, etc. that this job never uses.
     permissions:
       contents: write
@@ -43,22 +43,13 @@ jobs:
       with:
         dotnet-version: '10.x'
 
-    - name: Run dotnet publish net48
+    - name: Run dotnet publish net10.0
       run: |
         dotnet publish Fesh.Revit.Bootstrapper/Fesh.Revit.Bootstrapper.fsproj `
           --configuration Release `
           --runtime win-x64 `
-          --output bin/publish/net48 `
-          --framework net48 `
-          --no-self-contained
-
-    - name: Run dotnet publish net8.0
-      run: |
-        dotnet publish Fesh.Revit.Bootstrapper/Fesh.Revit.Bootstrapper.fsproj `
-          --configuration Release `
-          --runtime win-x64 `
-          --output bin/publish/net8.0 `
-          --framework net8.0-windows `
+          --output bin/publish/net10.0 `
+          --framework net10.0-windows `
           --no-self-contained
 
     - name: Check version consistency of git tag and CHANGELOG.md
@@ -77,15 +68,6 @@ jobs:
         echo "CHANGELOG_VERSION=$CHANGELOG_VERSION"
         echo "github.ref_name=${{ github.ref_name }}"
         echo "Version check of git tag and CHANGELOG.md passed successfully."
-
-    - name: Push tag with -net48 suffix
-      # Third-party action MUST be SHA-pinned: its v1 tag is mutable, and this step runs with
-      # GITHUB_TOKEN, so a moved tag could exfiltrate the token or tamper with the release.
-      uses: richardsimko/update-tag@24fe62c216198eb57283429200e63a06f62afe5b # v3.0.0
-      with:
-        tag_name: "${{ github.ref_name }}-net48"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Azure login
       # SHA-pinned (mutable tag). This step opens a session that can sign with the org's
@@ -106,83 +88,49 @@ jobs:
         # module. Enabling the PS session only adds an unused login whose post-job teardown
         # (Clear-AzContext) emits the noisy "Az version is out of date" warnings.
 
-    - name: Pack, Sign and Release with Velopack .NET Framework 4.8
+    - name: Pack, Sign and Release with Velopack .NET 10.0
       # https://docs.velopack.io/reference/cli/content/vpk-windows
-      # If you are publishing your application with --no-self-contained,
-      # then you should provide the --framework argument. https://docs.velopack.io/packaging/bootstrapping
+      # If you are publishing your application with --no-self-contained, then you should provide the --framework argument. https://docs.velopack.io/packaging/bootstrapping
+      #
+      # The packId is Fesh.Revit.net10, not Fesh.Revit, so that it installs next to the .NET 8 build of Fesh.Revit 0.32.3 and earlier,
+      # (in AppData/Local/Fesh.Revit) which is still needed for Revit 2025.
+      # For the same reason there is no redirect from the old net8 channel to this net10 channel:
+      # A net8 installation must not update itself to this build, it would fail to load in Revit 2025.
       env:
-        # vpk reads the token from VPK_TOKEN, so it is never placed on the command line / process
-        # table. Actions already masks GITHUB_TOKEN in logs; this also covers the arg-exposure path.
+        # vpk reads the token from VPK_TOKEN, so it is never placed on the command line / process table.
+        # Actions already masks GITHUB_TOKEN in logs; this also covers the arg-exposure path.
         VPK_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         # Pin the vpk version (supply-chain): an unpinned `tool install` pulls whatever is latest at
-        # build time and runs it against the active signing session. Bump this manually when updating.
-        dotnet tool install vpk --global --version 0.0.1298
+        # build time and runs it against the active signing session.
+        # Keep in sync with the Velopack package version in Fesh.Revit.fsproj. Bump manually.
+        dotnet tool install vpk --global --version 1.2.161
 
         vpk download github `
           --repoUrl https://github.com/goswinr/Fesh.Revit `
-          --outputDir bin/installer/net48 `
-          --channel framework
+          --outputDir bin/installer/net10.0 `
+          --channel net10
 
         vpk pack `
-          --packId Fesh.Revit.net48 `
-          --packVersion "${{github.ref_name}}"  `
-          --packDir bin/publish/net48 `
-          --mainExe Fesh.Revit.Bootstrapper.exe `
-          --framework net48 `
-          --icon Media/logoInstaller.ico  `
-          --packAuthors "Goswin R" `
-          --releaseNotes .github/InstallNotes-net48.md `
-          --azureTrustedSignFile .github/signing-metadata.json `
-          --splashImage Media/logo128.png `
-          --outputDir bin/installer/net48 `
-          --noPortable `
-          --shortcuts None `
-          --channel framework
-
-        vpk upload github `
-          --publish `
-          --repoUrl https://github.com/goswinr/Fesh.Revit `
-          --releaseName "Fesh.Revit ${{github.ref_name}} net4.8" `
-          --tag "${{github.ref_name}}-net48" `
-          --outputDir bin/installer/net48 `
-          --channel framework
-
-    - name: Pack, Sign and Release with Velopack .NET 8.0
-      # https://docs.velopack.io/reference/cli/content/vpk-windows
-      # If you are publishing your application with --no-self-contained, then you should provide the --framework argument. https://docs.velopack.io/packaging/bootstrapping
-      env:
-        # vpk reads the token from VPK_TOKEN, so it is never placed on the command line / process table.
-        VPK_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        # Pinned vpk version (supply-chain) — keep in sync with the net48 step. Bump manually.
-        dotnet tool install vpk --global --version 0.0.1298
-
-        vpk download github `
-          --repoUrl https://github.com/goswinr/Fesh.Revit `
-          --outputDir bin/installer/net8.0 `
-          --channel net8
-
-        vpk pack `
-          --packId Fesh.Revit `
+          --packId Fesh.Revit.net10 `
           --packVersion ${{github.ref_name}} `
-          --packDir bin/publish/net8.0 `
+          --packDir bin/publish/net10.0 `
           --mainExe Fesh.Revit.Bootstrapper.exe `
-          --framework net8.0-x64-desktop `
+          --framework net10.0-x64-desktop `
           --icon Media/logoInstaller.ico  `
           --packAuthors "Goswin R" `
-          --releaseNotes .github/InstallNotes-net8.md `
+          --releaseNotes .github/InstallNotes-net10.md `
           --azureTrustedSignFile .github/signing-metadata.json `
           --splashImage Media/logo128.png `
-          --outputDir bin/installer/net8.0 `
+          --outputDir bin/installer/net10.0 `
           --noPortable `
           --shortcuts None `
-          --channel net8
+          --channel net10
 
         vpk upload github `
           --publish `
           --repoUrl https://github.com/goswinr/Fesh.Revit `
-          --releaseName "Fesh.Revit ${{github.ref_name}} net8" `
+          --releaseName "Fesh.Revit ${{github.ref_name}} net10" `
           --tag ${{github.ref_name}} `
-          --outputDir bin/installer/net8.0 `
-          --channel net8
+          --outputDir bin/installer/net10.0 `
+          --channel net10

@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.34.0] - 2026-10-06
+### Changed
+- Update to [Fesh 0.34.0](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0340)
+- Build for .NET 10 only, for Revit 2026 (updated to its .NET 10 version) and later. For Revit 2025 and earlier use Fesh.Revit 0.32.3 (.NET 8 and .NET 4.8).
+- The installer has the new id `Fesh.Revit.net10` and installs to `AppData/Local/Fesh.Revit.net10`, so that it can be installed side by side with Fesh.Revit 0.32.3, which is still needed for Revit 2025 and earlier.
+- It updates itself on the new `net10` channel. The .NET 8 installations of 0.32.3 and earlier don't update to it.
+- Uninstalling only removes the `Fesh.addin` files that point to this installation.
+- Update Velopack to 1.2.161 and SourceLink to 10.0.401
+### Added
+- The folders of `RevitAPI.dll` and `Fesh.Revit.dll` are lib folders for the type checker and FSI, so that `#r "RevitAPI"`, `#r "RevitAPIUI"` and `#r "Fesh.Revit"` resolve without a full path.
+- The default code for new files has no `#I` path to the Revit installation folder anymore.
+
+
 ## [0.32.3] - 2026-05-23
 ### Changed
 - Update to [Fesh 0.32.3](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0323)
@@ -108,7 +121,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.14.0] - 2024-11-04
 ### Changed
 - First public release
-[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.32.3...HEAD
+[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.34.0...HEAD
+[0.34.0]: https://github.com/goswinr/Fesh.Revit/compare/0.32.3...0.34.0
 [0.32.3]: https://github.com/goswinr/Fesh.Revit/compare/0.32.0...0.32.3
 [0.32.0]: https://github.com/goswinr/Fesh.Revit/compare/0.31.0...0.32.0
 [0.31.0]: https://github.com/goswinr/Fesh.Revit/compare/0.30.2...0.31.0

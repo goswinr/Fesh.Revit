@@ -15,6 +15,23 @@ module Velo =
 
     type FeshRevitDummy = class end
 
+    /// Like the internal DefaultProcessImpl of Velopack, but with the path of Fesh.Revit.Bootstrapper.exe instead of Revit.exe,
+    /// so that the WindowsVelopackLocator finds the Velopack installation of Fesh.Revit.
+    type BootstrapperProcess(bootstrapperExePath:string) =
+        interface IProcessImpl with
+            member _.GetCurrentProcessPath() = bootstrapperExePath
+            member _.GetCurrentProcessId() = uint <| Diagnostics.Process.GetCurrentProcess().Id // of Revit, so that Update.exe waits till Revit exits
+
+            member _.StartProcess(exePath, args, workDir, showWindow) = // used to start Update.exe
+                let psi = Diagnostics.ProcessStartInfo(exePath)
+                for a in args do psi.ArgumentList.Add a
+                psi.WorkingDirectory <- workDir
+                psi.UseShellExecute <- false
+                psi.CreateNoWindow <- not showWindow
+                Diagnostics.Process.Start psi |> ignore
+
+            member _.Exit(_exitCode) = () // never exit Revit, only used by UpdateManager.ApplyUpdatesAndExit and ApplyUpdatesAndRestart
+
     let mutable updatesDownloaded = false
 
     let mutable updateManager = None
@@ -38,19 +55,9 @@ module Velo =
 
                     if IO.File.Exists exePath then
 
-                        // Use reflection to call the internal constructor of WindowsVelopackLocator
-                        // https://github.com/velopack/velopack/issues/461
-                        // let loc =
-                        //     try
-                        //         let locType = typeof<WindowsVelopackLocator>
-                        //         let ctor = locType.GetConstructor(BindingFlags.Instance ||| BindingFlags.NonPublic, null, [| typeof<string>; typeof<ILogger> |], null)
-                        //         ctor.Invoke([| exePath; null |]) :?> WindowsVelopackLocator
-                        //     with e ->
-                        //         failwithf $"Reflection Invoking the Constructor of WindowsVelopackLocator(\"{exePath}\", null) failed:\r\n{e}"
-
-                        let processId = uint <|  System.Diagnostics.Process.GetCurrentProcess().Id
+                        // the locator must use the Bootstrapper exe, not Revit.exe, see https://github.com/velopack/velopack/issues/461
                         let iLogger = null
-                        let loc = WindowsVelopackLocator(exePath, processId, iLogger)
+                        let loc = WindowsVelopackLocator(BootstrapperProcess exePath, iLogger)
 
                         updateManager <- Some (new UpdateManager(source, locator = loc))
 
