@@ -297,7 +297,7 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
                     DebugUtils.Fesh <- Some feshApp
 
                     //TODO make a C# plugin that loads Fesh.addin once uiConApp.ControlledApplication.ApplicationInitialized to avoid missing method exceptions in FSI
-                    feshApp.Fsi.OnRuntimeError.Add (fun e ->
+                    feshApp.Fsi.OnRuntimeError.Add (fun (_, e) ->
                         match e with
                         | :? MissingMethodException ->
                             feshApp.Log.PrintfnFsiErrorMsg "*** To avoid this MissingMethodException exception try restarting Revit without a document.\r\n*** Then from within Revit open your desired project.\r\n*** If the error persist please report it!"

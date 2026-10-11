@@ -6,7 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+
+## [0.35.0] - 2026-10-11
 ### Changed
+- Update to [Fesh 0.35.0](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0350), with a dark theme and Go to Definition
 - The bootstrapper of the installer runs on .NET Framework 4.8, like the one of [Caddis](https://github.com/goswinr/Caddis), so the installer needs no .NET runtime. `Fesh.Revit.dll` is installed in the subfolder `net10.0`.
 - Fesh.Revit is registered for the current user in `%AppData%/Autodesk/Revit/Addins`, not for all users in `C:/ProgramData/Autodesk/Revit/Addins`. The registration of 0.34.0 is moved there.
 - It is registered with every Revit from 2026 on that runs on .NET 10, on every install, update and start of `Fesh.Revit.Bootstrapper.exe`, e.g. for a Revit installed later. In those Revits it replaces the registration of Fesh.Revit 0.32.3 for .NET 8.
@@ -135,7 +139,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.14.0] - 2024-11-04
 ### Changed
 - First public release
-[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.34.0...HEAD
+[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.35.0...HEAD
+[0.35.0]: https://github.com/goswinr/Fesh.Revit/compare/0.34.0...0.35.0
 [0.34.0]: https://github.com/goswinr/Fesh.Revit/compare/0.32.3...0.34.0
 [0.32.3]: https://github.com/goswinr/Fesh.Revit/compare/0.32.0...0.32.3
 [0.32.0]: https://github.com/goswinr/Fesh.Revit/compare/0.31.0...0.32.0

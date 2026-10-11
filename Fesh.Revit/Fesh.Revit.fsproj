@@ -42,7 +42,7 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Fesh" Version="0.34.0-net10" GeneratePathProperty="true" />
+    <PackageReference Include="Fesh" Version="0.35.0-net10" GeneratePathProperty="true" />
 
     <!-- The 2026 SDK has net8.0 reference assemblies with version 26.0, they work from net10.0 too.
     Don't use a later SDK: RevitAPI.dll of Revit 2026 has version 26.x, so a reference to 27.x would fail to load there. -->
