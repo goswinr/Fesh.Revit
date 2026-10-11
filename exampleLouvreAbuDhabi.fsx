@@ -1,5 +1,5 @@
-﻿#r "C:/Program Files/Autodesk/Revit 2024/RevitAPI.dll"
-#r "C:/Program Files/Autodesk/Revit 2024/RevitAPIUI.dll"
+﻿#r "RevitAPI"
+#r "RevitAPIUI"
 #r "Fesh.Revit"
 open Autodesk.Revit
 open Autodesk.Revit.DB
@@ -53,7 +53,7 @@ module Louvre =
         :> GeometryObject // cast so it works with DirectShape.CreateElement
 
 
-Fesh.Revit.ScriptingSyntax.runApp (fun (app:UIApplication)  ->
+Fesh.Revit.Scripting.transactWithApp (fun (app:UIApplication)  ->
     let doc = app.ActiveUIDocument.Document
     let ds = DirectShape.CreateElement(doc, ElementId(BuiltInCategory.OST_GenericModel))//, "ME", "MEo")
     Louvre.edgesShifted
