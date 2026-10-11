@@ -267,11 +267,14 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
                     let winHandle = Diagnostics.Process.GetCurrentProcess().MainWindowHandle
                     let canRun = fun () ->
                         // this is a workaround to check if a transaction is open in the document.
-                        if commandData.Application.ActiveUIDocument.Document.IsModifiable then
+                        // This runs on every run of a script, long after this command. Without an open document
+                        // ActiveUIDocument is null, then no transaction can be open either.
+                        match commandData.Application.ActiveUIDocument with
+                        | null -> true
+                        | uiDoc when uiDoc.Document.IsModifiable ->
                             eprintfn "Document.IsModifiable is true, there is an active transaction open in the document. This is not allowed for Fesh to run. Please close the transaction first."
                             false
-                        else
-                            true
+                        | _ -> true
                         // If Document.IsModifiable returns TRUE, then there is an active transaction open in that document.
                         // https://thebuildingcoder.typepad.com/blog/2015/06/archsample-active-transaction-and-adnrme-for-revit-mep-2016.html#3
 
