@@ -46,17 +46,43 @@ jobs:
       with:
         dotnet-version: '10.x'
 
-    # bin/publish/revit becomes the folder AppData/Local/Fesh.Revit.net10/current of the installation:
-    #   Fesh.Revit.Bootstrapper.exe  the Velopack app, on .NET Framework 4.8: registers Fesh.Revit with every installed Revit from 2026 on
-    #   net10.0/                     Fesh.Revit.dll for Revit 2026 (from its .NET 10 update on) and later, Revit provides the runtime
-    # One step per publish, so that a failure in one is not masked by the other.
+    # bin/publish/revit becomes the folder AppData/Local/Fesh.Revit/current of the installation:
+    #   Fesh.Revit.Bootstrapper.exe  the Velopack app, on .NET Framework 4.8: registers Fesh.Revit with every installed Revit from 2018 on
+    #   net48/    Fesh.Revit for Revit 2018 to 2024 on .NET Framework 4.8
+    #   net8.0/   for Revit 2025 and 2026 up to their .4 updates, on .NET 8
+    #   net10.0/  for Revit 2025.5, 2026.5 and later updates, and Revit 2027, on .NET 10
+    #   loader/   Fesh.Revit.Loader, registered in Revit 2025 and later: loads net8.0 or net10.0, for the runtime Revit runs on
+    # Revit provides the runtime of the builds. One step per publish, so that a failure in one is not masked by another.
+    - name: Publish Fesh.Revit net48
+      run: |
+        dotnet publish Fesh.Revit/Fesh.Revit.fsproj `
+          --configuration Release `
+          --framework net48 `
+          --output bin/publish/revit/net48
+
+    - name: Publish Fesh.Revit net8.0
+      run: |
+        dotnet publish Fesh.Revit/Fesh.Revit.fsproj `
+          --configuration Release `
+          --framework net8.0-windows `
+          --runtime win-x64 `
+          --no-self-contained `
+          --output bin/publish/revit/net8.0
+
     - name: Publish Fesh.Revit net10.0
       run: |
         dotnet publish Fesh.Revit/Fesh.Revit.fsproj `
           --configuration Release `
+          --framework net10.0-windows `
           --runtime win-x64 `
           --no-self-contained `
           --output bin/publish/revit/net10.0
+
+    - name: Publish Fesh.Revit.Loader
+      run: |
+        dotnet publish Fesh.Revit.Loader/Fesh.Revit.Loader.csproj `
+          --configuration Release `
+          --output bin/publish/revit/loader
 
     - name: Publish Fesh.Revit.Bootstrapper net48
       run: |
@@ -100,50 +126,62 @@ jobs:
         # module. Enabling the PS session only adds an unused login whose post-job teardown
         # (Clear-AzContext) emits the noisy "Az version is out of date" warnings.
 
-    - name: Pack, Sign and Release with Velopack .NET 10.0
+    - name: Pack, Sign and Release with Velopack
       # https://docs.velopack.io/reference/cli/content/vpk-windows
-      # The --framework is the runtime of the bootstrapper, net48 is part of Windows. Revit brings the runtime of Fesh.Revit.dll.
+      # One installer for every Revit from 2018 on: Fesh.Revit-win-Setup.exe, installed to %LocalAppData%\Fesh.Revit.
+      # The --framework is the runtime of the bootstrapper, net48 is part of Windows. Revit brings the runtime of the builds.
       #
-      # The packId is Fesh.Revit.net10, not Fesh.Revit, so that it installs next to the .NET 8 build of Fesh.Revit 0.32.3 and earlier,
-      # (in AppData/Local/Fesh.Revit) which is still needed for Revit 2025.
-      # For the same reason there is no redirect from the old net8 channel to this net10 channel:
-      # A net8 installation must not update itself to this build, it would fail to load in Revit 2025.
+      # The packId Fesh.Revit on the default channel 'win'. The installations of Fesh.Revit 0.32.3 for .NET 8 have the same packId,
+      # on the channel net8, so they don't update to it, but its Setup.exe offers to install over them.
+      # Those of 0.32.3 for .NET Framework (Fesh.Revit.net48) and of 0.34.0 and 0.35.0 (Fesh.Revit.net10) don't update to it either.
+      # When it is installed, it replaces their registration in Revit.
+      shell: pwsh
       env:
         # vpk reads the token from VPK_TOKEN, so it is never placed on the command line / process table.
         # Actions already masks GITHUB_TOKEN in logs; this also covers the arg-exposure path.
         VPK_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VERSION: ${{ github.ref_name }}
       run: |
+        $ErrorActionPreference = 'Stop'
+        # pwsh doesn't stop on the exit code of a program, and the step only fails on the exit code of the last one
+        function Check([string]$step) {
+          if ($LASTEXITCODE -ne 0) { throw "$step failed with exit code $LASTEXITCODE" }
+        }
+
         # Pin the vpk version (supply-chain): an unpinned `tool install` pulls whatever is latest at
         # build time and runs it against the active signing session.
         # Keep in sync with the Velopack package version in Fesh.Revit.Bootstrapper.fsproj. Bump manually.
         dotnet tool install vpk --global --version 1.2.161
+        Check 'Installing vpk'
 
+        # the previous release, for delta updates
         vpk download github `
           --repoUrl https://github.com/goswinr/Fesh.Revit `
-          --outputDir bin/installer/net10.0 `
-          --channel net10
+          --outputDir bin/installer
+        Check 'vpk download'
 
         vpk pack `
-          --packId Fesh.Revit.net10 `
-          --packVersion ${{github.ref_name}} `
+          --packId Fesh.Revit `
+          --packTitle 'Fesh for Revit' `
+          --packVersion $env:VERSION `
           --packDir bin/publish/revit `
           --mainExe Fesh.Revit.Bootstrapper.exe `
           --framework net48 `
           --runtime win-x64 `
-          --icon Media/logoInstaller.ico  `
-          --packAuthors "Goswin R" `
-          --releaseNotes .github/InstallNotes-net10.md `
+          --icon Media/logoInstaller.ico `
+          --packAuthors 'Goswin Rothenthal' `
+          --releaseNotes .github/InstallNotes-revit.md `
           --azureTrustedSignFile .github/signing-metadata.json `
           --splashImage Media/logo128.png `
-          --outputDir bin/installer/net10.0 `
+          --outputDir bin/installer `
           --noPortable `
-          --shortcuts None `
-          --channel net10
+          --shortcuts None
+        Check 'vpk pack'
 
         vpk upload github `
           --publish `
           --repoUrl https://github.com/goswinr/Fesh.Revit `
-          --releaseName "Fesh.Revit ${{github.ref_name}} net10" `
-          --tag ${{github.ref_name}} `
-          --outputDir bin/installer/net10.0 `
-          --channel net10
+          --releaseName "Fesh.Revit $env:VERSION for Revit" `
+          --tag $env:VERSION `
+          --outputDir bin/installer
+        Check 'vpk upload'

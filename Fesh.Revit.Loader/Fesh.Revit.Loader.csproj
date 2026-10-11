@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- The add-in that Fesh.addin registers in Revit 2025 and later. Revit 2025 and 2026 run on .NET 8 up to their .4 updates,
+    and on .NET 10 from their .5 updates on, Revit 2027 on .NET 10. The loader loads the build of Fesh.Revit for the runtime Revit runs on,
+    so that the add-in keeps working when Revit is updated. Built for .NET 8, so that it runs on both.
+    In C#, so that it loads no FSharp.Core: Fesh.Revit needs version 8 on .NET 8 and version 10 on .NET 10, and Revit loads only one. -->
+    <TargetFramework>net8.0</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Fesh.Revit.Loader</RootNamespace>
+    <AssemblyName>Fesh.Revit.Loader</AssemblyName>
+    <AssemblyTitle>Fesh.Revit.Loader</AssemblyTitle>
+    <Company>Goswin Rothenthal</Company>
+    <Description>Loads the build of Fesh.Revit for the .NET runtime that Revit runs on.</Description>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- RevitAPIUI of Revit 2025.0, the oldest Revit this loader runs in, see Fesh.Revit.fsproj -->
+    <PackageReference Include="Revit_All_Main_Versions_API_x64" Version="2025.0.0" PrivateAssets="all" ExcludeAssets="runtime" />
+  </ItemGroup>
+</Project>
