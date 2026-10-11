@@ -29,7 +29,7 @@ open Autodesk.Revit.DB
 open Autodesk.Revit.UI
 
 // Run your Revit code inside a transaction:
-Fesh.Revit.Scripting.doWithApp (fun (app:UIApplication)  ->
+Fesh.Revit.Scripting.transactWithApp (fun (app:UIApplication)  ->
     let doc = app.ActiveUIDocument.Document
     // ...
     // ...your code
