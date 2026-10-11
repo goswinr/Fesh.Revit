@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.35.1] - 2026-10-11
+### Changed
+- One installer for every Revit from 2018 on, like the one of [Caddis](https://github.com/goswinr/Caddis): `Fesh.Revit-win-Setup.exe`.
+- It has a build of Fesh.Revit for each runtime of Revit, in the folders `net48`, `net8.0` and `net10.0`. Revit 2024 and earlier run it on .NET Framework 4.8, Revit 2025 and 2026 on .NET 8, or on .NET 10 from their .5 updates on, Revit 2027 on .NET 10.
+- In Revit 2025 and later the new `Fesh.Revit.Loader` loads the build for the runtime of Revit when Revit starts, so Fesh keeps working when Revit is updated. The bootstrapper doesn't check the runtime of Revit anymore.
+- The .NET builds reference the RevitAPI of Revit 2025, so that they load in Revit 2025.5 on .NET 10 too.
+- The installer has the id `Fesh.Revit` again and installs to `AppData/Local/Fesh.Revit`. It installs over Fesh.Revit 0.32.3 for .NET 8. The installations of 0.32.3 for .NET Framework 4.8 and of 0.34.0 and 0.35.0 for .NET 10 don't update to it, it replaces their registration in Revit, then they can be uninstalled.
+- The release fails if one of the `vpk` commands fails, not only the last one.
+
+
 ## [0.35.0] - 2026-10-11
 ### Changed
 - Update to [Fesh 0.35.0](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0350), with a dark theme and Go to Definition
@@ -139,7 +149,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.14.0] - 2024-11-04
 ### Changed
 - First public release
-[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.35.0...HEAD
+[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.35.1...HEAD
+[0.35.1]: https://github.com/goswinr/Fesh.Revit/compare/0.35.0...0.35.1
 [0.35.0]: https://github.com/goswinr/Fesh.Revit/compare/0.34.0...0.35.0
 [0.34.0]: https://github.com/goswinr/Fesh.Revit/compare/0.32.3...0.34.0
 [0.32.3]: https://github.com/goswinr/Fesh.Revit/compare/0.32.0...0.32.3
