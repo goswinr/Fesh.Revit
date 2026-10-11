@@ -10,10 +10,13 @@ jobs:
   build-and-release:
     runs-on: windows-latest # will run commands on powershell, windows is needed so that ATS signtool.exe works inside --azureTrustedSignFile
     # Run in a GitHub Environment so the OIDC token's `sub` claim is the environment form
-    # (repo:goswinr/Fesh.Revit:environment:releaseRevit) instead of the branch/tag ref. This
+    # (repo:goswinr@884885/Fesh.Revit@265185731:environment:releaseRevit) instead of the branch/tag ref. This
     # decouples Azure federated login from the tag trigger: the same subject is presented on
     # every release regardless of which tag was pushed. Add required reviewers / branch limits
     # to this environment in repo Settings to gate who can release.
+    # The repo uses GitHub's immutable subject, with the ids of the owner (884885) and the repo (265185731),
+    # so a repo recreated under the same name after a rename or deletion can't sign. The setting is at
+    # GET/PUT repos/goswinr/Fesh.Revit/actions/oidc/customization/sub (use_immutable_subject).
     environment:
       name: releaseRevit
     # Least privilege: this workflow only creates the GitHub Release,
@@ -25,7 +28,7 @@ jobs:
       # OIDC provider, which azure/login exchanges for an Azure access token. No client secret
       # is stored in GitHub. Azure trusts the token only if its `sub` claim matches the
       # federated credential configured on the app registration:
-      #   repo:goswinr/Fesh.Revit:environment:releaseRevit
+      #   repo:goswinr@884885/Fesh.Revit@265185731:environment:releaseRevit
       id-token: write
     steps:
 
@@ -77,7 +80,7 @@ jobs:
         # OIDC (federated) login — no long-lived client secret in GitHub. Configure a
         # federated credential on the Azure app registration with:
         #   Issuer:  https://token.actions.githubusercontent.com
-        #   Subject: repo:goswinr/Fesh.Revit:environment:releaseRevit
+        #   Subject: repo:goswinr@884885/Fesh.Revit@265185731:environment:releaseRevit
         #   Audience: api://AzureADTokenExchange
         # and grant that app the "Trusted Signing Certificate Profile Signer" role.
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
