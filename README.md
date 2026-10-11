@@ -23,7 +23,9 @@ Download and run the Setup.exe from [Releases](https://github.com/goswinr/Fesh.R
 The current version is built for .NET 10, for Revit 2026 (updated to its .NET 10 version) and later.<br>
 For Revit 2025 use [Fesh.Revit 0.32.3 for .NET 8](https://github.com/goswinr/Fesh.Revit/releases/tag/0.32.3).<br>
 For Revit 2024 or earlier use [Fesh.Revit 0.32.3 for .NET 4.8](https://github.com/goswinr/Fesh.Revit/releases/tag/0.32.3-net48).<br>
-They can be installed side by side.
+They can be installed side by side, best before the current version:
+Fesh.Revit 0.32.3 for .NET 8 registers itself with Revit 2026 and later too.
+If you install it after the current version, start `Fesh.Revit.Bootstrapper.exe` of the current version again, see below.
 
 Fesh.Revit will automatically offer to update itself when a new version is available.
 
@@ -31,9 +33,10 @@ The installer is created with [Velopack](https://velopack.io) and digitally sign
 
 No admin rights are required to install or run the app.<br>
 The app will be installed in `\AppData\Local\Fesh.Revit.net10\current`. <br>
-Setup will launch the `Fesh.Revit.Bootstrapper.exe` there. It will register the `net10.0\Fesh.Revit.dll` with every installed Revit from 2026 on <br>
+Setup will launch the `Fesh.Revit.Bootstrapper.exe` there. It will register the `net10.0\Fesh.Revit.dll` with every installed Revit from 2026 on that runs on .NET 10 <br>
 by creating a `Fesh.addin` xml file in the Revit Addins folder of the current user at `%AppData%\Autodesk\Revit\Addins\20XX\Fesh.addin`.<br>
-To register Fesh.Revit with a Revit that you install later, start `Fesh.Revit.Bootstrapper.exe` again.
+In those Revits it replaces the registration of Fesh.Revit 0.32.3 for .NET 8 at `C:/ProgramData/Autodesk/Revit/Addins/20XX/Fesh.addin`, Revit loads only one of them.<br>
+To register Fesh.Revit with a Revit that you install or update to .NET 10 later, or after installing Fesh.Revit 0.32.3, start `Fesh.Revit.Bootstrapper.exe` again.
 
 
 ### How to use F# with Revit
