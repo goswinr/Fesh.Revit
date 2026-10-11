@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- The bootstrapper of the installer runs on .NET Framework 4.8, like the one of [Caddis](https://github.com/goswinr/Caddis), so the installer needs no .NET runtime. `Fesh.Revit.dll` is installed in the subfolder `net10.0`.
+- Fesh.Revit is registered for the current user in `%AppData%/Autodesk/Revit/Addins`, not for all users in `C:/ProgramData/Autodesk/Revit/Addins`. The registration of 0.34.0 is moved there.
+- It is registered with every Revit from 2026 on that runs on .NET 10, on every install, update and start of `Fesh.Revit.Bootstrapper.exe`, e.g. for a Revit installed later. In those Revits it replaces the registration of Fesh.Revit 0.32.3 for .NET 8.
+- The bootstrapper shows what it registered, and any problems, in its window.
+- Updates are checked for and installed by `Fesh.Revit.Bootstrapper.exe`, not by Velopack in Revit.
+- The default code for new files uses `transactWithApp` again.
+### Fixed
+- A Revit 2026 that still runs on .NET 8 doesn't get a registration that fails to load, and a working registration of 0.32.3 there isn't overwritten.
+- The path in `Fesh.addin` is XML escaped, e.g. for a user name with `&`.
+- `transactWithDoc` and `transactWithApp` roll back the transaction if the function fails, instead of committing half of its changes.
+- Running a script doesn't fail with a NullReferenceException when no document is open.
+- The example script works with Revit 2026.
+- The README says that the functions of `Fesh.Revit.Scripting` queue the code, they don't wait for it.
 
 
 ## [0.34.0] - 2026-10-06
