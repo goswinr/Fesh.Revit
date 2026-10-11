@@ -32,6 +32,13 @@ module Velo =
 
             member _.Exit(_exitCode) = () // never exit Revit, only used by UpdateManager.ApplyUpdatesAndExit and ApplyUpdatesAndRestart
 
+    /// Velopack's 'current' folder, with Fesh.Revit.Bootstrapper.exe and the folder net10.0 with this dll.
+    let private currentFolder =
+        IO.Path.GetDirectoryName(IO.Path.GetDirectoryName(Assembly.GetAssembly(typeof<FeshRevitDummy>).Location))
+
+    /// Update.exe of Velopack is in the folder of the installation, above 'current'.
+    let private updater = IO.Path.Combine(IO.Path.GetDirectoryName currentFolder, "Update.exe")
+
     let mutable updatesDownloaded = false
 
     let mutable updateManager = None
@@ -51,7 +58,7 @@ module Velo =
                     let readOnlyToken = ""
                     let source = new GithubSource("https://github.com/goswinr/Fesh.Revit", accessToken = readOnlyToken, prerelease = false)
 
-                    let exePath = ass.Location.Replace("Fesh.Revit.dll", "Fesh.Revit.Bootstrapper.exe" )
+                    let exePath = IO.Path.Combine(currentFolder, "Fesh.Revit.Bootstrapper.exe")
 
                     if IO.File.Exists exePath then
 
@@ -69,10 +76,6 @@ module Velo =
                             if isNull updateManager.Value.UpdatePendingRestart then
                                 let nv = upInfo.TargetFullRelease.Version.ToString()
                                 fesh.Log.PrintfnInfoMsg $"A newer version of Fesh for Revit is available: {nv} , you are using {cv}"
-                                let exe = ass.Location
-                                let exeFolder = IO.Path.GetDirectoryName(exe)
-                                let parentFolder = IO.Path.GetDirectoryName(exeFolder)
-                                let updater = IO.Path.Combine(parentFolder, "Update.exe")
                                 if not (IO.File.Exists updater) then
                                     // this is expected when running a local build of Fesh not packaged with Velopack
                                     fesh.Log.PrintfnIOErrorMsg "Automatic updates are not available because Update.exe was not found at:"
@@ -124,10 +127,6 @@ module Velo =
             if updatesDownloaded then
                 let revitProcesses = System.Diagnostics.Process.GetProcessesByName "Revit"
                 if revitProcesses.Length = 1 then
-                    let exe = Reflection.Assembly.GetAssembly(typeof<FeshRevitDummy>).Location
-                    let exeFolder = IO.Path.GetDirectoryName exe
-                    let parentFolder = IO.Path.GetDirectoryName exeFolder
-                    let updater = IO.Path.Combine(parentFolder, "Update.exe")
                     if IO.File.Exists updater then
                         match updateManager with
                         | Some um  ->
@@ -138,7 +137,7 @@ module Velo =
                         | _ ->
                             alert "Fesh.Revit updateManager or updateInfo not found."
                     else
-                        alert $"Fesh.Revit Update.exe not found in {parentFolder}"
+                        alert $"Fesh.Revit Update.exe not found at {updater}"
                 else
                     alert "Fesh.Revit Updates are downloaded but not applied yet because there are still other Revit instances running."
                 )

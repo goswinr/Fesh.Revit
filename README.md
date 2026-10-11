@@ -30,9 +30,10 @@ Fesh.Revit will automatically offer to update itself when a new version is avail
 The installer is created with [Velopack](https://velopack.io) and digitally signed.
 
 No admin rights are required to install or run the app.<br>
-The app will be installed in `\AppData\Local\Fesh.Revit.net10`. <br>
-Setup will launch the `Fesh.Revit.Bootstrapper.exe`. It will register the `Fesh.Revit.dll` with Revit <br>
-by creating a `Fesh.addin` xml file in the Revit Addins folder at `C:/ProgramData/Autodesk/Revit/Addins/20XX/Fesh.addin`.
+The app will be installed in `\AppData\Local\Fesh.Revit.net10\current`. <br>
+Setup will launch the `Fesh.Revit.Bootstrapper.exe` there. It will register the `net10.0\Fesh.Revit.dll` with every installed Revit from 2026 on <br>
+by creating a `Fesh.addin` xml file in the Revit Addins folder of the current user at `%AppData%\Autodesk\Revit\Addins\20XX\Fesh.addin`.<br>
+To register Fesh.Revit with a Revit that you install later, start `Fesh.Revit.Bootstrapper.exe` again.
 
 
 ### How to use F# with Revit

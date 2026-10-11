@@ -46,14 +46,23 @@ jobs:
       with:
         dotnet-version: '10.x'
 
-    - name: Run dotnet publish net10.0
+    # bin/publish/revit becomes the folder AppData/Local/Fesh.Revit.net10/current of the installation:
+    #   Fesh.Revit.Bootstrapper.exe  the Velopack app, on .NET Framework 4.8: registers Fesh.Revit with every installed Revit from 2026 on
+    #   net10.0/                     Fesh.Revit.dll for Revit 2026 (from its .NET 10 update on) and later, Revit provides the runtime
+    # One step per publish, so that a failure in one is not masked by the other.
+    - name: Publish Fesh.Revit net10.0
+      run: |
+        dotnet publish Fesh.Revit/Fesh.Revit.fsproj `
+          --configuration Release `
+          --runtime win-x64 `
+          --no-self-contained `
+          --output bin/publish/revit/net10.0
+
+    - name: Publish Fesh.Revit.Bootstrapper net48
       run: |
         dotnet publish Fesh.Revit.Bootstrapper/Fesh.Revit.Bootstrapper.fsproj `
           --configuration Release `
-          --runtime win-x64 `
-          --output bin/publish/net10.0 `
-          --framework net10.0-windows `
-          --no-self-contained
+          --output bin/publish/revit
 
     - name: Check version consistency of git tag and CHANGELOG.md
       # needs in fsproj:
@@ -93,7 +102,7 @@ jobs:
 
     - name: Pack, Sign and Release with Velopack .NET 10.0
       # https://docs.velopack.io/reference/cli/content/vpk-windows
-      # If you are publishing your application with --no-self-contained, then you should provide the --framework argument. https://docs.velopack.io/packaging/bootstrapping
+      # The --framework is the runtime of the bootstrapper, net48 is part of Windows. Revit brings the runtime of Fesh.Revit.dll.
       #
       # The packId is Fesh.Revit.net10, not Fesh.Revit, so that it installs next to the .NET 8 build of Fesh.Revit 0.32.3 and earlier,
       # (in AppData/Local/Fesh.Revit) which is still needed for Revit 2025.
@@ -117,9 +126,10 @@ jobs:
         vpk pack `
           --packId Fesh.Revit.net10 `
           --packVersion ${{github.ref_name}} `
-          --packDir bin/publish/net10.0 `
+          --packDir bin/publish/revit `
           --mainExe Fesh.Revit.Bootstrapper.exe `
-          --framework net10.0-x64-desktop `
+          --framework net48 `
+          --runtime win-x64 `
           --icon Media/logoInstaller.ico  `
           --packAuthors "Goswin R" `
           --releaseNotes .github/InstallNotes-net10.md `

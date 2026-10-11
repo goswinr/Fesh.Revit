@@ -28,8 +28,9 @@ jobs:
         with:
           dotnet-version: '10.x'
 
-      - name: Build FeshHosting.fsproj
-        run: dotnet build Fesh.Revit.Bootstrapper/Fesh.Revit.Bootstrapper.fsproj --configuration Release
+      # Fesh.Revit and Fesh.Revit.Bootstrapper, they don't reference each other
+      - name: Build Fesh.Revit.sln
+        run: dotnet build Fesh.Revit.sln --configuration Release
 
 
 

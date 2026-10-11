@@ -15,6 +15,8 @@
 
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>  <!-- CopyLocalLockFileAssemblies is important! without this FSharp.Core fails to load in Revit 2025 on net8-windows , see https://github.com/Nice3point/Revit.Build.Tasks?tab=readme-ov-file#msbuild-properties -->
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference> <!-- needed so that the Fesh nuget can pull in  the latest version for dotnet-outdated tool -->
+    <CopyDebugSymbolFilesFromPackages>true</CopyDebugSymbolFilesFromPackages>
+    <CopyDocumentationFilesFromPackages>true</CopyDocumentationFilesFromPackages> <!-- the xml docs for the tooltips in Fesh, doesn't work for "NETStandard.Library" , so do it explicitly -->
 
 
     <RootNamespace>Fesh.Revit</RootNamespace>
@@ -73,5 +75,11 @@
     <Compile Include="Src/Scripting.fs" />
   </ItemGroup>
 
+  <!-- RevitAPI.dll is loaded from Revit's folder and has its xml docs there, so don't copy those of the SDK -->
+  <Target Name="RemoveRevitSdkDocumentationFiles" AfterTargets="ResolvePackageAssets">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' == 'Autodesk.Revit.SDK'" />
+    </ItemGroup>
+  </Target>
 
 </Project>
