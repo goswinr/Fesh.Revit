@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+# the build only reads the repository
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: windows-latest
@@ -15,6 +19,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # the MSBuild tasks of NuGet packages run later must not read GITHUB_TOKEN from .git/config
+          persist-credentials: false
 
       - name: Setup .NET
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
