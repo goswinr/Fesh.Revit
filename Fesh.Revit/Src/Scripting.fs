@@ -50,7 +50,9 @@ module Scripting =
     /// Runs a function in a Revit API transaction.
     /// You need to use this when making changes to the current Revit document.
     /// Will log errors to Fesh Log if transaction has problems
-    /// This function can be invoked from any thread, it will switch to the Revit UI thread
+    /// This function can be invoked from any thread, it will switch to the Revit UI thread.
+    /// It only queues the function and returns before it has run: Revit runs it when it is idle,
+    /// for a script that runs on the UI thread only after the script has finished.
     let transactWithDoc (transaction: Document -> unit)  =
         let action () = FeshAddin.Instance.RunOnDoc (fun (doc:Document) -> transact doc (fun () -> transaction doc))
         Fittings.SyncWpf.doSync action
@@ -60,7 +62,9 @@ module Scripting =
     /// You need to use this when making changes to the current Revit document.
     /// (app.ActiveUIDocument.Document gets the active document)
     /// Will log errors to Fesh Log if transaction has problems
-    /// This function can be invoked from any thread, it will switch to the Revit UI thread
+    /// This function can be invoked from any thread, it will switch to the Revit UI thread.
+    /// It only queues the function and returns before it has run: Revit runs it when it is idle,
+    /// for a script that runs on the UI thread only after the script has finished.
     let transactWithApp (transaction: UIApplication-> unit)  =
         let action () = FeshAddin.Instance.RunOnApp (fun (app:UIApplication) -> transact app.ActiveUIDocument.Document (fun () -> transaction app))
         Fittings.SyncWpf.doSync action
@@ -68,7 +72,9 @@ module Scripting =
     /// Runs a function with the current Document
     /// Without a document transaction.
     /// Will log errors to Fesh Log if transaction has problems
-    /// This function can be invoked from any thread, it will switch to the Revit UI thread
+    /// This function can be invoked from any thread, it will switch to the Revit UI thread.
+    /// It only queues the function and returns before it has run: Revit runs it when it is idle,
+    /// for a script that runs on the UI thread only after the script has finished.
     let doWithDoc(action: Document -> unit)  =
         let f () = FeshAddin.Instance.RunOnDoc (fun (doc:Document) -> action doc)
         Fittings.SyncWpf.doSync f
@@ -76,7 +82,9 @@ module Scripting =
     /// Runs a function with the current UIApplication.
     /// Without a document transaction.
     /// Will log errors to Fesh Log if transaction has problems
-    /// This function can be invoked from any thread, it will switch to the Revit UI thread
+    /// This function can be invoked from any thread, it will switch to the Revit UI thread.
+    /// It only queues the function and returns before it has run: Revit runs it when it is idle,
+    /// for a script that runs on the UI thread only after the script has finished.
     let doWithApp(action: UIApplication -> unit)  =
         let f () = FeshAddin.Instance.RunOnApp (fun (app:UIApplication) -> action app)
         Fittings.SyncWpf.doSync f

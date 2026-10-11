@@ -37,12 +37,18 @@ by creating a `Fesh.addin` xml file in the Revit Addins folder at `C:/ProgramDat
 
 ### How to use F# with Revit
 By default a f# script evaluation starts asynchronous on a new thread. <br>
-The `Fesh.Revit.dll` also provides utility functions to run synchronous transactions on the current document or app instance.
-You need to use this when changing the document or when you need to access the app instance. <br>
+The Revit API can only be used on Revit's UI thread. The `Fesh.Revit.Scripting` module has functions that run your code there,
+with the current document or app instance, in a transaction or without one.
+You need to use them when changing the document or when you need to access the app instance. <br>
 
 ```fsharp
-Fesh.Revit.Scripting.transactWithApp (fun (app:UIApplication)  -> ... )
+Fesh.Revit.Scripting.transactWithApp (fun (app:UIApplication)  -> ... ) // to change the document
+Fesh.Revit.Scripting.doWithApp       (fun (app:UIApplication)  -> ... ) // to only read from it
 ```
+
+These functions only queue your code and return before it has run. Revit runs it when it is idle,
+for a script that runs on the UI thread only after the script has finished.
+So use the results of your Revit code inside the function you pass to them.
 
 ## Release Notes
 For changes in each release see the  [CHANGELOG.md](https://github.com/goswinr/Fesh.Revit/blob/main/CHANGELOG.md)
