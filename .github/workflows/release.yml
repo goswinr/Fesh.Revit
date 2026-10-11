@@ -115,7 +115,7 @@ jobs:
       run: |
         # Pin the vpk version (supply-chain): an unpinned `tool install` pulls whatever is latest at
         # build time and runs it against the active signing session.
-        # Keep in sync with the Velopack package version in Fesh.Revit.fsproj. Bump manually.
+        # Keep in sync with the Velopack package version in Fesh.Revit.Bootstrapper.fsproj. Bump manually.
         dotnet tool install vpk --global --version 1.2.161
 
         vpk download github `

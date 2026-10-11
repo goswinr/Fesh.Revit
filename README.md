@@ -57,7 +57,7 @@ For changes in each release see the  [CHANGELOG.md](https://github.com/goswinr/F
 ## Publisher Privacy Policy
 Fesh.Revit does not collect any data.<br>
 The app only connects to the internet to check for updates on the [Github Releases](https://github.com/goswinr/Fesh.Revit/releases) page and downloads upon user confirmation.<br>
-The relevant source code is here: [Velo.fs](https://github.com/goswinr/Fesh.Revit/blob/main/Fesh.Revit/Src/Velo.fs).
+The check runs in the `Fesh.Revit.Bootstrapper.exe`, not in Revit. The relevant source code is here: [Updates.fs](https://github.com/goswinr/Fesh.Revit/blob/main/Fesh.Revit.Bootstrapper/Updates.fs).
 
 ## License
 Fesh is licensed under the [MIT License](https://github.com/goswinr/Fesh.Revit/blob/main/LICENSE.md).

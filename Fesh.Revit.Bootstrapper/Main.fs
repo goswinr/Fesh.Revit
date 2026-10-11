@@ -10,7 +10,7 @@ open System.Windows.Media
 open Velopack
 
 /// The app that Velopack installs, updates and uninstalls. It registers Fesh.Revit with Revit and shows what it did.
-/// Fesh.Revit itself runs in Revit.
+/// Fesh.Revit itself runs in Revit. It starts this app to check for updates and to install them when the last Revit has closed.
 module Main =
 
     let private version = Assembly.GetExecutingAssembly().GetName().Version.ToString 3
@@ -51,7 +51,7 @@ module Main =
         Application().Run win
 
     [<EntryPoint; STAThread>]
-    let main _args =
+    let main args =
         try
             // Velopack starts this exe with arguments when it installs, updates or uninstalls Fesh.Revit, then Run calls the hook and exits.
             let updatedTo = ref None
@@ -63,7 +63,15 @@ module Main =
                 .OnBeforeUninstallFastCallback(fun _ -> Revit.unregister ignore)
                 .OnRestarted(fun v -> updatedTo.Value <- Some(string v)) // by Update.exe, after installing an update
                 .Run()
-            showWindow updatedTo.Value
+            // Fesh.Revit in Revit starts this exe with these arguments, see Fesh.Revit/Src/Updates.fs
+            match args with
+            | [| "--check-for-update" |] ->
+                Updates.check ()
+                0
+            | [| "--install-update"; revitId |] ->
+                Updates.installOnExit (int revitId)
+                0
+            | _ -> showWindow updatedTo.Value
         with e ->
             MessageBox.Show($"Fesh.Revit.Bootstrapper failed:{Environment.NewLine}{e}", "Fesh.Revit", MessageBoxButton.OK, MessageBoxImage.Error) |> ignore
             1

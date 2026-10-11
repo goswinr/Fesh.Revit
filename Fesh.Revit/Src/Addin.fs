@@ -225,6 +225,8 @@ type FeshAddin()= // : IExternalApplication = // don't rename ! This is referenc
             fesh.Fsi.ShutDown()
             fesh.Window.Close()
 
+        Updates.installOnExit ignore // Revit is closing, there is no one to tell about an error
+
         Result.Succeeded
 
 
@@ -311,8 +313,7 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
                             )
 
                     feshApp.Window.Loaded.Add (fun _ ->
-                        Velo.checkForNewVelopackRelease(feshApp)
-                        Velo.updateOnRevitClose(commandData.Application, DebugUtils.alert )
+                        Updates.check (fun msg -> feshApp.Log.PrintfnIOErrorMsg "%s" msg)
                         )
 
 
