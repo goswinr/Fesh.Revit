@@ -45,3 +45,5 @@ jobs:
           repository: ${{ github.repository }}
           retain_days: 30
           keep_minimum_runs: 0
+          # without it the action deletes runs of any conclusion, also the last successful ones kept above
+          delete_run_by_conclusion_pattern: failure,cancelled
