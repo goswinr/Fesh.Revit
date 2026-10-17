@@ -6,11 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.36.0] - 2026-10-17
 ### Added
 - The symbol `FESHREVIT` is defined in FSI and in the type checker, so that scripts can use `#if FESHREVIT` for code that only runs in Revit.
 - One of the symbols `REVITNET10`, `REVITNET8` or `REVITNET48` is defined too, for the .NET runtime of Revit: .NET 10, .NET 8 or .NET Framework 4.8.
 - A symbol for the version of Revit is defined too, like `REVIT2024`.
 ### Changed
+- Update to [Fesh 0.36.0](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0360). It defines `FESH` for scripts, and `FESHFX` on .NET Framework.
 - The window of the bootstrapper closes after 30 seconds. Its button counts down the seconds, clicking it keeps the window open.
 - After installing, the window shows the path of the installer, which can be deleted then.
 
@@ -156,7 +159,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.14.0] - 2024-11-04
 ### Changed
 - First public release
-[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.35.1...HEAD
+[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.36.0...HEAD
+[0.36.0]: https://github.com/goswinr/Fesh.Revit/compare/0.35.1...0.36.0
 [0.35.1]: https://github.com/goswinr/Fesh.Revit/compare/0.35.0...0.35.1
 [0.35.0]: https://github.com/goswinr/Fesh.Revit/compare/0.34.0...0.35.0
 [0.34.0]: https://github.com/goswinr/Fesh.Revit/compare/0.32.3...0.34.0
