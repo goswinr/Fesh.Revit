@@ -291,6 +291,19 @@ type StartEditorCommand() = // don't rename ! string referenced in  OnStartup ->
                         hostAssembly = Some (Reflection.Assembly.GetAssembly typeof<FeshAddin>)
                         canRunAsync = true
                         libFolders = LibFolders.get() // so that #r "RevitAPI" and #r "Fesh.Revit" resolve without a full path
+                        defines = [| // so that scripts can use #if FESHREVIT, #if REVIT2024 and #if REVITNET10
+                            "FESHREVIT"
+                            "REVIT" + String(commandData.Application.Application.VersionNumber |> Seq.filter Char.IsDigit |> Seq.toArray) // e.g. REVIT2024
+                            #if NET10_0
+                            "REVITNET10"
+                            #else
+                            #if NET8_0
+                            "REVITNET8"
+                            #else
+                            "REVITNET48"
+                            #endif
+                            #endif
+                            |]
                         }
 
                     let feshApp = Fesh.App.createEditorForHosting hostData

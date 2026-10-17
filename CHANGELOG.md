@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- The symbol `FESHREVIT` is defined in FSI and in the type checker, so that scripts can use `#if FESHREVIT` for code that only runs in Revit.
+- One of the symbols `REVITNET10`, `REVITNET8` or `REVITNET48` is defined too, for the .NET runtime of Revit: .NET 10, .NET 8 or .NET Framework 4.8.
+- A symbol for the version of Revit is defined too, like `REVIT2024`.
 ### Changed
 - The window of the bootstrapper closes after 30 seconds. Its button counts down the seconds, clicking it keeps the window open.
 - After installing, the window shows the path of the installer, which can be deleted then.
