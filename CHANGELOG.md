@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.37.0] - 2026-11-14
+### Changed
+- Update to [Fesh 0.37.0](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0370). It adds icons in the menus and in the completion list.
+
 ## [0.36.0] - 2026-10-17
 ### Added
 - The symbol `FESHREVIT` is defined in FSI and in the type checker, so that scripts can use `#if FESHREVIT` for code that only runs in Revit.
@@ -159,7 +163,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.14.0] - 2024-11-04
 ### Changed
 - First public release
-[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.36.0...HEAD
+[Unreleased]: https://github.com/goswinr/Fesh.Revit/compare/0.37.0...HEAD
+[0.37.0]: https://github.com/goswinr/Fesh.Revit/compare/0.36.0...0.37.0
 [0.36.0]: https://github.com/goswinr/Fesh.Revit/compare/0.35.1...0.36.0
 [0.35.1]: https://github.com/goswinr/Fesh.Revit/compare/0.35.0...0.35.1
 [0.35.0]: https://github.com/goswinr/Fesh.Revit/compare/0.34.0...0.35.0
