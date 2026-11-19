@@ -24,6 +24,9 @@ One installer for every Revit from 2018 on:
 Revit 2024 and earlier run Fesh on .NET Framework 4.8, Revit 2025 and 2026 on .NET 8, or on .NET 10 from their .5 updates on, Revit 2027 on .NET 10.<br>
 Fesh loads its build for the runtime of Revit when Revit starts, so it keeps working when Revit is updated.
 
+The F# version depends on that runtime: F# 8 on .NET 8, and F# 10 on .NET Framework 4.8 and on .NET 10.<br>
+Newer F# compilers need newer versions of `System.Reflection.Metadata` and other parts of .NET than .NET 8 has, and an add-in can't bring its own. F# 11 on .NET 8 fails with a `MissingMethodException`.
+
 It replaces the earlier installers for .NET 8, .NET Framework 4.8 and .NET 10. It installs over Fesh.Revit 0.32.3 for .NET 8.<br>
 Fesh.Revit 0.32.3 for .NET Framework 4.8 and 0.34.0 or 0.35.0 for .NET 10 don't update to it: install it, then uninstall them in the Windows Settings, under Apps.
 
