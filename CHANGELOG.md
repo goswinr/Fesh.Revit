@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.0] - 2026-11-22
+### Changed
+- Update to [Fesh 0.38.0](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0380). It adds the standalone apps for .NET 10 and .NET 8, and update channels named after what they follow.
+
 ## [0.37.0] - 2026-11-14
 ### Changed
 - Update to [Fesh 0.37.0](https://github.com/goswinr/Fesh/blob/main/CHANGELOG.md#0370). It adds icons in the menus and in the completion list.
